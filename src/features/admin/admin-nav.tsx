@@ -15,17 +15,13 @@ const GROUPS: { title: string; items: Item[] }[] = [
     ["/dashboard-admin/portfolio", "Portfolio", "folder_special"],
     ["/dashboard-admin/gallery", "Gallery", "photo_library"],
     ["/dashboard-admin/blogs", "Blogs", "article"],
-    ["/dashboard-admin/about-us", "About Us", "info"],
     ["/dashboard-admin/our-team", "Our Team", "groups"],
     ["/dashboard-admin/brands", "Brands", "verified"],
-    ["/dashboard-admin/clients", "Clients", "business_center"],
   ] },
   { title: "Communication", items: [["/dashboard-admin/contact", "Contact Messages", "mail"]] },
   { title: "Administration", items: [
     ["/dashboard-admin/users", "User Management", "manage_accounts", true],
     ["/dashboard-admin/activity-logs", "Activity Logs", "history"],
-    ["/dashboard-admin/media", "Media Management", "perm_media"],
-    ["/dashboard-admin/seo", "SEO Settings", "troubleshoot"],
     ["/dashboard-admin/settings", "General Settings", "settings"],
   ] },
 ];

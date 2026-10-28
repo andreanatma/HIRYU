@@ -10,7 +10,6 @@ const SECTIONS: [string, string, string][] = [
   ["/products", "/dashboard-admin/products", "Products"],
   ["/portfolio", "/dashboard-admin/portfolio", "Portfolio"],
   ["/gallery", "/dashboard-admin/gallery", "Gallery"],
-  ["/about-us", "/dashboard-admin/about-us", "About Us"],
   ["/blogs", "/dashboard-admin/blogs", "Blogs"],
   ["/contact", "/dashboard-admin/contact", "Contact Messages"],
 ];

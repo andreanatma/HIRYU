@@ -11,9 +11,9 @@ export default async function Overview() {
   const user = await requireUser();
   const since = new Date(Date.now() - 13 * 86_400_000);
   since.setHours(0, 0, 0, 0);
-  const [services, productTypes, products, portfolio, gallery, team, blogs, brands, clients, messages, admins, unread, recentMsgs, recentLogs, msgDates] = await Promise.all([
+  const [services, productTypes, products, portfolio, gallery, team, blogs, brands, messages, admins, unread, recentMsgs, recentLogs, msgDates] = await Promise.all([
     prisma.service.count(), prisma.productType.count(), prisma.product.count(), prisma.portfolio.count(), prisma.gallery.count(),
-    prisma.teamMember.count(), prisma.blog.count(), prisma.brand.count(), prisma.client.count(), prisma.contactMessage.count(), prisma.user.count(),
+    prisma.teamMember.count(), prisma.blog.count(), prisma.brand.count(), prisma.contactMessage.count(), prisma.user.count(),
     prisma.contactMessage.count({ where: { status: "UNREAD" } }),
     prisma.contactMessage.findMany({ orderBy: { createdAt: "desc" }, take: 5 }),
     prisma.activityLog.findMany({ orderBy: { createdAt: "desc" }, take: 6, include: { user: { select: { name: true } } } }),
@@ -33,7 +33,6 @@ export default async function Overview() {
     ["Gallery Images", gallery, "photo_library", "/dashboard-admin/gallery"],
     ["Blog Posts", blogs, "article", "/dashboard-admin/blogs"],
     ["Total Brands", brands, "verified", "/dashboard-admin/brands"],
-    ["Total Clients", clients, "business_center", "/dashboard-admin/clients"],
     ["Team Members", team, "groups", "/dashboard-admin/our-team"],
     ["Contact Messages", messages, "mail", "/dashboard-admin/contact"],
     ["Administrators", admins, "shield_person", "/dashboard-admin/users"],

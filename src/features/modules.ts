@@ -12,16 +12,16 @@ export type FieldDef = {
   relation?: { model: "productType"; labelField: string };
   help?: string;
   placeholder?: string;
-  group?: "seo" | "id";
+  group?: "seo";
   /** Default for new records (booleans/numbers/selects). */
   def?: string | number | boolean;
 };
 
 export type ColumnDef = { key: string; label: string; kind?: "text" | "image" | "date" | "status" | "bool" };
 
-export type ModuleKey = "services" | "product-types" | "products" | "portfolio" | "gallery" | "blogs" | "about-us" | "our-team" | "brands" | "clients";
+export type ModuleKey = "services" | "product-types" | "products" | "portfolio" | "gallery" | "blogs" | "our-team" | "brands";
 
-export type ModelName = "service" | "productType" | "product" | "portfolio" | "gallery" | "blog" | "aboutSection" | "teamMember" | "brand" | "client";
+export type ModelName = "service" | "productType" | "product" | "portfolio" | "gallery" | "blog" | "teamMember" | "brand";
 
 export type ModuleDef = {
   key: ModuleKey;
@@ -49,11 +49,6 @@ const seo: FieldDef[] = [
   { name: "metaTitle", label: "Meta title", type: "text", max: 160, group: "seo", help: "Leave empty to use the main title." },
   { name: "metaDescription", label: "Meta description", type: "textarea", max: 320, rows: 3, group: "seo" },
 ];
-const seoId: FieldDef[] = [
-  { name: "metaTitleId", label: "Meta title (Indonesian)", type: "text", max: 160, group: "seo" },
-  { name: "metaDescriptionId", label: "Meta description (Indonesian)", type: "textarea", max: 320, rows: 3, group: "seo" },
-];
-const idg = (f: Omit<FieldDef, "group">): FieldDef => ({ ...f, group: "id" });
 const order: FieldDef = { name: "displayOrder", label: "Display order", type: "number", help: "Lower numbers appear first.", def: 0 };
 const active: FieldDef = { name: "isActive", label: "Active (visible on the public website)", type: "boolean", def: true };
 const featured: FieldDef = { name: "isFeatured", label: "Featured (shown on the homepage)", type: "boolean", def: false };
@@ -72,8 +67,6 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "imageId", label: "Main image", type: "image" },
       { name: "galleryIds", label: "Additional images", type: "images", help: "Upload several images. Drag order is the order of upload; use the arrows to reorder." },
       order, featured, active, ...seo,
-      idg({ name: "nameId", label: "Service title (Indonesian)", type: "text", max: 160 }),
-      idg({ name: "descriptionId", label: "Description (Indonesian)", type: "textarea", max: 5000, rows: 6 }),
     ],
   },
   "product-types": {
@@ -87,8 +80,6 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "slug", label: "Slug", type: "slug", max: 190 },
       { name: "description", label: "Description", type: "textarea", max: 2000, rows: 4 },
       order, active,
-      idg({ name: "nameId", label: "Name (Indonesian)", type: "text", max: 160 }),
-      idg({ name: "descriptionId", label: "Description (Indonesian)", type: "textarea", max: 2000, rows: 4 }),
     ],
   },
   products: {
@@ -106,9 +97,6 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "imageId", label: "Product image", type: "image", required: true },
       { name: "pdfId", label: "PDF document (datasheet / brochure)", type: "pdf" },
       order, featured, active, ...seo,
-      idg({ name: "nameId", label: "Title (Indonesian)", type: "text", max: 160 }),
-      idg({ name: "productOriginId", label: "Product origin (Indonesian)", type: "text", max: 160 }),
-      idg({ name: "descriptionId", label: "Introduction (Indonesian)", type: "textarea", max: 5000, rows: 6 }),
     ],
   },
   portfolio: {
@@ -126,8 +114,6 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "imageId", label: "Main image", type: "image" },
       { name: "galleryIds", label: "Additional images", type: "images" },
       order, featured, active, ...seo,
-      idg({ name: "nameId", label: "Project title (Indonesian)", type: "text", max: 160 }),
-      idg({ name: "descriptionId", label: "Description (Indonesian)", type: "textarea", max: 5000, rows: 6 }),
     ],
   },
   gallery: {
@@ -154,22 +140,6 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "status", label: "Status", type: "select", required: true, def: "DRAFT", options: [{ value: "DRAFT", label: "Draft" }, { value: "PUBLISHED", label: "Published" }] },
       { name: "publishedAt", label: "Publication date", type: "date", help: "Leave empty to use the date of publishing." },
       ...seo,
-      idg({ name: "titleId", label: "Title (Indonesian)", type: "text", max: 220 }),
-      idg({ name: "excerptId", label: "Description / summary (Indonesian)", type: "textarea", max: 400, rows: 3 }),
-      idg({ name: "contentId", label: "Content (Indonesian)", type: "longtext", max: 100000, rows: 16, help: "Same format as the English content." }),
-    ],
-  },
-  "about-us": {
-    key: "about-us", model: "aboutSection", label: "About Us", singular: "section", nameField: "heading", section: "content",
-    searchFields: ["heading", "body"], orderBy: [{ displayOrder: "asc" }, { id: "asc" }], mediaFields: ["imageId"], publicPaths: ["/", "/about-us"],
-    columns: [{ key: "imageId", label: "Image", kind: "image" }, { key: "heading", label: "Heading" }, { key: "displayOrder", label: "Order" }, { key: "isActive", label: "Active", kind: "bool" }, { key: "updatedAt", label: "Updated", kind: "date" }],
-    fields: [
-      { name: "heading", label: "Heading", type: "text", required: true, max: 200 },
-      { name: "body", label: "Body content", type: "longtext", required: true, max: 20000, rows: 10, help: "Blank line = new paragraph. Start a line with '- ' for a bullet. HTML is not processed." },
-      { name: "imageId", label: "Optional image", type: "image" },
-      order, active,
-      idg({ name: "headingId", label: "Heading (Indonesian)", type: "text", max: 200 }),
-      idg({ name: "bodyId", label: "Body content (Indonesian)", type: "longtext", max: 20000, rows: 10 }),
     ],
   },
   "our-team": {
@@ -181,7 +151,6 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "position", label: "Position", type: "text", required: true, max: 160 },
       { name: "photoId", label: "Photo", type: "image" },
       order, active,
-      idg({ name: "positionId", label: "Position (Indonesian)", type: "text", max: 160 }),
     ],
   },
   brands: {
@@ -190,19 +159,8 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
     columns: [{ key: "logoId", label: "Logo", kind: "image" }, { key: "name", label: "Name" }, { key: "displayOrder", label: "Order" }, { key: "isActive", label: "Active", kind: "bool" }],
     fields: [
       { name: "name", label: "Brand name", type: "text", required: true, max: 160 },
-      { name: "logoId", label: "Logo", type: "image" },
-      { name: "websiteUrl", label: "Website URL", type: "url", max: 255, placeholder: "https://" },
-      order, active,
-    ],
-  },
-  clients: {
-    key: "clients", model: "client", label: "Clients", singular: "client", nameField: "name", section: "content",
-    searchFields: ["name"], orderBy: [{ displayOrder: "asc" }, { name: "asc" }], mediaFields: ["logoId"], publicPaths: ["/"],
-    columns: [{ key: "logoId", label: "Logo", kind: "image" }, { key: "name", label: "Name" }, { key: "displayOrder", label: "Order" }, { key: "isActive", label: "Active", kind: "bool" }],
-    fields: [
-      { name: "name", label: "Client name", type: "text", required: true, max: 160 },
-      { name: "logoId", label: "Logo", type: "image" },
-      { name: "websiteUrl", label: "Website URL", type: "url", max: 255, placeholder: "https://" },
+      { name: "logoId", label: "Logo (optional)", type: "image", help: "If empty, the brand name is shown as text." },
+      { name: "websiteUrl", label: "Website URL (optional)", type: "url", max: 255, placeholder: "https://", help: "Optional. Leave empty if the brand has no website; the logo will then not be a link." },
       order, active,
     ],
   },
@@ -216,10 +174,10 @@ export function publicUrlFor(key: ModuleKey, row: Record<string, unknown>): stri
     case "products": return `/products/${row.slug}`;
     case "portfolio": return `/portfolio/${row.slug}`;
     case "gallery": return "/gallery";
-    case "our-team": case "about-us": return "/about-us";
+    case "our-team": return "/about-us";
     case "blogs": return row.status === "PUBLISHED" ? `/blogs/${row.slug}` : null;
     case "product-types": return "/products";
-    case "brands": case "clients": return "/";
+    case "brands": return "/";
   }
 }
 

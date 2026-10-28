@@ -9,20 +9,20 @@ import { Icon, MediaImg } from "@/components/ui";
 import { SectionHead } from "@/components/public";
 import { LogoStrip } from "@/components/client";
 import { ContactSection } from "@/components/contact-section";
+import { ABOUT_SECTIONS, CLIENT_LOGOS } from "@/content/site-content";
 
 export const generateMetadata = () => buildMetadata({ pageKey: "home", path: "/" });
 
 export default async function Home() {
   const { lang, t } = await getT();
   const L = (row: object, f: string) => loc(row, f, lang);
-  const [s, about, services, products, portfolio, brands, clients, gallery, team, blogs] = await Promise.all([
+  const about = ABOUT_SECTIONS[0];
+  const [s, services, products, portfolio, brands, gallery, team, blogs] = await Promise.all([
     getSettings(),
-    prisma.aboutSection.findFirst({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { id: "asc" }] }),
     prisma.service.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }], take: 3, include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } } }),
     prisma.product.findMany({ where: { isActive: true, isFeatured: true, productType: { is: { isActive: true } } }, orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }], take: 2 }),
     prisma.portfolio.findMany({ where: { isActive: true, isFeatured: true }, orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }], take: 2, include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } } }),
     prisma.brand.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { name: "asc" }] }),
-    prisma.client.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { name: "asc" }] }),
     prisma.gallery.findMany({ where: { isActive: true, imageId: { not: null } }, orderBy: [{ createdAt: "desc" }], take: 3, select: { id: true, imageId: true } }),
     prisma.teamMember.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { id: "asc" }], take: 3 }),
     prisma.blog.findMany({ where: { status: "PUBLISHED" }, orderBy: { publishedAt: "desc" }, take: 3 }),
@@ -50,20 +50,21 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 2. About Us */}
+      {/* 2. About Us (statis: src/content/site-content.ts) */}
       <section className="bg-white py-20" aria-labelledby="home-about">
         <div className="container-x">
-          <SectionHead eyebrow={t("about_eyebrow")} title={t("about_title")} />
-          <h2 id="home-about" className="sr-only">{t("nav_about")}</h2>
-          {about ? (
-            <div className={`grid items-center gap-10 ${about.imageId ? "lg:grid-cols-2" : ""}`}>
-              <div><h3 className="text-headline-lg text-navy">{L(about, "heading")}</h3><p className="mt-4 whitespace-pre-line text-body-lg text-on-surface-variant">{truncate(L(about, "body").replace(/\n{2,}/g, "\n"), 620)}</p><Link href="/about-us" className="btn-primary mt-6">{t("learn_more")}<Icon name="arrow_forward" className="text-[18px]" /></Link></div>
-              {about.imageId && <MediaImg id={about.imageId} alt={L(about, "heading")} className="h-72 w-full rounded-lg lg:h-80" />}
-            </div>
-          ) : <p className="text-body-md text-on-surface-variant">{t("about_prep")}</p>}
+          <SectionHead eyebrow="About us" title="Who We Are" />
+          <h2 id="home-about" className="sr-only">About Us</h2>
+          <div className={`grid items-center gap-10 ${about.image ? "lg:grid-cols-2" : ""}`}>
+            <div><h3 className="text-headline-lg text-navy">{about.heading}</h3><p className="mt-4 whitespace-pre-line text-body-lg text-on-surface-variant">{truncate(about.body.replace(/\n{2,}/g, "\n"), 620)}</p><Link href="/about-us" className="btn-primary mt-6">Learn More<Icon name="arrow_forward" className="text-[18px]" /></Link></div>
+            {about.image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={about.image} alt={about.heading} loading="lazy" className="h-72 w-full rounded-lg object-cover lg:h-80" />
+            )}
+          </div>
         </div>
       </section>
-
+      
       {/* 3. Services */}
       {services.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
@@ -117,12 +118,14 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 7. Clients */}
-      {clients.length > 0 && (
-        <section className="bg-white py-16" aria-labelledby="clients-h"><div className="container-x">
-          <h2 id="clients-h" className="mb-8 text-center text-headline-lg text-navy">{t("clients")}</h2>
-          <LogoStrip items={clients.map((b) => ({ id: b.id, name: b.name, logoId: b.logoId, url: b.websiteUrl }))} />
-        </div></section>
+      {/* 7. Clients (statis; tampil hanya jika CLIENT_LOGOS terisi) */}
+      {CLIENT_LOGOS.length > 0 && (
+        <section className="bg-white py-16" aria-labelledby="clients-h">
+          <div className="container-x">
+            <h2 id="clients-h" className="mb-8 text-center text-headline-lg text-navy">Clients</h2>
+            <LogoStrip items={CLIENT_LOGOS.map((c, i) => ({ id: i, name: c.name, logoId: null, src: c.logo ?? null, url: c.url ?? null }))} />
+          </div>
+        </section>
       )}
 
       {/* 8. Gallery */}

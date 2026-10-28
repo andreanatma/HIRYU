@@ -2,9 +2,9 @@
 
 import { useActionState } from "react";
 import Link from "next/link";
-import { SubmitButton, FileField } from "@/components/client";
+import { SubmitButton } from "@/components/client";
 import { changeOwnPassword, loginAction, bootstrapSignupAction } from "../auth-actions";
-import { createUser, saveSeo, saveSettings, updateUser, uploadToLibrary } from "../admin-actions";
+import { createUser, saveSettings, updateUser } from "../admin-actions";
 import type { FormState } from "../crud-actions";
 import { SETTING_FIELDS } from "@/lib/settings-fields";
 
@@ -103,43 +103,6 @@ export function PasswordForm() {
         <Field label="Confirm" name="confirm" error={e.confirm}><input id="confirm" name="confirm" type="password" required autoComplete="new-password" className="input" /></Field>
       </div>
       <div className="flex justify-end"><SubmitButton>Change password</SubmitButton></div>
-    </form>
-  );
-}
-
-export function SeoForm({ pages, rows, names }: { pages: { key: string; label: string; path: string }[]; rows: Record<string, { title: string; description: string; titleId: string; descriptionId: string; ogImageId: number | null; noindex: boolean }>; names: Record<string, string> }) {
-  const [s, a] = useActionState(saveSeo, init);
-  return (
-    <form action={a} className="max-w-3xl space-y-5">
-      <Msg s={s} />
-      {pages.map((p) => {
-        const r = rows[p.key];
-        return (
-          <fieldset key={p.key} className="card space-y-4 p-6">
-            <legend className="sr-only">{p.label}</legend>
-            <div className="flex items-center justify-between"><h2 className="text-title-lg">{p.label}</h2><code className="text-body-sm text-outline">{p.path}</code></div>
-            <Field label="Title (EN)" name={`${p.key}__title`}><input id={`${p.key}__title`} name={`${p.key}__title`} defaultValue={r?.title} maxLength={160} className="input" placeholder="Leave empty for the default title" /></Field>
-            <Field label="Title (ID)" name={`${p.key}__titleId`}><input id={`${p.key}__titleId`} name={`${p.key}__titleId`} defaultValue={r?.titleId} maxLength={160} className="input" placeholder="Kosongkan untuk memakai judul bahasa Inggris" /></Field>
-            <Field label="Description (EN)" name={`${p.key}__description`}><textarea id={`${p.key}__description`} name={`${p.key}__description`} defaultValue={r?.description} maxLength={320} rows={2} className="input" /></Field>
-            <Field label="Description (ID)" name={`${p.key}__descriptionId`}><textarea id={`${p.key}__descriptionId`} name={`${p.key}__descriptionId`} defaultValue={r?.descriptionId} maxLength={320} rows={2} className="input" /></Field>
-            <div><span className="label">Open Graph image</span><FileField name={`${p.key}__ogImageId`} kind="image" initialId={r?.ogImageId} initialName={names[p.key]} /></div>
-            <label className="flex items-center gap-3 text-body-md"><input type="checkbox" name={`${p.key}__noindex`} defaultChecked={r?.noindex} className="h-[18px] w-[18px] accent-primary-container" />Do not index this page (noindex)</label>
-          </fieldset>
-        );
-      })}
-      <div className="flex justify-end"><SubmitButton>Save SEO</SubmitButton></div>
-    </form>
-  );
-}
-
-export function MediaUploadForm() {
-  const [s, a] = useActionState(uploadToLibrary, init);
-  return (
-    <form action={a} className="card mb-6 flex flex-wrap items-end gap-4 p-5">
-      <div className="min-w-[240px] flex-1"><label className="label" htmlFor="file">File (JPG, PNG, WebP, GIF, PDF)</label><input id="file" name="file" type="file" required accept="image/jpeg,image/png,image/webp,image/gif,application/pdf" className="input !h-auto py-2" /></div>
-      <div><label className="label" htmlFor="visibility">Access</label><select id="visibility" name="visibility" className="input"><option value="public">Public</option><option value="private">Private (admins only)</option></select></div>
-      <SubmitButton pendingText="Uploading…">Upload</SubmitButton>
-      {s.message && <p role={s.ok ? "status" : "alert"} className={`w-full text-body-sm ${s.ok ? "text-[#065F46]" : "text-error"}`}>{s.message}</p>}
     </form>
   );
 }

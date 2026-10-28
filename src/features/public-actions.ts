@@ -9,6 +9,7 @@ import { sendContactNotification } from "@/lib/mailer";
 import { getLang } from "@/lib/i18n";
 import { DICT } from "@/lib/dictionary";
 import type { FormState } from "./crud-actions";
+import { getSettings } from "@/lib/settings";
 
 export async function submitContact(_p: FormState, fd: FormData): Promise<FormState> {
   const lang = await getLang();
@@ -47,7 +48,7 @@ export async function submitContact(_p: FormState, fd: FormData): Promise<FormSt
     console.error("contact", e);
     return { ok: false, message: t.err_save };
   }
-  const emailStatus = await sendContactNotification(parsed.data);
-  await prisma.contactMessage.update({ where: { id }, data: { emailStatus } }).catch(() => undefined);
+  const settings = await getSettings().catch(() => null);
+  const emailStatus = await sendContactNotification(parsed.data, settings?.email || undefined);
   return { ok: true, message: t.ok_saved };
 }

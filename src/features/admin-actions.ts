@@ -6,11 +6,9 @@ import { z } from "zod";
 import { destroyUserSessions, requireSuperAdmin, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { logActivity } from "@/lib/activity";
-import { deleteMediaIfUnused, mediaUsage, saveUpload } from "@/lib/media";
 import { generateTempPassword, hashPassword, passwordSchema } from "@/lib/password";
 import { SETTING_FIELDS } from "@/lib/settings-fields";
 import { safeMapsUrl } from "@/lib/maps";
-import { PAGE_KEYS } from "@/lib/seo";
 import type { FormState } from "./crud-actions";
 
 const toErrors = (e: z.ZodError) => {
@@ -107,7 +105,7 @@ export async function deleteMessage(id: number): Promise<void> {
   return back("/dashboard-admin/contact", "Deleted: message removed.");
 }
 
-/* ---------------- Settings & SEO ---------------- */
+/* ---------------- Settings ---------------- */
 export async function saveSettings(_p: FormState, fd: FormData): Promise<FormState> {
   const me = await requireSuperAdmin();
   const shape: Record<string, z.ZodTypeAny> = {};
@@ -126,56 +124,4 @@ export async function saveSettings(_p: FormState, fd: FormData): Promise<FormSta
   await logActivity({ userId: me.id, action: "SETTINGS", entity: "settings", summary: `Updated site settings (${entries.length} fields)` });
   revalidatePath("/", "layout");
   return { ok: true, message: "Settings saved." };
-}
-
-export async function saveSeo(_p: FormState, fd: FormData): Promise<FormState> {
-  const me = await requireUser();
-  const items = PAGE_KEYS.map((p) => ({
-    pageKey: p.key as string,
-    title: String(fd.get(`${p.key}__title`) ?? "").trim().slice(0, 160) || null,
-    titleId: String(fd.get(`${p.key}__titleId`) ?? "").trim().slice(0, 160) || null,
-    description: String(fd.get(`${p.key}__description`) ?? "").trim().slice(0, 320) || null,
-    descriptionId: String(fd.get(`${p.key}__descriptionId`) ?? "").trim().slice(0, 320) || null,
-    ogImageId: Number(fd.get(`${p.key}__ogImageId`)) || null,
-    noindex: fd.get(`${p.key}__noindex`) === "on",
-  }));
-  const before = await prisma.seoSetting.findMany();
-  await prisma.$transaction(items.map((i) => prisma.seoSetting.upsert({ where: { pageKey: i.pageKey }, update: i, create: i })));
-  for (const b of before) {
-    const n = items.find((i) => i.pageKey === b.pageKey);
-    if (b.ogImageId && n?.ogImageId !== b.ogImageId) await deleteMediaIfUnused(b.ogImageId);
-  }
-  await logActivity({ userId: me.id, action: "SETTINGS", entity: "seo", summary: "Updated page SEO settings" });
-  revalidatePath("/", "layout");
-  return { ok: true, message: "SEO settings saved." };
-}
-
-/* ---------------- Media library ---------------- */
-export async function uploadToLibrary(_p: FormState, fd: FormData): Promise<FormState> {
-  const me = await requireUser();
-  const file = fd.get("file");
-  if (!(file instanceof File)) return { ok: false, message: "No file selected." };
-  const isPublic = fd.get("visibility") !== "private";
-  const r = await saveUpload(file, { accept: ["image", "pdf"], isPublic, userId: me.id });
-  if (!r.ok) return { ok: false, message: r.error };
-  await logActivity({ userId: me.id, action: "UPLOAD", entity: "media", entityId: r.id, summary: `Uploaded ${r.name} to the media library (${isPublic ? "public" : "private"})` });
-  revalidatePath("/dashboard-admin/media");
-  return { ok: true, message: `Uploaded ${r.name}.` };
-}
-
-export async function deleteMediaItem(id: number): Promise<void> {
-  const me = await requireUser();
-  if ((await mediaUsage(id)) > 0) return back("/dashboard-admin/media", "File is still in use by content and cannot be deleted.");
-  await deleteMediaIfUnused(id);
-  await logActivity({ userId: me.id, action: "DELETE", entity: "media", entityId: id, summary: `Deleted media file #${id}` });
-  return back("/dashboard-admin/media", "Deleted: file removed.");
-}
-
-export async function toggleMediaVisibility(id: number): Promise<void> {
-  const me = await requireUser();
-  const m = await prisma.mediaFile.findUnique({ where: { id } });
-  if (!m) return back("/dashboard-admin/media", "File not found.");
-  await prisma.mediaFile.update({ where: { id }, data: { isPublic: !m.isPublic } });
-  await logActivity({ userId: me.id, action: "UPDATE", entity: "media", entityId: id, summary: `File #${id} visibility → ${m.isPublic ? "private" : "public"}` });
-  return back("/dashboard-admin/media", "File visibility updated.");
 }
