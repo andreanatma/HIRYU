@@ -32,7 +32,7 @@ export function EmptyState({ icon = "inbox", title, text, action }: { icon?: str
   );
 }
 
-export function Pagination({ page, pages, basePath, params }: { page: number; pages: number; basePath: string; params?: Record<string, string> }) {
+export function Pagination({ page, pages, basePath, params, prev = "Previous", next = "Next" }: { page: number; pages: number; basePath: string; params?: Record<string, string>; prev?: string; next?: string }) {
   if (pages <= 1) return null;
   const href = (p: number) => {
     const q = new URLSearchParams({ ...(params ?? {}), page: String(p) });
@@ -41,14 +41,14 @@ export function Pagination({ page, pages, basePath, params }: { page: number; pa
   const nums = Array.from({ length: pages }, (_, i) => i + 1).filter((n) => n === 1 || n === pages || Math.abs(n - page) <= 1);
   return (
     <nav aria-label="Pagination" className="flex items-center justify-center gap-1.5 pt-6">
-      {page > 1 && <Link className="btn-secondary !px-3 !py-1.5" href={href(page - 1)}>Previous</Link>}
+      {page > 1 && <Link className="btn-secondary !px-3 !py-1.5" href={href(page - 1)}>{prev}</Link>}
       {nums.map((n, i) => (
         <span key={n} className="flex items-center gap-1.5">
           {i > 0 && n - nums[i - 1] > 1 && <span className="text-outline">…</span>}
           <Link href={href(n)} aria-current={n === page ? "page" : undefined} className={cn("flex h-9 w-9 items-center justify-center rounded text-title-md", n === page ? "bg-primary-container text-white" : "bg-white border border-[#DCE3EC] hover:bg-[#F2F5F9]")}>{n}</Link>
         </span>
       ))}
-      {page < pages && <Link className="btn-secondary !px-3 !py-1.5" href={href(page + 1)}>Next</Link>}
+      {page < pages && <Link className="btn-secondary !px-3 !py-1.5" href={href(page + 1)}>{next}</Link>}
     </nav>
   );
 }

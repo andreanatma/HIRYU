@@ -133,7 +133,9 @@ export async function saveSeo(_p: FormState, fd: FormData): Promise<FormState> {
   const items = PAGE_KEYS.map((p) => ({
     pageKey: p.key as string,
     title: String(fd.get(`${p.key}__title`) ?? "").trim().slice(0, 160) || null,
+    titleId: String(fd.get(`${p.key}__titleId`) ?? "").trim().slice(0, 160) || null,
     description: String(fd.get(`${p.key}__description`) ?? "").trim().slice(0, 320) || null,
+    descriptionId: String(fd.get(`${p.key}__descriptionId`) ?? "").trim().slice(0, 320) || null,
     ogImageId: Number(fd.get(`${p.key}__ogImageId`)) || null,
     noindex: fd.get(`${p.key}__noindex`) === "on",
   }));

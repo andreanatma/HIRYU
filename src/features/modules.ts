@@ -12,7 +12,7 @@ export type FieldDef = {
   relation?: { model: "productType"; labelField: string };
   help?: string;
   placeholder?: string;
-  group?: "seo";
+  group?: "seo" | "id";
   /** Default for new records (booleans/numbers/selects). */
   def?: string | number | boolean;
 };
@@ -49,6 +49,11 @@ const seo: FieldDef[] = [
   { name: "metaTitle", label: "Meta title", type: "text", max: 160, group: "seo", help: "Leave empty to use the main title." },
   { name: "metaDescription", label: "Meta description", type: "textarea", max: 320, rows: 3, group: "seo" },
 ];
+const seoId: FieldDef[] = [
+  { name: "metaTitleId", label: "Meta title (Indonesian)", type: "text", max: 160, group: "seo" },
+  { name: "metaDescriptionId", label: "Meta description (Indonesian)", type: "textarea", max: 320, rows: 3, group: "seo" },
+];
+const idg = (f: Omit<FieldDef, "group">): FieldDef => ({ ...f, group: "id" });
 const order: FieldDef = { name: "displayOrder", label: "Display order", type: "number", help: "Lower numbers appear first.", def: 0 };
 const active: FieldDef = { name: "isActive", label: "Active (visible on the public website)", type: "boolean", def: true };
 const featured: FieldDef = { name: "isFeatured", label: "Featured (shown on the homepage)", type: "boolean", def: false };

@@ -107,7 +107,7 @@ export function PasswordForm() {
   );
 }
 
-export function SeoForm({ pages, rows, names }: { pages: { key: string; label: string; path: string }[]; rows: Record<string, { title: string; description: string; ogImageId: number | null; noindex: boolean }>; names: Record<string, string> }) {
+export function SeoForm({ pages, rows, names }: { pages: { key: string; label: string; path: string }[]; rows: Record<string, { title: string; description: string; titleId: string; descriptionId: string; ogImageId: number | null; noindex: boolean }>; names: Record<string, string> }) {
   const [s, a] = useActionState(saveSeo, init);
   return (
     <form action={a} className="max-w-3xl space-y-5">
@@ -118,8 +118,10 @@ export function SeoForm({ pages, rows, names }: { pages: { key: string; label: s
           <fieldset key={p.key} className="card space-y-4 p-6">
             <legend className="sr-only">{p.label}</legend>
             <div className="flex items-center justify-between"><h2 className="text-title-lg">{p.label}</h2><code className="text-body-sm text-outline">{p.path}</code></div>
-            <Field label="Title" name={`${p.key}__title`}><input id={`${p.key}__title`} name={`${p.key}__title`} defaultValue={r?.title} maxLength={160} className="input" placeholder="Leave empty for the default title" /></Field>
-            <Field label="Description" name={`${p.key}__description`}><textarea id={`${p.key}__description`} name={`${p.key}__description`} defaultValue={r?.description} maxLength={320} rows={2} className="input" /></Field>
+            <Field label="Title (EN)" name={`${p.key}__title`}><input id={`${p.key}__title`} name={`${p.key}__title`} defaultValue={r?.title} maxLength={160} className="input" placeholder="Leave empty for the default title" /></Field>
+            <Field label="Title (ID)" name={`${p.key}__titleId`}><input id={`${p.key}__titleId`} name={`${p.key}__titleId`} defaultValue={r?.titleId} maxLength={160} className="input" placeholder="Kosongkan untuk memakai judul bahasa Inggris" /></Field>
+            <Field label="Description (EN)" name={`${p.key}__description`}><textarea id={`${p.key}__description`} name={`${p.key}__description`} defaultValue={r?.description} maxLength={320} rows={2} className="input" /></Field>
+            <Field label="Description (ID)" name={`${p.key}__descriptionId`}><textarea id={`${p.key}__descriptionId`} name={`${p.key}__descriptionId`} defaultValue={r?.descriptionId} maxLength={320} rows={2} className="input" /></Field>
             <div><span className="label">Open Graph image</span><FileField name={`${p.key}__ogImageId`} kind="image" initialId={r?.ogImageId} initialName={names[p.key]} /></div>
             <label className="flex items-center gap-3 text-body-md"><input type="checkbox" name={`${p.key}__noindex`} defaultChecked={r?.noindex} className="h-[18px] w-[18px] accent-primary-container" />Do not index this page (noindex)</label>
           </fieldset>

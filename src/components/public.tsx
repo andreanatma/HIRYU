@@ -24,14 +24,17 @@ export function SectionHead({ eyebrow, title, href, linkText, center = false }: 
   );
 }
 
-export function CtaBand({ title, text }: { title: string; text: string }) {
+import { getT } from "@/lib/i18n";
+
+export async function CtaBand({ title, text }: { title: string; text: string }) {
+  const { t } = await getT();
   return (
     <section className="container-x mt-20">
       <div className="relative overflow-hidden rounded-xl bg-navy p-10 text-white lg:p-14">
         <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-primary/30 blur-3xl" />
         <div className="relative flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
           <div className="max-w-2xl"><h2 className="text-headline-xl text-white md:text-display-md">{title}</h2><p className="mt-3 text-body-lg text-slate-300">{text}</p></div>
-          <Link href="/contact" className="btn-accent !px-8 !py-3.5">Contact Us<Icon name="arrow_forward" className="text-[20px]" /></Link>
+          <Link href="/contact" className="btn-accent !px-8 !py-3.5">{t("nav_contact")}<Icon name="arrow_forward" className="text-[20px]" /></Link>
         </div>
       </div>
     </section>

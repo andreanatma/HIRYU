@@ -12,8 +12,9 @@ export type EntityValues = Record<string, string | number | boolean | number[] |
 
 export function EntityForm({ moduleKey, id, fields, values, fileNames, relationOptions }: { moduleKey: string; id: number | null; fields: FieldDef[]; values: EntityValues; fileNames: Record<string, string>; relationOptions: Record<string, { value: string; label: string }[]> }) {
   const [state, action] = useActionState(saveEntity.bind(null, moduleKey, id), initial);
-  const main = fields.filter((f) => f.group !== "seo");
+  const main = fields.filter((f) => !f.group);
   const seo = fields.filter((f) => f.group === "seo");
+  const idf = fields.filter((f) => f.group === "id");
 
   const render = (f: FieldDef) => {
     const err = state.errors?.[f.name];
