@@ -11,7 +11,7 @@ export default async function SeoPage() {
   const map: Record<string, { title: string; description: string; titleId: string; descriptionId: string; ogImageId: number | null; noindex: boolean }> = {};
   const names: Record<string, string> = {};
   for (const r of rows) {
-    map[r.pageKey] = { title: r.title ?? "", description: r.description ?? "", titleId: r.titleId ?? "", descriptionId: r.descriptionId ?? "", ogImageId: r.ogImageId, noindex: r.noindex };
+    map[r.pageKey] = { title: r.title ?? "", description: r.description ?? "", titleId: r.title ?? "", descriptionId: r.description ?? "", ogImageId: r.ogImageId, noindex: r.noindex };
     if (r.ogImage) names[r.pageKey] = r.ogImage.originalName;
   }
   return (
