@@ -58,24 +58,24 @@ model Session {
 }
 
 model MediaFile {
-  id           Int      @id @default(autoincrement())
-  storageKey   String   @unique @db.VarChar(255)
-  originalName String   @db.VarChar(255)
-  mimeType     String   @db.VarChar(100)
+  id           Int       @id @default(autoincrement())
+  storageKey   String    @unique @db.VarChar(255)
+  originalName String    @db.VarChar(255)
+  mimeType     String    @db.VarChar(100)
   sizeBytes    Int
-  isPublic     Boolean  @default(true)
+  isPublic     Boolean   @default(true)
   uploadedById Int?
-  uploadedBy   User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
-  createdAt    DateTime @default(now())
+  uploadedBy   User?     @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime  @default(now())
 
-  services      Service[]
-  productImages Product[]       @relation("ProductImage")
-  productPdfs   Product[]       @relation("ProductPdf")
-  portfolio     Portfolio[]
-  gallery       Gallery[]
-  team          TeamMember[]
-  blogs         Blog[]
-  seoImages     SeoSetting[]
+  services        Service[]
+  productImages   Product[]        @relation("ProductImage")
+  productPdfs     Product[]        @relation("ProductPdf")
+  portfolio       Portfolio[]
+  gallery         Gallery[]
+  team            TeamMember[]
+  blogs           Blog[]
+  seoImages       SeoSetting[]
   serviceImages   ServiceImage[]
   portfolioImages PortfolioImage[]
   brands          Brand[]
@@ -88,20 +88,24 @@ model MediaFile {
 }
 
 model Service {
-  id              Int        @id @default(autoincrement())
-  name            String     @db.VarChar(160)
-  slug            String     @unique @db.VarChar(190)
-  description     String     @db.Text
-  imageId         Int?
-  image           MediaFile? @relation(fields: [imageId], references: [id], onDelete: SetNull)
-  images          ServiceImage[]
-  displayOrder    Int        @default(0)
-  isFeatured      Boolean    @default(false)
-  isActive        Boolean    @default(true)
-  metaTitle       String?    @db.VarChar(160)
-  metaDescription String?    @db.VarChar(320)
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  id                Int            @id @default(autoincrement())
+  name              String         @db.VarChar(160)
+  slug              String         @unique @db.VarChar(190)
+  description       String         @db.Text
+  imageId           Int?
+  image             MediaFile?     @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  images            ServiceImage[]
+  displayOrder      Int            @default(0)
+  isFeatured        Boolean        @default(false)
+  isActive          Boolean        @default(true)
+  metaTitle         String?        @db.VarChar(160)
+  metaDescription   String?        @db.VarChar(320)
+  nameId            String?        @db.VarChar(160)
+  descriptionId     String?        @db.Text
+  metaTitleId       String?        @db.VarChar(160)
+  metaDescriptionId String?        @db.VarChar(320)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
 
   @@index([name])
   @@index([imageId])
@@ -110,42 +114,50 @@ model Service {
 }
 
 model ProductType {
-  id           Int       @id @default(autoincrement())
-  name         String    @db.VarChar(160)
-  slug         String    @unique @db.VarChar(190)
-  description  String?   @db.Text
-  displayOrder Int       @default(0)
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  products     Product[]
+  id            Int       @id @default(autoincrement())
+  name          String    @db.VarChar(160)
+  slug          String    @unique @db.VarChar(190)
+  description   String?   @db.Text
+  displayOrder  Int       @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  nameId        String?   @db.VarChar(160)
+  descriptionId String?   @db.Text
+  products      Product[]
 
+  @@index([name])
   @@index([isActive, displayOrder])
   @@map("product_types")
 }
 
 model Product {
-  id              Int          @id @default(autoincrement())
-  productTypeId   Int?
-  productType     ProductType? @relation(fields: [productTypeId], references: [id], onDelete: Restrict)
-  name            String     @db.VarChar(160)
-  slug            String     @unique @db.VarChar(190)
-  brand           String?    @db.VarChar(160)
-  productOrigin   String?    @db.VarChar(160)
-  model           String?    @db.VarChar(160)
-  description     String     @db.Text
-  specifications  String?    @db.Text
-  displayOrder    Int        @default(0)
-  isFeatured      Boolean    @default(false)
-  isActive        Boolean    @default(true)
-  imageId         Int?
-  image           MediaFile? @relation("ProductImage", fields: [imageId], references: [id], onDelete: SetNull)
-  pdfId           Int?
-  pdf             MediaFile? @relation("ProductPdf", fields: [pdfId], references: [id], onDelete: SetNull)
-  metaTitle       String?    @db.VarChar(160)
-  metaDescription String?    @db.VarChar(320)
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  id                Int          @id @default(autoincrement())
+  productTypeId     Int?
+  productType       ProductType? @relation(fields: [productTypeId], references: [id], onDelete: Restrict)
+  name              String       @db.VarChar(160)
+  slug              String       @unique @db.VarChar(190)
+  brand             String?      @db.VarChar(160)
+  productOrigin     String?      @db.VarChar(160)
+  model             String?      @db.VarChar(160)
+  description       String       @db.Text
+  specifications    String?      @db.Text
+  displayOrder      Int          @default(0)
+  isFeatured        Boolean      @default(false)
+  isActive          Boolean      @default(true)
+  imageId           Int?
+  image             MediaFile?   @relation("ProductImage", fields: [imageId], references: [id], onDelete: SetNull)
+  pdfId             Int?
+  pdf               MediaFile?   @relation("ProductPdf", fields: [pdfId], references: [id], onDelete: SetNull)
+  metaTitle         String?      @db.VarChar(160)
+  metaDescription   String?      @db.VarChar(320)
+  nameId            String?      @db.VarChar(160)
+  productOriginId   String?      @db.VarChar(160)
+  descriptionId     String?      @db.Text
+  metaTitleId       String?      @db.VarChar(160)
+  metaDescriptionId String?      @db.VarChar(320)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   @@index([name])
   @@index([imageId])
@@ -156,22 +168,26 @@ model Product {
 }
 
 model Portfolio {
-  id          Int        @id @default(autoincrement())
-  name        String     @db.VarChar(160)
-  slug        String     @unique @db.VarChar(190)
-  description String     @db.Text
-  clientName  String?    @db.VarChar(160)
-  imageId     Int?
-  image       MediaFile? @relation(fields: [imageId], references: [id], onDelete: SetNull)
-  images      PortfolioImage[]
-  projectDate DateTime?
-  displayOrder    Int      @default(0)
-  isFeatured      Boolean  @default(false)
-  isActive        Boolean  @default(true)
-  metaTitle       String?  @db.VarChar(160)
-  metaDescription String?  @db.VarChar(320)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id                Int              @id @default(autoincrement())
+  name              String           @db.VarChar(160)
+  slug              String           @unique @db.VarChar(190)
+  description       String           @db.Text
+  clientName        String?          @db.VarChar(160)
+  imageId           Int?
+  image             MediaFile?       @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  images            PortfolioImage[]
+  projectDate       DateTime?
+  displayOrder      Int              @default(0)
+  isFeatured        Boolean          @default(false)
+  isActive          Boolean          @default(true)
+  metaTitle         String?          @db.VarChar(160)
+  metaDescription   String?          @db.VarChar(320)
+  nameId            String?          @db.VarChar(160)
+  descriptionId     String?          @db.Text
+  metaTitleId       String?          @db.VarChar(160)
+  metaDescriptionId String?          @db.VarChar(320)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 
   @@index([name])
   @@index([projectDate])
@@ -181,15 +197,15 @@ model Portfolio {
 }
 
 model Gallery {
-  id          Int        @id @default(autoincrement())
-  title       String     @db.VarChar(160)
-  description String?    @db.Text
-  imageId     Int?
-  image       MediaFile? @relation(fields: [imageId], references: [id], onDelete: SetNull)
-  displayOrder Int       @default(0)
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id           Int        @id @default(autoincrement())
+  title        String     @db.VarChar(160)
+  description  String?    @db.Text
+  imageId      Int?
+  image        MediaFile? @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@index([title])
   @@index([imageId])
@@ -207,6 +223,7 @@ model TeamMember {
   isActive     Boolean    @default(true)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  positionId   String?    @db.VarChar(160)
 
   @@index([displayOrder])
   @@index([photoId])
@@ -215,19 +232,24 @@ model TeamMember {
 }
 
 model Blog {
-  id              Int           @id @default(autoincrement())
-  title           String        @db.VarChar(220)
-  slug            String        @unique @db.VarChar(250)
-  content         String        @db.LongText
-  excerpt         String?       @db.VarChar(400)
-  featuredImageId Int?
-  featuredImage   MediaFile?    @relation(fields: [featuredImageId], references: [id], onDelete: SetNull)
-  publishedAt     DateTime?
-  status          PublishStatus @default(DRAFT)
-  metaTitle       String?       @db.VarChar(160)
-  metaDescription String?       @db.VarChar(320)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                Int           @id @default(autoincrement())
+  title             String        @db.VarChar(220)
+  slug              String        @unique @db.VarChar(250)
+  content           String        @db.LongText
+  excerpt           String?       @db.VarChar(400)
+  featuredImageId   Int?
+  featuredImage     MediaFile?    @relation(fields: [featuredImageId], references: [id], onDelete: SetNull)
+  publishedAt       DateTime?
+  status            PublishStatus @default(DRAFT)
+  metaTitle         String?       @db.VarChar(160)
+  metaDescription   String?       @db.VarChar(320)
+  titleId           String?       @db.VarChar(220)
+  contentId         String?       @db.LongText
+  excerptId         String?       @db.VarChar(400)
+  metaTitleId       String?       @db.VarChar(160)
+  metaDescriptionId String?       @db.VarChar(320)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   @@index([status, publishedAt])
   @@index([title])
@@ -236,16 +258,16 @@ model Blog {
 }
 
 model ContactMessage {
-  id        Int           @id @default(autoincrement())
-  name      String        @db.VarChar(120)
-  company   String?       @db.VarChar(160)
-  email     String        @db.VarChar(190)
-  subject   String?       @db.VarChar(200)
-  message   String        @db.Text
-  status    MessageStatus @default(UNREAD)
-  emailStatus String      @default("NOT_CONFIGURED") @db.VarChar(20)
-  ipHash    String?       @db.VarChar(64)
-  createdAt DateTime      @default(now())
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(120)
+  company     String?       @db.VarChar(160)
+  email       String        @db.VarChar(190)
+  subject     String?       @db.VarChar(200)
+  message     String        @db.Text
+  status      MessageStatus @default(UNREAD)
+  emailStatus String        @default("NOT_CONFIGURED") @db.VarChar(20)
+  ipHash      String?       @db.VarChar(64)
+  createdAt   DateTime      @default(now())
 
   @@index([status, createdAt])
   @@index([email])
@@ -280,14 +302,16 @@ model SiteSetting {
 }
 
 model SeoSetting {
-  id          Int        @id @default(autoincrement())
-  pageKey     String     @unique @db.VarChar(60)
-  title       String?    @db.VarChar(160)
-  description String?    @db.VarChar(320)
-  ogImageId   Int?
-  ogImage     MediaFile? @relation(fields: [ogImageId], references: [id], onDelete: SetNull)
-  noindex     Boolean    @default(false)
-  updatedAt   DateTime   @updatedAt
+  id            Int        @id @default(autoincrement())
+  pageKey       String     @unique @db.VarChar(60)
+  title         String?    @db.VarChar(160)
+  titleId       String?    @db.VarChar(160)
+  description   String?    @db.VarChar(320)
+  descriptionId String?    @db.VarChar(320)
+  ogImageId     Int?
+  ogImage       MediaFile? @relation(fields: [ogImageId], references: [id], onDelete: SetNull)
+  noindex       Boolean    @default(false)
+  updatedAt     DateTime   @updatedAt
 
   @@index([ogImageId])
   @@map("seo_settings")
@@ -361,6 +385,8 @@ model AboutSection {
   isActive     Boolean    @default(true)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  headingId    String?    @db.VarChar(200)
+  bodyId       String?    @db.Text
 
   @@index([isActive, displayOrder])
   @@index([imageId])

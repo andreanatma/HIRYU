@@ -156,41 +156,45 @@
 -- ALTER TABLE `clients` ADD CONSTRAINT `clients_logoId_fkey` FOREIGN KEY (`logoId`) REFERENCES `media_files`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 -- ALTER TABLE `about_sections` ADD CONSTRAINT `about_sections_imageId_fkey` FOREIGN KEY (`imageId`) REFERENCES `media_files`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
-ALTER TABLE `services`
-  ADD COLUMN `nameId` VARCHAR(160) NULL,
-  ADD COLUMN `descriptionId` TEXT NULL,
-  ADD COLUMN `metaTitleId` VARCHAR(160) NULL,
-  ADD COLUMN `metaDescriptionId` VARCHAR(320) NULL;
+-- ALTER TABLE `services`
+--   ADD COLUMN `nameId` VARCHAR(160) NULL,
+--   ADD COLUMN `descriptionId` TEXT NULL,
+--   ADD COLUMN `metaTitleId` VARCHAR(160) NULL,
+--   ADD COLUMN `metaDescriptionId` VARCHAR(320) NULL;
 
-ALTER TABLE `product_types`
-  ADD COLUMN `nameId` VARCHAR(160) NULL,
-  ADD COLUMN `descriptionId` TEXT NULL;
+-- ALTER TABLE `product_types`
+--   ADD COLUMN `nameId` VARCHAR(160) NULL,
+--   ADD COLUMN `descriptionId` TEXT NULL;
 
-ALTER TABLE `products`
-  ADD COLUMN `nameId` VARCHAR(160) NULL,
-  ADD COLUMN `productOriginId` VARCHAR(160) NULL,
-  ADD COLUMN `descriptionId` TEXT NULL,
-  ADD COLUMN `metaTitleId` VARCHAR(160) NULL,
-  ADD COLUMN `metaDescriptionId` VARCHAR(320) NULL;
+-- ALTER TABLE `products`
+--   ADD COLUMN `nameId` VARCHAR(160) NULL,
+--   ADD COLUMN `productOriginId` VARCHAR(160) NULL,
+--   ADD COLUMN `descriptionId` TEXT NULL,
+--   ADD COLUMN `metaTitleId` VARCHAR(160) NULL,
+--   ADD COLUMN `metaDescriptionId` VARCHAR(320) NULL;
 
-ALTER TABLE `portfolio`
-  ADD COLUMN `nameId` VARCHAR(160) NULL,
-  ADD COLUMN `descriptionId` TEXT NULL,
-  ADD COLUMN `metaTitleId` VARCHAR(160) NULL,
-  ADD COLUMN `metaDescriptionId` VARCHAR(320) NULL;
+-- ALTER TABLE `portfolio`
+--   ADD COLUMN `nameId` VARCHAR(160) NULL,
+--   ADD COLUMN `descriptionId` TEXT NULL,
+--   ADD COLUMN `metaTitleId` VARCHAR(160) NULL,
+--   ADD COLUMN `metaDescriptionId` VARCHAR(320) NULL;
 
-ALTER TABLE `blogs`
-  ADD COLUMN `titleId` VARCHAR(220) NULL,
-  ADD COLUMN `excerptId` VARCHAR(400) NULL,
-  ADD COLUMN `contentId` LONGTEXT NULL,
-  ADD COLUMN `metaTitleId` VARCHAR(160) NULL,
-  ADD COLUMN `metaDescriptionId` VARCHAR(320) NULL;
+-- ALTER TABLE `blogs`
+--   ADD COLUMN `titleId` VARCHAR(220) NULL,
+--   ADD COLUMN `excerptId` VARCHAR(400) NULL,
+--   ADD COLUMN `contentId` LONGTEXT NULL,
+--   ADD COLUMN `metaTitleId` VARCHAR(160) NULL,
+--   ADD COLUMN `metaDescriptionId` VARCHAR(320) NULL;
 
-ALTER TABLE `about_sections`
-  ADD COLUMN `headingId` VARCHAR(200) NULL,
-  ADD COLUMN `bodyId` TEXT NULL;
+-- ALTER TABLE `about_sections`
+--   ADD COLUMN `headingId` VARCHAR(200) NULL,
+--   ADD COLUMN `bodyId` TEXT NULL;
 
-ALTER TABLE `team_members` ADD COLUMN `positionId` VARCHAR(160) NULL;
+-- ALTER TABLE `team_members` ADD COLUMN `positionId` VARCHAR(160) NULL;
+
+-- ALTER TABLE `seo_settings`
+--   ADD COLUMN `titleId` VARCHAR(160) NULL,
+--   ADD COLUMN `descriptionId` VARCHAR(320) NULL;
 
 ALTER TABLE `seo_settings`
   ADD COLUMN `titleId` VARCHAR(160) NULL,

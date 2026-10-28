@@ -72,6 +72,8 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "imageId", label: "Main image", type: "image" },
       { name: "galleryIds", label: "Additional images", type: "images", help: "Upload several images. Drag order is the order of upload; use the arrows to reorder." },
       order, featured, active, ...seo,
+      idg({ name: "nameId", label: "Service title (Indonesian)", type: "text", max: 160 }),
+      idg({ name: "descriptionId", label: "Description (Indonesian)", type: "textarea", max: 5000, rows: 6 }),
     ],
   },
   "product-types": {
@@ -85,6 +87,8 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "slug", label: "Slug", type: "slug", max: 190 },
       { name: "description", label: "Description", type: "textarea", max: 2000, rows: 4 },
       order, active,
+      idg({ name: "nameId", label: "Name (Indonesian)", type: "text", max: 160 }),
+      idg({ name: "descriptionId", label: "Description (Indonesian)", type: "textarea", max: 2000, rows: 4 }),
     ],
   },
   products: {
@@ -102,6 +106,9 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "imageId", label: "Product image", type: "image", required: true },
       { name: "pdfId", label: "PDF document (datasheet / brochure)", type: "pdf" },
       order, featured, active, ...seo,
+      idg({ name: "nameId", label: "Title (Indonesian)", type: "text", max: 160 }),
+      idg({ name: "productOriginId", label: "Product origin (Indonesian)", type: "text", max: 160 }),
+      idg({ name: "descriptionId", label: "Introduction (Indonesian)", type: "textarea", max: 5000, rows: 6 }),
     ],
   },
   portfolio: {
@@ -119,6 +126,8 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "imageId", label: "Main image", type: "image" },
       { name: "galleryIds", label: "Additional images", type: "images" },
       order, featured, active, ...seo,
+      idg({ name: "nameId", label: "Project title (Indonesian)", type: "text", max: 160 }),
+      idg({ name: "descriptionId", label: "Description (Indonesian)", type: "textarea", max: 5000, rows: 6 }),
     ],
   },
   gallery: {
@@ -145,6 +154,9 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "status", label: "Status", type: "select", required: true, def: "DRAFT", options: [{ value: "DRAFT", label: "Draft" }, { value: "PUBLISHED", label: "Published" }] },
       { name: "publishedAt", label: "Publication date", type: "date", help: "Leave empty to use the date of publishing." },
       ...seo,
+      idg({ name: "titleId", label: "Title (Indonesian)", type: "text", max: 220 }),
+      idg({ name: "excerptId", label: "Description / summary (Indonesian)", type: "textarea", max: 400, rows: 3 }),
+      idg({ name: "contentId", label: "Content (Indonesian)", type: "longtext", max: 100000, rows: 16, help: "Same format as the English content." }),
     ],
   },
   "about-us": {
@@ -156,6 +168,8 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "body", label: "Body content", type: "longtext", required: true, max: 20000, rows: 10, help: "Blank line = new paragraph. Start a line with '- ' for a bullet. HTML is not processed." },
       { name: "imageId", label: "Optional image", type: "image" },
       order, active,
+      idg({ name: "headingId", label: "Heading (Indonesian)", type: "text", max: 200 }),
+      idg({ name: "bodyId", label: "Body content (Indonesian)", type: "longtext", max: 20000, rows: 10 }),
     ],
   },
   "our-team": {
@@ -167,6 +181,7 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
       { name: "position", label: "Position", type: "text", required: true, max: 160 },
       { name: "photoId", label: "Photo", type: "image" },
       order, active,
+      idg({ name: "positionId", label: "Position (Indonesian)", type: "text", max: 160 }),
     ],
   },
   brands: {
