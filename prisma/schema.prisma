@@ -1,0 +1,380 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum MessageStatus {
+  UNREAD
+  READ
+  REPLIED
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String        @db.VarChar(120)
+  email        String        @unique @db.VarChar(190)
+  passwordHash String        @db.VarChar(100)
+  role         Role          @default(ADMIN)
+  isActive     Boolean       @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  sessions     Session[]
+  activityLogs ActivityLog[]
+  uploads      MediaFile[]
+
+  @@index([role, isActive])
+  @@map("users")
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  tokenHash      String   @unique @db.VarChar(64)
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ipAddress      String?  @db.VarChar(64)
+  userAgent      String?  @db.VarChar(255)
+  createdAt      DateTime @default(now())
+  lastActivityAt DateTime @default(now())
+  expiresAt      DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model MediaFile {
+  id           Int      @id @default(autoincrement())
+  storageKey   String   @unique @db.VarChar(255)
+  originalName String   @db.VarChar(255)
+  mimeType     String   @db.VarChar(100)
+  sizeBytes    Int
+  isPublic     Boolean  @default(true)
+  uploadedById Int?
+  uploadedBy   User?    @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
+
+  services      Service[]
+  productImages Product[]       @relation("ProductImage")
+  productPdfs   Product[]       @relation("ProductPdf")
+  portfolio     Portfolio[]
+  gallery       Gallery[]
+  team          TeamMember[]
+  blogs         Blog[]
+  seoImages     SeoSetting[]
+  serviceImages   ServiceImage[]
+  portfolioImages PortfolioImage[]
+  brands          Brand[]
+  clients         Client[]
+  aboutSections   AboutSection[]
+
+  @@index([mimeType])
+  @@index([createdAt])
+  @@map("media_files")
+}
+
+model Service {
+  id              Int        @id @default(autoincrement())
+  name            String     @db.VarChar(160)
+  slug            String     @unique @db.VarChar(190)
+  description     String     @db.Text
+  imageId         Int?
+  image           MediaFile? @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  images          ServiceImage[]
+  displayOrder    Int        @default(0)
+  isFeatured      Boolean    @default(false)
+  isActive        Boolean    @default(true)
+  metaTitle       String?    @db.VarChar(160)
+  metaDescription String?    @db.VarChar(320)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([name])
+  @@index([imageId])
+  @@index([isActive, displayOrder])
+  @@map("services")
+}
+
+model ProductType {
+  id           Int       @id @default(autoincrement())
+  name         String    @db.VarChar(160)
+  slug         String    @unique @db.VarChar(190)
+  description  String?   @db.Text
+  displayOrder Int       @default(0)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  products     Product[]
+
+  @@index([isActive, displayOrder])
+  @@map("product_types")
+}
+
+model Product {
+  id              Int          @id @default(autoincrement())
+  productTypeId   Int?
+  productType     ProductType? @relation(fields: [productTypeId], references: [id], onDelete: Restrict)
+  name            String     @db.VarChar(160)
+  slug            String     @unique @db.VarChar(190)
+  brand           String?    @db.VarChar(160)
+  productOrigin   String?    @db.VarChar(160)
+  model           String?    @db.VarChar(160)
+  description     String     @db.Text
+  specifications  String?    @db.Text
+  displayOrder    Int        @default(0)
+  isFeatured      Boolean    @default(false)
+  isActive        Boolean    @default(true)
+  imageId         Int?
+  image           MediaFile? @relation("ProductImage", fields: [imageId], references: [id], onDelete: SetNull)
+  pdfId           Int?
+  pdf             MediaFile? @relation("ProductPdf", fields: [pdfId], references: [id], onDelete: SetNull)
+  metaTitle       String?    @db.VarChar(160)
+  metaDescription String?    @db.VarChar(320)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([name])
+  @@index([imageId])
+  @@index([pdfId])
+  @@index([productTypeId, isActive, displayOrder])
+  @@index([isFeatured, isActive])
+  @@map("products")
+}
+
+model Portfolio {
+  id          Int        @id @default(autoincrement())
+  name        String     @db.VarChar(160)
+  slug        String     @unique @db.VarChar(190)
+  description String     @db.Text
+  clientName  String?    @db.VarChar(160)
+  imageId     Int?
+  image       MediaFile? @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  images      PortfolioImage[]
+  projectDate DateTime?
+  displayOrder    Int      @default(0)
+  isFeatured      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  metaTitle       String?  @db.VarChar(160)
+  metaDescription String?  @db.VarChar(320)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([name])
+  @@index([projectDate])
+  @@index([isActive, isFeatured, displayOrder])
+  @@index([imageId])
+  @@map("portfolio")
+}
+
+model Gallery {
+  id          Int        @id @default(autoincrement())
+  title       String     @db.VarChar(160)
+  description String?    @db.Text
+  imageId     Int?
+  image       MediaFile? @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  displayOrder Int       @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([title])
+  @@index([imageId])
+  @@index([isActive, displayOrder, createdAt])
+  @@map("gallery")
+}
+
+model TeamMember {
+  id           Int        @id @default(autoincrement())
+  name         String     @db.VarChar(160)
+  position     String     @db.VarChar(160)
+  photoId      Int?
+  photo        MediaFile? @relation(fields: [photoId], references: [id], onDelete: SetNull)
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([displayOrder])
+  @@index([photoId])
+  @@index([isActive, displayOrder])
+  @@map("team_members")
+}
+
+model Blog {
+  id              Int           @id @default(autoincrement())
+  title           String        @db.VarChar(220)
+  slug            String        @unique @db.VarChar(250)
+  content         String        @db.LongText
+  excerpt         String?       @db.VarChar(400)
+  featuredImageId Int?
+  featuredImage   MediaFile?    @relation(fields: [featuredImageId], references: [id], onDelete: SetNull)
+  publishedAt     DateTime?
+  status          PublishStatus @default(DRAFT)
+  metaTitle       String?       @db.VarChar(160)
+  metaDescription String?       @db.VarChar(320)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([title])
+  @@index([featuredImageId])
+  @@map("blogs")
+}
+
+model ContactMessage {
+  id        Int           @id @default(autoincrement())
+  name      String        @db.VarChar(120)
+  company   String?       @db.VarChar(160)
+  email     String        @db.VarChar(190)
+  subject   String?       @db.VarChar(200)
+  message   String        @db.Text
+  status    MessageStatus @default(UNREAD)
+  emailStatus String      @default("NOT_CONFIGURED") @db.VarChar(20)
+  ipHash    String?       @db.VarChar(64)
+  createdAt DateTime      @default(now())
+
+  @@index([status, createdAt])
+  @@index([email])
+  @@index([name])
+  @@index([ipHash, createdAt])
+  @@map("contact_messages")
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String   @db.VarChar(40)
+  entity    String   @db.VarChar(60)
+  entityId  String?  @db.VarChar(40)
+  summary   String   @db.VarChar(500)
+  ipAddress String?  @db.VarChar(64)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([entity, action])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+model SiteSetting {
+  key       String   @id @db.VarChar(80)
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+model SeoSetting {
+  id          Int        @id @default(autoincrement())
+  pageKey     String     @unique @db.VarChar(60)
+  title       String?    @db.VarChar(160)
+  description String?    @db.VarChar(320)
+  ogImageId   Int?
+  ogImage     MediaFile? @relation(fields: [ogImageId], references: [id], onDelete: SetNull)
+  noindex     Boolean    @default(false)
+  updatedAt   DateTime   @updatedAt
+
+  @@index([ogImageId])
+  @@map("seo_settings")
+}
+
+model ServiceImage {
+  id           Int       @id @default(autoincrement())
+  serviceId    Int
+  service      Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  mediaId      Int
+  media        MediaFile @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  displayOrder Int       @default(0)
+
+  @@index([serviceId, displayOrder])
+  @@index([mediaId])
+  @@map("service_images")
+}
+
+model PortfolioImage {
+  id           Int       @id @default(autoincrement())
+  portfolioId  Int
+  portfolio    Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  mediaId      Int
+  media        MediaFile @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+  displayOrder Int       @default(0)
+
+  @@index([portfolioId, displayOrder])
+  @@index([mediaId])
+  @@map("portfolio_images")
+}
+
+model Brand {
+  id           Int        @id @default(autoincrement())
+  name         String     @db.VarChar(160)
+  logoId       Int?
+  logo         MediaFile? @relation(fields: [logoId], references: [id], onDelete: SetNull)
+  websiteUrl   String?    @db.VarChar(255)
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([isActive, displayOrder])
+  @@index([logoId])
+  @@map("brands")
+}
+
+model Client {
+  id           Int        @id @default(autoincrement())
+  name         String     @db.VarChar(160)
+  logoId       Int?
+  logo         MediaFile? @relation(fields: [logoId], references: [id], onDelete: SetNull)
+  websiteUrl   String?    @db.VarChar(255)
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([isActive, displayOrder])
+  @@index([logoId])
+  @@map("clients")
+}
+
+model AboutSection {
+  id           Int        @id @default(autoincrement())
+  heading      String     @db.VarChar(200)
+  body         String     @db.Text
+  imageId      Int?
+  image        MediaFile? @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([isActive, displayOrder])
+  @@index([imageId])
+  @@map("about_sections")
+}
+
+/// Menyimpan slug lama agar URL lama tetap bekerja (301) setelah slug diubah.
+model SlugRedirect {
+  id        Int      @id @default(autoincrement())
+  entity    String   @db.VarChar(30)
+  oldSlug   String   @db.VarChar(250)
+  newSlug   String   @db.VarChar(250)
+  createdAt DateTime @default(now())
+
+  @@unique([entity, oldSlug])
+  @@map("slug_redirects")
+}
