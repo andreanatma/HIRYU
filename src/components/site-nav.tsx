@@ -11,6 +11,7 @@ const WA_NUMBER = "6282221101122";
 const WA_TEXT = "Hello, I would like to inquire about your services.";
 
 const LINKS = [
+  ["/", "Home"],
   ["/service", "Services"],
   ["/products", "Products"],
   ["/portfolio", "Portfolio"],
@@ -37,7 +38,9 @@ export function SiteNav({ name, productTypes = [] }: { name: string; productType
     setOpen(false);
     setMProd(false);
   }, [path]);
-  const active = (h: string) => path === h || path.startsWith(h + "/");
+
+  // Home ("/") hanya aktif jika path persis "/", agar tidak ikut aktif di semua halaman.
+  const active = (h: string) => (h === "/" ? path === "/" : path === h || path.startsWith(h + "/"));
   const waProps = { href: `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(WA_TEXT)}`, target: "_blank", rel: "noopener noreferrer" } as const;
 
   return (
@@ -91,12 +94,16 @@ export function SiteNav({ name, productTypes = [] }: { name: string; productType
         <nav id="mobile-nav" aria-label="Mobile" className="container-x flex max-h-[calc(100vh-5rem)] flex-col gap-1 overflow-y-auto border-t border-white/20 pb-4 pt-2 lg:hidden">
           {LINKS.map(([h, label]) => {
             if (h !== "/products") {
-              return <Link key={h} href={h} className={cn("rounded px-3 py-2.5", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>{label}</Link>;
+              return (
+                <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={cn("rounded px-3 py-2.5", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>
+                  {label}
+                </Link>
+              );
             }
             return (
               <div key={h}>
                 <div className={cn("flex items-center justify-between rounded", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>
-                  <Link href={h} className="flex-1 px-3 py-2.5">{label}</Link>
+                  <Link href={h} aria-current={active(h) ? "page" : undefined} className="flex-1 px-3 py-2.5">{label}</Link>
                   {productTypes.length > 0 && (
                     <button type="button" onClick={() => setMProd(!mProd)} aria-expanded={mProd} aria-label="Expand product types" className="p-2.5">
                       <Icon name={mProd ? "remove" : "add"} />
