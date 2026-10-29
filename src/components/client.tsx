@@ -344,22 +344,40 @@ export function ProductAccordion({ groups, openFirst = false, lang = "en" }: { g
 
 export type LogoItem = { id: number; name: string; logoId: number | null; src?: string | null; url: string | null };
 
-/** Horizontal logo strip: auto-scrolls when many logos, static otherwise. `logoId` = file from /media, `src` = static file from /public. */
+/** Horizontal logo marquee: always animated, seamless loop, pauses on hover. Falls back to a static wrapped layout for reduced-motion users. */
 export function LogoStrip({ items, dark = false }: { items: LogoItem[]; dark?: boolean }) {
-  const many = items.length > 6;
-  const list = many ? [...items, ...items] : items;
+  if (items.length === 0) return null;
+
+  // Repeat the list until one group is wide enough to fill the screen, then render two identical groups for a seamless loop.
+  const reps = Math.max(1, Math.ceil(10 / items.length));
+  const group: LogoItem[] = Array.from({ length: reps }, () => items).flat();
+  const duration = Math.max(20, group.length * 4); // seconds; more logos = longer track = same perceived speed
+
+  const renderItem = (b: LogoItem, key: string, hidden: boolean) => {
+    const inner = b.logoId
+      ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={`/media/${b.logoId}`} alt={hidden ? "" : b.name} loading="lazy" className="h-10 w-auto max-w-[140px] object-contain" />
+      : <span className={`whitespace-nowrap text-title-md ${dark ? "text-navy" : "text-navy"}`}>{b.name}</span>;
+    return (
+      <li
+        key={key}
+        aria-hidden={hidden ? true : undefined}
+        className={`logo-item mr-6 flex h-16 shrink-0 items-center justify-center rounded-lg bg-white px-4 ${dark ? "" : "border border-line"} ${hidden ? "logo-dup" : ""}`}
+      >
+        {b.url ? (
+          <a href={b.url} target="_blank" rel="noopener noreferrer nofollow" aria-label={b.name} tabIndex={hidden ? -1 : undefined}>{inner}</a>
+        ) : inner}
+      </li>
+    );
+  };
+
   return (
-    <div className={`overflow-hidden ${many ? "[mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]" : ""}`}>
-      <ul className={`flex items-center gap-10 ${many ? "logo-marquee w-max" : "flex-wrap justify-center"}`}>
-        {list.map((b, i) => {
-          const logoSrc = b.logoId ? `/media/${b.logoId}` : b.src;
-          const inner = logoSrc
-            ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={logoSrc} alt={b.name} loading="lazy" className="h-12 w-auto max-w-[160px] object-contain" />
-            : <span className={`text-title-md ${dark ? "text-white" : "text-navy"}`}>{b.name}</span>;
-          return <li key={`${b.id}-${i}`} aria-hidden={many && i >= items.length ? true : undefined} className={`flex h-20 shrink-0 items-center justify-center rounded-lg px-6 ${dark ? "bg-white" : "bg-white border border-line"}`}>
-            {b.url ? <a href={b.url} target="_blank" rel="noopener noreferrer nofollow" aria-label={b.name} tabIndex={many && i >= items.length ? -1 : undefined}>{inner}</a> : inner}
-          </li>;
-        })}
+    <div className="logo-viewport overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+      <ul
+        className="logo-marquee flex w-max items-center"
+        style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
+      >
+        {group.map((b, i) => renderItem(b, `a-${b.id}-${i}`, false))}
+        {group.map((b, i) => renderItem(b, `b-${b.id}-${i}`, true))}
       </ul>
     </div>
   );

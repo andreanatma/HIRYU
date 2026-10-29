@@ -37,12 +37,19 @@
   .icon { font-family: "Material Symbols Outlined"; font-weight: normal; font-style: normal; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; direction: ltr; -webkit-font-feature-settings: "liga"; font-feature-settings: "liga"; -webkit-font-smoothing: antialiased; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
-}
-
 @keyframes acc-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 .acc-panel { animation: acc-in 0.18s ease-out; }
+
+/* Brands / Clients marquee: track holds two identical groups, so -50% loops seamlessly. */
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.logo-marquee { animation: marquee 35s linear infinite; }
-.logo-marquee:hover { animation-play-state: paused; }
+.logo-marquee { animation: marquee var(--marquee-duration, 30s) linear infinite; will-change: transform; }
+.logo-marquee:hover,
+.logo-marquee:focus-within { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  /* Static, wrapped layout instead of a moving track (declared after the rule above so it wins). */
+  .logo-marquee { animation: none !important; width: auto; flex-wrap: wrap; justify-content: center; row-gap: 1rem; }
+  .logo-viewport { -webkit-mask-image: none !important; mask-image: none !important; }
+  .logo-dup { display: none; }
+}

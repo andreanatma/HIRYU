@@ -12,6 +12,9 @@ import { setLang } from "@/features/lang-actions";
 // 082-2211-0-1122 -> format internasional
 const WA_NUMBER = "6282221101122";
 
+// Label Home didefinisikan lokal agar tidak perlu mengubah dictionary.
+const HOME_LABEL: Record<Lang, string> = { id: "Beranda", en: "Home" };
+
 const LINKS = [
   ["/service", "nav_services"], ["/products", "nav_products"], ["/portfolio", "nav_portfolio"],
   ["/about-us", "nav_about"], ["/gallery", "nav_gallery"], ["/blogs", "nav_blogs"],
@@ -50,7 +53,16 @@ export function SiteNav({ name, lang }: { name: string; lang: Lang }) {
   const [open, setOpen] = useState(false);
   const t = DICT[lang];
   useEffect(() => setOpen(false), [path]);
-  const active = (h: string) => path === h || path.startsWith(h + "/");
+
+  // Home ("/") aktif hanya pada path persis "/"; menu lain juga aktif pada sub-halamannya.
+  const active = (h: string) => path === h || (h !== "/" && path.startsWith(h + "/"));
+
+  // Daftar menu tunggal (Home di urutan pertama) yang dipakai desktop dan mobile.
+  const items: [href: string, label: string][] = [
+    ["/", HOME_LABEL[lang]],
+    ...LINKS.map(([h, k]): [string, string] => [h, t[k]]),
+  ];
+
   const waProps = { href: `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t.wa_text)}`, target: "_blank", rel: "noopener noreferrer" } as const;
 
   return (
@@ -61,8 +73,8 @@ export function SiteNav({ name, lang }: { name: string; lang: Lang }) {
           <span className="max-w-[210px] leading-tight sm:max-w-none">{name}</span>
         </Link>
         <nav aria-label="Main" className="hidden items-center gap-7 lg:flex">
-          {LINKS.map(([h, k]) => (
-            <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={cn("border-b-2 py-1 text-body-md transition-colors", active(h) ? "border-accent font-semibold text-white" : "border-transparent text-white/85 hover:text-white")}>{t[k]}</Link>
+          {items.map(([h, label]) => (
+            <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={cn("border-b-2 py-1 text-body-md transition-colors", active(h) ? "border-accent font-semibold text-white" : "border-transparent text-white/85 hover:text-white")}>{label}</Link>
           ))}
           <LangSwitch lang={lang} />
           <a {...waProps} className="btn-accent !px-5 !py-2.5"><WhatsAppIcon />{t.nav_contact}</a>
@@ -74,7 +86,7 @@ export function SiteNav({ name, lang }: { name: string; lang: Lang }) {
       </div>
       {open && (
         <nav id="mobile-nav" aria-label="Mobile" className="container-x flex flex-col gap-1 border-t border-white/20 pb-4 pt-2 lg:hidden">
-          {LINKS.map(([h, k]) => <Link key={h} href={h} className={cn("rounded px-3 py-2.5", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>{t[k]}</Link>)}
+          {items.map(([h, label]) => <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={cn("rounded px-3 py-2.5", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>{label}</Link>)}
           <a {...waProps} className="btn-accent mt-2"><WhatsAppIcon />{t.nav_contact}</a>
         </nav>
       )}
