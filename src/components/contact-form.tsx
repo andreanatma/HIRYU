@@ -4,8 +4,7 @@ import { useActionState } from "react";
 import { SubmitButton } from "@/components/client";
 import { submitContact } from "@/features/public-actions";
 import type { FormState } from "@/features/crud-actions";
-import { DICT } from "@/lib/dictionary";
-import type { Lang } from "@/lib/lang";
+import { T as t } from "@/lib/dictionary";
 
 const init: FormState = { ok: false };
 
@@ -13,8 +12,7 @@ function Err({ id, text }: { id: string; text?: string }) {
   return text ? <p id={`${id}-e`} role="alert" className="mt-1 text-body-sm text-error">{text}</p> : null;
 }
 
-export function ContactForm({ lang }: { lang: Lang }) {
-  const t = DICT[lang];
+export function ContactForm() {
   const [s, a] = useActionState(submitContact, init);
   const e = s.errors ?? {};
   if (s.ok) return <div role="status" className="rounded-lg border border-success/40 bg-[#ECFDF5] p-6 text-[#065F46]"><h3 className="text-title-lg">{t.f_sent_title}</h3><p className="mt-1 text-body-md">{s.message}</p></div>;

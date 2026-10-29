@@ -12,7 +12,7 @@ export type FieldDef = {
   relation?: { model: "productType"; labelField: string };
   help?: string;
   placeholder?: string;
-  group?: "seo" | "id"
+  group?: "seo"
   /** Default for new records (booleans/numbers/selects). */
   def?: string | number | boolean;
 };

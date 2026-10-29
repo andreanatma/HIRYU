@@ -1,15 +1,14 @@
 import { getSettings } from "@/lib/settings";
-import { getT } from "@/lib/i18n";
-import { sv } from "@/lib/lang";
+import { t } from "@/lib/dictionary";
 import { safeMapsUrl } from "@/lib/maps";
 import { Icon } from "./ui";
 import { ContactForm } from "./contact-form";
 
 export async function ContactSection({ heading }: { heading?: string }) {
-  const [s, { lang, t }] = await Promise.all([getSettings(), getT()]);
+  const s = await getSettings();
   const wa = s.whatsapp.replace(/\D/g, "");
   const map = safeMapsUrl(s.maps_embed_url);
-  const hours = sv(s, "office_hours", lang);
+  const hours = s.office_hours;
   const items: [string, string, string, string | null][] = [];
   if (s.email) items.push(["mail", t("c_email"), s.email, `mailto:${s.email}`]);
   if (wa) items.push(["chat", t("c_wa"), `+${wa}`, `https://wa.me/${wa}`]);
@@ -17,7 +16,7 @@ export async function ContactSection({ heading }: { heading?: string }) {
   if (hours) items.push(["schedule", t("c_hours"), hours, null]);
   return (
     <div className="grid items-start gap-8 lg:grid-cols-12">
-      <div className="card p-6 sm:p-10 lg:col-span-7"><h2 className="mb-6 text-headline-xl text-navy">{heading ?? t("send_us")}</h2><ContactForm lang={lang} /></div>
+      <div className="card p-6 sm:p-10 lg:col-span-7"><h2 className="mb-6 text-headline-xl text-navy">{heading ?? t("send_us")}</h2><ContactForm /></div>
       <aside className="space-y-6 lg:col-span-5" aria-label={t("c_aria")}>
         <div className="card space-y-5 p-6">
           {items.length === 0 && <p className="text-body-md text-on-surface-variant">{t("c_none")}</p>}

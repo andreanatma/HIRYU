@@ -14,7 +14,6 @@ export function EntityForm({ moduleKey, id, fields, values, fileNames, relationO
   const [state, action] = useActionState(saveEntity.bind(null, moduleKey, id), initial);
   const main = fields.filter((f) => !f.group);
   const seo = fields.filter((f) => f.group === "seo");
-  const idf = fields.filter((f) => f.group === "id");
 
   const render = (f: FieldDef) => {
     const err = state.errors?.[f.name];
@@ -56,12 +55,6 @@ export function EntityForm({ moduleKey, id, fields, values, fileNames, relationO
     <form action={action} className="card space-y-5 p-6">
       {state.message && !state.ok && <div role="alert" className="rounded border border-error/30 bg-error-container px-4 py-3 text-body-sm text-on-error-container">{state.message}</div>}
       {main.map(render)}
-      {idf.length > 0 && (
-        <fieldset className="space-y-5 rounded border border-line p-4">
-          <legend className="px-2 text-label-md text-on-surface-variant">Indonesian version (optional: English is shown when empty)</legend>
-      {idf.map(render)}
-        </fieldset>
-      )}
       {seo.length > 0 && (
         <fieldset className="space-y-5 rounded border border-line p-4">
           <legend className="px-2 text-label-md text-on-surface-variant">SEO settings</legend>

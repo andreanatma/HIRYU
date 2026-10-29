@@ -1,18 +1,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { buildMetadata } from "@/lib/seo";
-import { getT } from "@/lib/i18n";
-import { loc } from "@/lib/lang";
+import { t } from "@/lib/dictionary";
 import { EmptyState, MediaImg } from "@/components/ui";
 import { CtaBand, PageHero } from "@/components/public";
 
 export async function generateMetadata() {
-  const { t } = await getT();
   return buildMetadata({ pageKey: "portfolio", title: t("nav_portfolio"), description: t("pf_meta_desc"), path: "/portfolio" });
 }
 
 export default async function Portfolio() {
-  const { lang, t } = await getT();
   const items = await prisma.portfolio.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { projectDate: "desc" }, { createdAt: "desc" }], include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } } });
   return (
     <>
@@ -22,8 +19,8 @@ export default async function Portfolio() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {items.map((p) => (
               <Link key={p.id} href={`/portfolio/${p.slug}`} className="card group flex flex-col overflow-hidden transition-shadow hover:shadow-md">
-                <div className="overflow-hidden"><MediaImg id={p.imageId ?? p.images[0]?.mediaId} alt={loc(p, "name", lang)} className="h-56 w-full transition-transform duration-500 group-hover:scale-105" icon="folder_special" /></div>
-                <div className="p-6"><h2 className="text-headline-md text-navy group-hover:text-primary">{loc(p, "name", lang)}</h2>{p.clientName && <p className="mt-1 text-label-md uppercase text-primary">{p.clientName}</p>}</div>
+                <div className="overflow-hidden"><MediaImg id={p.imageId ?? p.images[0]?.mediaId} alt={p.name} className="h-56 w-full transition-transform duration-500 group-hover:scale-105" icon="folder_special" /></div>
+                <div className="p-6"><h2 className="text-headline-md text-navy group-hover:text-primary">{p.name}</h2>{p.clientName && <p className="mt-1 text-label-md uppercase text-primary">{p.clientName}</p>}</div>
               </Link>
             ))}
           </div>

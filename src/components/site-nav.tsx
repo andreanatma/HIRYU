@@ -1,19 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Icon } from "./ui";
 import { cn } from "@/lib/utils";
-import { DICT } from "@/lib/dictionary";
-import type { Lang } from "@/lib/lang";
-import { setLang } from "@/features/lang-actions";
+import { t } from "@/lib/dictionary";
 
-// 082-2211-0-1122 -> format internasional
+// 082-2211-0-1122 -> international format
 const WA_NUMBER = "6282221101122";
-
-// Label Home didefinisikan lokal agar tidak perlu mengubah dictionary.
-const HOME_LABEL: Record<Lang, string> = { id: "Beranda", en: "Home" };
 
 const LINKS = [
   ["/service", "nav_services"], ["/products", "nav_products"], ["/portfolio", "nav_portfolio"],
@@ -28,42 +23,21 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-function LangSwitch({ lang }: { lang: Lang }) {
-  const router = useRouter();
-  const [pending, start] = useTransition();
-  const change = (l: Lang) => {
-    if (l === lang) return;
-    start(async () => { await setLang(l); router.refresh(); });
-  };
-  const btn = (l: Lang, label: string, aria: string) => (
-    <button type="button" onClick={() => change(l)} aria-pressed={lang === l} aria-label={aria} disabled={pending}
-      className={cn("px-1.5 py-1 text-label-md transition-colors", lang === l ? "font-bold text-accent" : "text-white/80 hover:text-white")}>{label}</button>
-  );
-  return (
-    <div role="group" aria-label={DICT[lang].lang_label} className="flex items-center">
-      {btn("id", "ID", "Bahasa Indonesia")}
-      <span aria-hidden="true" className="text-white/40">|</span>
-      {btn("en", "EN", "English")}
-    </div>
-  );
-}
-
-export function SiteNav({ name, lang }: { name: string; lang: Lang }) {
+export function SiteNav({ name }: { name: string }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
-  const t = DICT[lang];
   useEffect(() => setOpen(false), [path]);
 
-  // Home ("/") aktif hanya pada path persis "/"; menu lain juga aktif pada sub-halamannya.
+  // Home ("/") is active only on the exact path "/"; other items are also active on their sub-pages.
   const active = (h: string) => path === h || (h !== "/" && path.startsWith(h + "/"));
 
-  // Daftar menu tunggal (Home di urutan pertama) yang dipakai desktop dan mobile.
+  // Single menu list (Home first) shared by desktop and mobile.
   const items: [href: string, label: string][] = [
-    ["/", HOME_LABEL[lang]],
-    ...LINKS.map(([h, k]): [string, string] => [h, t[k]]),
+    ["/", "Home"],
+    ...LINKS.map(([h, k]): [string, string] => [h, t(k)]),
   ];
 
-  const waProps = { href: `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t.wa_text)}`, target: "_blank", rel: "noopener noreferrer" } as const;
+  const waProps = { href: `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t("wa_text"))}`, target: "_blank", rel: "noopener noreferrer" } as const;
 
   return (
     <header className="fixed top-0 z-50 w-full bg-gradient-to-r from-primary to-brand-hover text-white shadow-md">
@@ -76,18 +50,16 @@ export function SiteNav({ name, lang }: { name: string; lang: Lang }) {
           {items.map(([h, label]) => (
             <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={cn("border-b-2 py-1 text-body-md transition-colors", active(h) ? "border-accent font-semibold text-white" : "border-transparent text-white/85 hover:text-white")}>{label}</Link>
           ))}
-          <LangSwitch lang={lang} />
-          <a {...waProps} className="btn-accent !px-5 !py-2.5"><WhatsAppIcon />{t.nav_contact}</a>
+          <a {...waProps} className="btn-accent !px-5 !py-2.5"><WhatsAppIcon />{t("nav_contact")}</a>
         </nav>
         <div className="flex items-center gap-2 lg:hidden">
-          <LangSwitch lang={lang} />
-          <button className="rounded p-2 hover:bg-white/10" aria-expanded={open} aria-controls="mobile-nav" aria-label={open ? t.menu_close : t.menu_open} onClick={() => setOpen(!open)}><Icon name={open ? "close" : "menu"} /></button>
+          <button className="rounded p-2 hover:bg-white/10" aria-expanded={open} aria-controls="mobile-nav" aria-label={open ? t("menu_close") : t("menu_open")} onClick={() => setOpen(!open)}><Icon name={open ? "close" : "menu"} /></button>
         </div>
       </div>
       {open && (
         <nav id="mobile-nav" aria-label="Mobile" className="container-x flex flex-col gap-1 border-t border-white/20 pb-4 pt-2 lg:hidden">
           {items.map(([h, label]) => <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={cn("rounded px-3 py-2.5", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>{label}</Link>)}
-          <a {...waProps} className="btn-accent mt-2"><WhatsAppIcon />{t.nav_contact}</a>
+          <a {...waProps} className="btn-accent mt-2"><WhatsAppIcon />{t("nav_contact")}</a>
         </nav>
       )}
     </header>

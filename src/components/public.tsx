@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Icon } from "./ui";
+import { t } from "@/lib/dictionary";
 
 export function PageHero({ eyebrow, title, text, icon = "verified" }: { eyebrow: string; title: string; text: string; icon?: string }) {
   return (
@@ -24,10 +25,7 @@ export function SectionHead({ eyebrow, title, href, linkText, center = false }: 
   );
 }
 
-import { getT } from "@/lib/i18n";
-
-export async function CtaBand({ title, text }: { title: string; text: string }) {
-  const { t } = await getT();
+export function CtaBand({ title, text }: { title: string; text: string }) {
   return (
     <section className="container-x mt-20">
       <div className="relative overflow-hidden rounded-xl bg-navy p-10 text-white lg:p-14">

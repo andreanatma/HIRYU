@@ -1,9 +1,7 @@
-import type { Lang } from "./lang";
-
-const en = {
+export const T = {
   // global / nav / footer
   skip: "Skip to content", nav_services: "Services", nav_products: "Products", nav_portfolio: "Portfolio", nav_about: "About Us",
-  nav_gallery: "Gallery", nav_blogs: "Blogs", nav_contact: "Contact Us", menu_open: "Open menu", menu_close: "Close menu", lang_label: "Language",
+  nav_gallery: "Gallery", nav_blogs: "Blogs", nav_contact: "Contact Us", menu_open: "Open menu", menu_close: "Close menu",
   wa_text: "Hello, I would like to inquire about your services.",
   col_solutions: "Solutions", col_company: "Company", col_connect: "Connect", rights: "All rights reserved.", whatsapp: "WhatsApp",
   learn_more: "Learn more", read: "Read", view_product: "View Product", back_home: "Back to home", pg_prev: "Previous", pg_next: "Next",
@@ -73,72 +71,11 @@ const en = {
   // not found / error
   nf_title: "Page not found", nf_text: "The content you are looking for does not exist or is not published.",
   err_title: "Something went wrong", err_text: "The page failed to load. Please try again.", err_retry: "Try again",
-};
+} as const;
 
-export type DictKey = keyof typeof en;
+export type TextKey = keyof typeof T;
 
-const id: Record<DictKey, string> = {
-  skip: "Langsung ke konten", nav_services: "Layanan", nav_products: "Produk", nav_portfolio: "Portofolio", nav_about: "Tentang Kami",
-  nav_gallery: "Galeri", nav_blogs: "Blog", nav_contact: "Hubungi Kami", menu_open: "Buka menu", menu_close: "Tutup menu", lang_label: "Bahasa",
-  wa_text: "Halo, saya ingin bertanya mengenai layanan Anda.",
-  col_solutions: "Solusi", col_company: "Perusahaan", col_connect: "Terhubung", rights: "Hak cipta dilindungi.", whatsapp: "WhatsApp",
-  learn_more: "Selengkapnya", read: "Baca", view_product: "Lihat Produk", back_home: "Kembali ke beranda", pg_prev: "Sebelumnya", pg_next: "Berikutnya",
-  hero_explore: "Jelajahi Produk", hero_about: "Tentang Kami",
-  about_eyebrow: "Tentang kami", about_title: "Siapa Kami", about_prep: "Konten Tentang Kami sedang disiapkan.",
-  svc_eyebrow: "Layanan kami", svc_title: "Apa yang Kami Kerjakan", svc_all: "Semua layanan",
-  prod_eyebrow: "Produk", prod_featured: "Produk Unggulan", prod_all: "Lihat Semua Produk", prod_none: "Belum ada produk unggulan.", prod_browse: "Telusuri katalog",
-  pf_eyebrow: "Portofolio", pf_featured: "Proyek Unggulan", pf_all: "Lihat Semua Portofolio",
-  brands: "Merek", clients: "Klien",
-  gal_eyebrow: "Galeri", gal_latest: "Foto Terbaru", gal_view: "Lihat Galeri", gal_alt: "Foto galeri {n}",
-  team_eyebrow: "Tim", team_title: "Tim Kami",
-  blog_eyebrow: "Pusat pengetahuan", blog_latest: "Artikel Terbaru", blog_all: "Semua artikel",
-  contact_eyebrow: "Hubungi kami", contact_title: "Mari Terhubung",
-  client_label: "Klien:", date_label: "Tanggal:",
-  svc_hero_eyebrow: "Yang kami kerjakan", svc_hero_title: "Servis & Perawatan, Kalibrasi, dan Suplai Peralatan",
-  svc_hero_text: "Dukungan teknis untuk peralatan laboratorium, pengujian, dan industri.",
-  svc_meta_desc: "Servis & perawatan, kalibrasi, dan suplai peralatan laboratorium dan pengujian.",
-  svc_empty_t: "Layanan belum tersedia", svc_empty_x: "Konten sedang disiapkan.",
-  svc_cta_t: "Butuh penawaran servis atau kalibrasi?", svc_cta_x: "Jelaskan peralatan dan kebutuhan Anda, kami akan merespons sesuai ruang lingkup layanan kami.",
-  svc_detail_cta_t: "Diskusikan layanan ini dengan tim kami", svc_detail_cta_x: "Ceritakan peralatan dan kebutuhan Anda kepada kami.", svc_images: "Gambar layanan",
-  prod_hero_eyebrow: "Katalog produk", prod_hero_title: "Peralatan Laboratorium & Pengujian",
-  prod_hero_text: "Pilih tipe produk untuk melihat produk yang tersedia, lalu buka produk untuk melihat detail dan datasheet.",
-  prod_meta_desc: "Telusuri peralatan laboratorium, pengujian, dan industri berdasarkan tipe produk.",
-  prod_empty_t: "Produk belum tersedia", prod_empty_x: "Katalog sedang disiapkan.",
-  acc_empty: "Belum ada produk pada kategori ini.",
-  f_brand: "Merek", f_origin: "Asal Produk", f_model: "Model", f_type: "Tipe Produk",
-  download_pdf: "Unduh PDF", request_quote: "Minta Penawaran", intro: "Pengantar",
-  prod_cta_t: "Butuh penawaran atau saran teknis?", prod_cta_x: "Kirimkan nama produk dan model, tim kami akan menindaklanjuti.",
-  pf_hero_eyebrow: "Hasil kerja kami", pf_hero_title: "Proyek Pilihan", pf_hero_text: "Sekilas proyek teknis yang telah kami kerjakan untuk klien kami.",
-  pf_meta_desc: "Proyek pilihan dan pekerjaan teknis.", pf_empty: "Proyek belum tersedia",
-  pf_cta_t: "Diskusikan Proyek Anda", pf_cta_x: "Ceritakan kebutuhan peralatan Anda dan kami akan mengusulkan pendekatan yang sesuai.",
-  pf_detail_cta_x: "Sampaikan kebutuhan Anda dan kami akan segera menghubungi Anda.",
-  gal_hero_title: "Pekerjaan Kami dalam Gambar", gal_hero_text: "Dokumentasi foto kegiatan kami.", gal_meta_desc: "Foto pekerjaan, peralatan, dan kegiatan kami.",
-  gal_empty_t: "Galeri masih kosong", gal_empty_x: "Foto akan tampil di sini setelah dipublikasikan.",
-  lb_open: "Buka foto {n} dari {total}", lb_dialog: "Foto {n} dari {total}", lb_close: "Tutup", lb_prev: "Foto sebelumnya", lb_next: "Foto berikutnya", photo: "foto",
-  blog_hero_title: "Artikel & Wawasan Teknis", blog_hero_text: "Panduan dan artikel tentang peralatan, pengukuran, dan kalibrasi.",
-  blog_meta_desc: "Artikel teknis tentang peralatan, pengukuran, dan kalibrasi.",
-  blog_search_ph: "Cari artikel…", blog_search_btn: "Cari", blog_none_q: "Artikel tidak ditemukan", blog_none: "Belum ada artikel",
-  draft_notice: "Pratinjau draf: artikel ini belum dipublikasikan dan hanya terlihat oleh admin.", preview: "Pratinjau",
-  about_hero_text: "Servis, perbaikan, perawatan, kalibrasi, dan suplai peralatan laboratorium, pengujian, dan industri.",
-  about_meta_desc: "Siapa kami, visi dan misi, serta prinsip yang kami pegang.",
-  about_empty_t: "Konten Tentang Kami sedang disiapkan", about_empty_x: "Administrator dapat menambahkan konten ini melalui dashboard.",
-  about_cta_t: "Bekerja sama dengan kami", about_cta_x: "Diskusikan kebutuhan suplai, servis, atau kalibrasi peralatan Anda dengan tim kami.",
-  contact_hero_eyebrow: "Hubungi kami", contact_hero_title: "Sampaikan kebutuhan Anda",
-  contact_hero_text: "Kirim pesan dan tim kami akan segera menghubungi Anda. Pesan Anda tersimpan dengan aman di sistem kami.",
-  contact_meta_desc: "Kirim permintaan untuk suplai peralatan, servis, atau kalibrasi.",
-  send_us: "Kirim pesan kepada kami", c_email: "Email Perusahaan", c_wa: "WhatsApp", c_loc: "Lokasi Perusahaan", c_hours: "Jam Operasional",
-  c_wa_btn: "Hubungi via WhatsApp", c_none: "Kontak perusahaan belum dikonfigurasi.", c_map_title: "Lokasi perusahaan di Google Maps",
-  c_map_none: "Peta belum dikonfigurasi. Administrator dapat menambahkan URL embed Google Maps di Settings.", c_aria: "Informasi kontak",
-  f_name: "Nama Anda", f_company: "Nama Perusahaan", f_email: "Email", f_subject: "Subjek", f_message: "Pesan",
-  f_placeholder: "Ceritakan peralatan, servis, atau kalibrasi yang Anda butuhkan.", f_send: "Kirim Pesan", f_sending: "Mengirim…", f_sent_title: "Pesan terkirim",
-  err_name_min: "Nama minimal 2 karakter", err_name_max: "Nama terlalu panjang", err_company_max: "Nama perusahaan terlalu panjang",
-  err_email: "Alamat email tidak valid", err_subject_min: "Subjek minimal 3 karakter", err_subject_max: "Subjek terlalu panjang",
-  err_msg_min: "Pesan minimal 10 karakter", err_msg_max: "Pesan maksimal 2.000 karakter",
-  err_review: "Mohon periksa kolom yang ditandai.", err_rate: "Terlalu banyak pengiriman. Coba lagi dalam beberapa menit.",
-  err_hourly: "Batas pengiriman per jam tercapai. Coba lagi nanti.", err_save: "Pesan Anda tidak dapat disimpan. Silakan coba lagi.",
-  ok_received: "Pesan Anda telah diterima.", ok_saved: "Pesan Anda telah tersimpan. Tim kami akan menghubungi Anda melalui email.",
-  nf_title: "Halaman tidak ditemukan", nf_text: "Konten yang Anda cari tidak ada atau belum dipublikasikan.",
-  err_title: "Terjadi kesalahan", err_text: "Halaman gagal dimuat. Silakan coba lagi.", err_retry: "Coba lagi",
-};
+export const fmt = (s: string, v: Record<string, string | number>) => s.replace(/\{(\w+)\}/g, (_, k) => String(v[k] ?? ""));
 
-export const DICT: Record<Lang, Record<DictKey, string>> = { en, id };
+/** English-only text lookup. Works in both server and client components. */
+export const t = (k: TextKey, v?: Record<string, string | number>): string => (v ? fmt(T[k], v) : T[k]);

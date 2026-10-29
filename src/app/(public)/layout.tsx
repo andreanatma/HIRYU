@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getSettings } from "@/lib/settings";
-import { getT } from "@/lib/i18n";
-import { sv } from "@/lib/lang";
+import { t } from "@/lib/dictionary";
 import { Icon } from "@/components/ui";
 import { SiteNav } from "@/components/site-nav";
 import { AdminBar } from "@/components/admin-bar";
@@ -16,12 +15,12 @@ const COLS = [
 ] as const;
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const [s, admin, { lang, t }] = await Promise.all([getSettings(), getSession(), getT()]);
+  const [s, admin] = await Promise.all([getSettings(), getSession()]);
   const wa = s.whatsapp.replace(/\D/g, "");
   return (
     <>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded focus:bg-white focus:px-4 focus:py-2">{t("skip")}</a>
-      <SiteNav name={s.company_name} lang={lang} />
+      <SiteNav name={s.company_name} />
       {admin && <AdminBar name={admin.name} />}
       <main id="main" className="min-h-[60vh] pt-20">{children}</main>
       <footer className="mt-20 bg-navy pb-10 pt-16 text-slate-300">
@@ -29,7 +28,7 @@ export default async function PublicLayout({ children }: { children: React.React
           <div className="mb-12 grid gap-10 md:grid-cols-2 lg:grid-cols-5">
             <div className="flex flex-col gap-4 lg:col-span-2">
               <span className="flex items-center gap-3 text-title-lg font-bold text-white"><span className="flex h-9 w-9 items-center justify-center rounded bg-white text-primary"><Icon name="biotech" className="text-[22px]" /></span>{s.company_name}</span>
-              <p className="max-w-sm text-body-md">{sv(s, "footer_description", lang)}</p>
+              <p className="max-w-sm text-body-md">{s.footer_description}</p>
               <ul className="space-y-1.5 text-body-sm">
                 {s.address && <li className="flex gap-2"><Icon name="location_on" className="text-[18px] text-accent" />{s.address}</li>}
                 {s.email && <li className="flex gap-2"><Icon name="mail" className="text-[18px] text-accent" /><a href={`mailto:${s.email}`} className="hover:text-white">{s.email}</a></li>}

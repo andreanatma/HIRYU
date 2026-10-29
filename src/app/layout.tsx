@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { getLang } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL ?? "http://localhost:3000"),
@@ -8,10 +7,9 @@ export const metadata: Metadata = {
   description: "Supplier, service, and calibration for laboratory and testing equipment.",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const lang = await getLang();
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={lang}>
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
