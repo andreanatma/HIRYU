@@ -5,14 +5,18 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "./ui";
 import { cn } from "@/lib/utils";
-import { t } from "@/lib/dictionary";
 
-// 082-2211-0-1122 -> international format
+// 082-2211-0-1122 -> format internasional
 const WA_NUMBER = "6282221101122";
+const WA_TEXT = "Hello, I would like to inquire about your services.";
 
 const LINKS = [
-  ["/service", "nav_services"], ["/products", "nav_products"], ["/portfolio", "nav_portfolio"],
-  ["/about-us", "nav_about"], ["/gallery", "nav_gallery"], ["/blogs", "nav_blogs"],
+  ["/service", "Services"],
+  ["/products", "Products"],
+  ["/portfolio", "Portfolio"],
+  ["/about-us", "About Us"],
+  ["/gallery", "Gallery"],
+  ["/blogs", "Blogs"],
 ] as const;
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -23,21 +27,18 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-export function SiteNav({ name }: { name: string }) {
+export type NavType = { slug: string; name: string };
+
+export function SiteNav({ name, productTypes = [] }: { name: string; productTypes?: NavType[] }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
-  useEffect(() => setOpen(false), [path]);
-
-  // Home ("/") is active only on the exact path "/"; other items are also active on their sub-pages.
-  const active = (h: string) => path === h || (h !== "/" && path.startsWith(h + "/"));
-
-  // Single menu list (Home first) shared by desktop and mobile.
-  const items: [href: string, label: string][] = [
-    ["/", "Home"],
-    ...LINKS.map(([h, k]): [string, string] => [h, t(k)]),
-  ];
-
-  const waProps = { href: `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(t("wa_text"))}`, target: "_blank", rel: "noopener noreferrer" } as const;
+  const [mProd, setMProd] = useState(false);
+  useEffect(() => {
+    setOpen(false);
+    setMProd(false);
+  }, [path]);
+  const active = (h: string) => path === h || path.startsWith(h + "/");
+  const waProps = { href: `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(WA_TEXT)}`, target: "_blank", rel: "noopener noreferrer" } as const;
 
   return (
     <header className="fixed top-0 z-50 w-full bg-gradient-to-r from-primary to-brand-hover text-white shadow-md">
@@ -46,20 +47,75 @@ export function SiteNav({ name }: { name: string }) {
           <span className="flex h-9 w-9 items-center justify-center rounded bg-white text-primary"><Icon name="biotech" className="text-[22px]" /></span>
           <span className="max-w-[210px] leading-tight sm:max-w-none">{name}</span>
         </Link>
-        <nav aria-label="Main" className="hidden items-center gap-7 lg:flex">
-          {items.map(([h, label]) => (
-            <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={cn("border-b-2 py-1 text-body-md transition-colors", active(h) ? "border-accent font-semibold text-white" : "border-transparent text-white/85 hover:text-white")}>{label}</Link>
-          ))}
-          <a {...waProps} className="btn-accent !px-5 !py-2.5"><WhatsAppIcon />{t("nav_contact")}</a>
+
+        <nav aria-label="Main" className="hidden h-full items-center gap-7 lg:flex">
+          {LINKS.map(([h, label]) => {
+            const linkCls = cn(
+              "border-b-2 py-1 text-body-md transition-colors",
+              active(h) ? "border-accent font-semibold text-white" : "border-transparent text-white/85 hover:text-white",
+            );
+            if (h !== "/products") {
+              return <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={linkCls}>{label}</Link>;
+            }
+            return (
+              <div key={h} className="group relative flex h-full items-center">
+                <Link href={h} aria-current={active(h) ? "page" : undefined} aria-haspopup="true" className={cn(linkCls, "inline-flex items-center gap-0.5")}>
+                  {label}<Icon name="expand_more" className="text-[18px] transition-transform group-hover:rotate-180" />
+                </Link>
+                {productTypes.length > 0 && (
+                  <div className="invisible absolute left-0 top-full w-72 translate-y-1 border border-line bg-white text-ink opacity-0 shadow-lg transition group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                    <ul className="max-h-[70vh] overflow-y-auto py-2">
+                      <li><Link href="/products" className="block truncate px-5 py-2.5 text-body-md font-semibold text-navy hover:bg-mist hover:text-primary">All Products</Link></li>
+                      {productTypes.map((x) => (
+                        <li key={x.slug}>
+                          <Link href={`/products?type=${x.slug}`} title={x.name} className="block truncate px-5 py-2.5 text-body-md text-on-surface-variant hover:bg-mist hover:text-primary">{x.name}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          <a {...waProps} className="btn-accent !px-5 !py-2.5"><WhatsAppIcon />Contact Us</a>
         </nav>
+
         <div className="flex items-center gap-2 lg:hidden">
-          <button className="rounded p-2 hover:bg-white/10" aria-expanded={open} aria-controls="mobile-nav" aria-label={open ? t("menu_close") : t("menu_open")} onClick={() => setOpen(!open)}><Icon name={open ? "close" : "menu"} /></button>
+          <button className="rounded p-2 hover:bg-white/10" aria-expanded={open} aria-controls="mobile-nav" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(!open)}>
+            <Icon name={open ? "close" : "menu"} />
+          </button>
         </div>
       </div>
+
       {open && (
-        <nav id="mobile-nav" aria-label="Mobile" className="container-x flex flex-col gap-1 border-t border-white/20 pb-4 pt-2 lg:hidden">
-          {items.map(([h, label]) => <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={cn("rounded px-3 py-2.5", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>{label}</Link>)}
-          <a {...waProps} className="btn-accent mt-2"><WhatsAppIcon />{t("nav_contact")}</a>
+        <nav id="mobile-nav" aria-label="Mobile" className="container-x flex max-h-[calc(100vh-5rem)] flex-col gap-1 overflow-y-auto border-t border-white/20 pb-4 pt-2 lg:hidden">
+          {LINKS.map(([h, label]) => {
+            if (h !== "/products") {
+              return <Link key={h} href={h} className={cn("rounded px-3 py-2.5", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>{label}</Link>;
+            }
+            return (
+              <div key={h}>
+                <div className={cn("flex items-center justify-between rounded", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>
+                  <Link href={h} className="flex-1 px-3 py-2.5">{label}</Link>
+                  {productTypes.length > 0 && (
+                    <button type="button" onClick={() => setMProd(!mProd)} aria-expanded={mProd} aria-label="Expand product types" className="p-2.5">
+                      <Icon name={mProd ? "remove" : "add"} />
+                    </button>
+                  )}
+                </div>
+                {mProd && (
+                  <ul className="ml-3 border-l border-white/20 pl-2">
+                    {productTypes.map((x) => (
+                      <li key={x.slug}>
+                        <Link href={`/products?type=${x.slug}`} className="block rounded px-3 py-2 text-body-sm text-white/85 hover:bg-white/10 hover:text-white">{x.name}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            );
+          })}
+          <a {...waProps} className="btn-accent mt-2"><WhatsAppIcon />Contact Us</a>
         </nav>
       )}
     </header>
