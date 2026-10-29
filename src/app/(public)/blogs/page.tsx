@@ -6,8 +6,16 @@ import { formatDate, pageParam, str, truncate } from "@/lib/utils";
 import { EmptyState, Icon, MediaImg, Pagination } from "@/components/ui";
 import { PageHero } from "@/components/public";
 
-export const generateMetadata = () =>
-  buildMetadata({ pageKey: "blogs", title: t("nav_blogs"), description: t("blog_meta_desc"), path: "/blogs" });
+export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const sp = await searchParams;
+  const page = pageParam(sp.page);
+  return buildMetadata({
+    pageKey: "blogs", title: "Blogs",
+    description: "Technical articles about equipment, measurement, and calibration.",
+    path: page > 1 ? `/blogs?page=${page}` : "/blogs",
+    noindex: !!str(sp.q).trim(),
+  });
+}
 
 const PER = 9;
 

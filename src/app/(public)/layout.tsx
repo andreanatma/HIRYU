@@ -4,9 +4,10 @@ import { getNavTypes } from "@/lib/catalog";
 import { Icon } from "@/components/ui";
 import { SiteNav } from "@/components/site-nav";
 import { AdminBar } from "@/components/admin-bar";
-import { getSession } from "@/lib/auth";
 
-export const dynamic = "force-dynamic";
+// ISR: layout tidak lagi dinamis per request. Konten disegarkan saat admin menyimpan
+// (revalidatePath di crud-actions) dan paling lambat setiap 5 menit.
+export const revalidate = 300;
 
 const COLS = [
   ["Solutions", [["/service", "Services"], ["/products", "Products"], ["/portfolio", "Portfolio"]]],
@@ -15,13 +16,13 @@ const COLS = [
 ] as const;
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const [s, admin, navTypes] = await Promise.all([getSettings(), getSession(), getNavTypes()]);
+  const [s, navTypes] = await Promise.all([getSettings(), getNavTypes()]);
   const wa = s.whatsapp.replace(/\D/g, "");
   return (
     <>
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded focus:bg-white focus:px-4 focus:py-2">Skip to content</a>
       <SiteNav name={s.company_name} productTypes={navTypes} />
-      {admin && <AdminBar name={admin.name} />}
+      <AdminBar />
       <main id="main" className="min-h-[60vh] pt-20">{children}</main>
       <footer className="mt-20 bg-navy pb-10 pt-16 text-slate-300">
         <div className="container-x">

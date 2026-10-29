@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Icon } from "./ui";
 
 const SECTIONS: [string, string, string][] = [
@@ -15,11 +15,28 @@ const SECTIONS: [string, string, string][] = [
   ["/contact", "/dashboard-admin/contact", "Contact Messages"],
 ];
 
-/** Floating bar shown ONLY to a signed-in admin (server-checked): jump back to the dashboard / manage the page being viewed. */
-export function AdminBar({ name }: { name: string }) {
+/**
+ * Floating bar yang hanya tampil untuk admin yang sedang login.
+ * Status login dicek ke /api/me (divalidasi di server) sehingga layout publik tidak perlu dinamis.
+ */
+export function AdminBar() {
   const path = usePathname();
+  const [name, setName] = useState<string | null>(null);
   const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/me", { cache: "no-store", credentials: "same-origin" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { name?: string } | null) => { if (alive) setName(d?.name ?? null); })
+      .catch(() => undefined);
+    return () => { alive = false; };
+  }, []);
+
+  if (!name) return null;
+
   const section = SECTIONS.find(([p]) => path === p || path.startsWith(p + "/"));
+
   if (hidden) {
     return (
       <Link href="/dashboard-admin" aria-label="Back to Dashboard" className="fixed bottom-4 right-4 z-[80] flex h-12 w-12 items-center justify-center rounded-full bg-accent text-navy shadow-lg hover:bg-accent-hover"><Icon name="dashboard" /></Link>

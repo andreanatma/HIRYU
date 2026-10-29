@@ -81,7 +81,8 @@ async function uniqueSlug(m: ModuleDef, base: string, selfId: number | null): Pr
 }
 
 function revalidate(m: ModuleDef) {
-  for (const p of m.publicPaths) revalidatePath(p);
+  for (const p of m.publicPaths) revalidatePath(p, p === "/" ? "page" : "layout"); // "layout" ikut menyegarkan /products/[slug], dll.
+  revalidatePath("/sitemap.xml");
   revalidatePath(`/dashboard-admin/${m.key}`);
   revalidatePath("/dashboard-admin");
 }

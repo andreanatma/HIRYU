@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useFormStatus } from "react-dom";
@@ -12,7 +12,7 @@ import { T, fmt } from "@/lib/dictionary";
 export function SubmitButton({ children, className = "btn-accent", pendingText = "Saving…" }: { children: React.ReactNode; className?: string; pendingText?: string }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" className={className} disabled={pending} aria-busy={pending}>
+    <button type="submit" className={className} disabled={pending} aria-busy={pending} aria-live="polite">
       {pending ? pendingText : children}
     </button>
   );
@@ -51,6 +51,7 @@ export function ConfirmButton({ action, label = "Delete", title, text, variant =
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
   const ref = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
   useEffect(() => {
     if (!open) return;
     ref.current?.focus();
@@ -67,8 +68,8 @@ export function ConfirmButton({ action, label = "Delete", title, text, variant =
       )}
       {open && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-navy/40 p-4" onClick={() => setOpen(false)}>
-          <div role="alertdialog" aria-modal="true" aria-labelledby="cd-t" className="w-full max-w-md rounded-lg border border-line bg-white p-6 shadow-[0_20px_25px_-5px_rgba(15,23,42,0.1)]" onClick={(e) => e.stopPropagation()}>
-            <h3 id="cd-t" className="text-title-lg">{title}</h3>
+          <div role="alertdialog" aria-modal="true" aria-labelledby={titleId} className="w-full max-w-md rounded-lg border border-line bg-white p-6 shadow-[0_20px_25px_-5px_rgba(15,23,42,0.1)]" onClick={(e) => e.stopPropagation()}>
+            <h3 id={titleId} className="text-title-lg">{title}</h3>
             <p className="mt-2 text-body-md text-on-surface-variant">{text}</p>
             <div className="mt-6 flex justify-end gap-3">
               <button ref={ref} className="btn-secondary" onClick={() => setOpen(false)}>Cancel</button>
@@ -109,7 +110,7 @@ export function FileField({ name, kind, initialId, initialName, error }: { name:
       <input type="hidden" name={name} value={id ?? ""} />
       <div className="flex items-center gap-4 rounded border border-dashed border-[#C3CDDA] bg-mist p-3">
         {kind === "image" ? (
-          id ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={`/media/${id}`} alt="Preview" className="h-20 w-28 rounded object-cover" /> : <div className="flex h-20 w-28 items-center justify-center rounded bg-surface-container text-outline"><Icon name="image" className="text-[32px]" /></div>
+          id ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={`/media/${id}`} alt="Preview" decoding="async" className="h-20 w-28 rounded object-cover" /> : <div className="flex h-20 w-28 items-center justify-center rounded bg-surface-container text-outline"><Icon name="image" className="text-[32px]" /></div>
         ) : (
           <div className="flex h-20 w-28 items-center justify-center rounded bg-surface-container text-primary"><Icon name="picture_as_pdf" className="text-[32px]" /></div>
         )}
@@ -267,6 +268,16 @@ export function Lightbox({ items }: { items: { id: number; imageId: number }[] }
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", k); document.body.style.overflow = ""; };
   }, [i, items.length]);
+
+  // Preload the neighbouring photos so next/previous feels instant.
+  useEffect(() => {
+    if (i === null || items.length < 2) return;
+    for (const j of [(i + 1) % items.length, (i - 1 + items.length) % items.length]) {
+      const img = new Image();
+      img.src = `/media/${items[j].imageId}`;
+    }
+  }, [i, items]);
+
   const cur = i === null ? null : items[i];
   const alt = (n: number) => `Hiryu Techno ${T.photo} ${n}`;
   return (
@@ -275,7 +286,7 @@ export function Lightbox({ items }: { items: { id: number; imageId: number }[] }
         {items.map((it, idx) => (
           <button key={it.id} onClick={() => setI(idx)} aria-label={fmt(T.lb_open, { n: idx + 1, total: items.length })} className="group block w-full overflow-hidden rounded-lg border border-line bg-mist">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/media/${it.imageId}`} alt={alt(idx + 1)} loading="lazy" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            <img src={`/media/${it.imageId}`} alt={alt(idx + 1)} loading="lazy" decoding="async" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
           </button>
         ))}
       </div>
@@ -283,7 +294,7 @@ export function Lightbox({ items }: { items: { id: number; imageId: number }[] }
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-navy/90 p-4" onClick={() => setI(null)}>
           <div role="dialog" aria-modal="true" aria-label={fmt(T.lb_dialog, { n: i! + 1, total: items.length })} className="relative flex max-h-[92vh] w-full max-w-5xl items-center justify-center" onClick={(e) => e.stopPropagation()}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/media/${cur.imageId}`} alt={alt(i! + 1)} className="max-h-[88vh] w-auto max-w-full rounded-lg object-contain" />
+            <img src={`/media/${cur.imageId}`} alt={alt(i! + 1)} decoding="async" className="max-h-[88vh] w-auto max-w-full rounded-lg object-contain" />
             <button ref={closeRef} onClick={() => setI(null)} aria-label={T.lb_close} className="absolute right-2 top-2 rounded-full bg-white/90 p-2 text-navy hover:bg-white"><Icon name="close" /></button>
             {items.length > 1 && <>
               <button onClick={() => setI((i! - 1 + items.length) % items.length)} aria-label={T.lb_prev} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-navy hover:bg-white"><Icon name="chevron_left" /></button>
@@ -298,7 +309,11 @@ export function Lightbox({ items }: { items: { id: number; imageId: number }[] }
 
 export type AccordionGroup = { id: number; name: string; description: string | null; products: { id: number; slug: string; name: string; brand: string | null; model: string | null; imageId: number | null }[] };
 
-/** Products page: Product Type accordion. Native <button>s give Enter/Space support; aria-expanded/controls for assistive tech. */
+/**
+ * Products page: Product Type accordion.
+ * SEO: panel selalu dirender di HTML (hanya disembunyikan dengan atribut `hidden`),
+ * sehingga link ke semua produk tetap bisa dibaca crawler walau accordion tertutup.
+ */
 export function ProductAccordion({ groups, openFirst = false }: { groups: AccordionGroup[]; openFirst?: boolean }) {
   const [open, setOpen] = useState<Set<number>>(new Set(openFirst && groups[0] ? [groups[0].id] : []));
   const toggle = (id: number) => setOpen((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
@@ -314,27 +329,25 @@ export function ProductAccordion({ groups, openFirst = false }: { groups: Accord
                 <Icon name={isOpen ? "remove" : "add"} className="text-[26px] text-primary" />
               </button>
             </h2>
-            {isOpen && (
-              <div id={`acc-${g.id}`} role="region" aria-labelledby={`acc-h-${g.id}`} className="acc-panel border-t border-line bg-mist/50 px-6 py-6">
-                {g.description && <p className="mb-5 max-w-3xl text-body-md text-on-surface-variant">{g.description}</p>}
-                {g.products.length === 0 ? <p className="text-body-md text-on-surface-variant">{T.acc_empty}</p> : (
-                  <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    {g.products.map((p) => (
-                      <li key={p.id}>
-                        <Link href={`/products/${p.slug}`} className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md">
-                          <MediaImg id={p.imageId} alt={p.name} className="h-44 w-full transition-transform duration-500 group-hover:scale-105" icon="science" />
-                          <div className="flex flex-1 flex-col p-4">
-                            <h3 className="text-title-md text-navy group-hover:text-primary">{p.name}</h3>
-                            {(p.brand || p.model) && <p className="mt-1 text-body-sm text-on-surface-variant">{[p.brand, p.model].filter(Boolean).join(" · ")}</p>}
-                            <span className="mt-3 inline-flex items-center gap-1 text-title-md text-primary">{T.view_product}<Icon name="arrow_forward" className="text-[16px]" /></span>
-                          </div>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
+            <div id={`acc-${g.id}`} role="region" aria-labelledby={`acc-h-${g.id}`} hidden={!isOpen} className="acc-panel border-t border-line bg-mist/50 px-6 py-6">
+              {g.description && <p className="mb-5 max-w-3xl text-body-md text-on-surface-variant">{g.description}</p>}
+              {g.products.length === 0 ? <p className="text-body-md text-on-surface-variant">{T.acc_empty}</p> : (
+                <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {g.products.map((p) => (
+                    <li key={p.id}>
+                      <Link href={`/products/${p.slug}`} className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md">
+                        <MediaImg id={p.imageId} alt={p.name} className="h-44 w-full transition-transform duration-500 group-hover:scale-105" icon="science" />
+                        <div className="flex flex-1 flex-col p-4">
+                          <h3 className="text-title-md text-navy group-hover:text-primary">{p.name}</h3>
+                          {(p.brand || p.model) && <p className="mt-1 text-body-sm text-on-surface-variant">{[p.brand, p.model].filter(Boolean).join(" · ")}</p>}
+                          <span className="mt-3 inline-flex items-center gap-1 text-title-md text-primary">{T.view_product}<Icon name="arrow_forward" className="text-[16px]" /></span>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         );
       })}
@@ -355,7 +368,7 @@ export function LogoStrip({ items, dark = false }: { items: LogoItem[]; dark?: b
 
   const renderItem = (b: LogoItem, key: string, hidden: boolean) => {
     const inner = b.logoId
-      ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={`/media/${b.logoId}`} alt={hidden ? "" : b.name} loading="lazy" className="h-10 w-auto max-w-[140px] object-contain" />
+      ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={`/media/${b.logoId}`} alt={hidden ? "" : b.name} loading="eager" decoding="async" className="h-10 w-auto max-w-[140px] object-contain" />
       : <span className="whitespace-nowrap text-title-md text-navy">{b.name}</span>;
     return (
       <li
