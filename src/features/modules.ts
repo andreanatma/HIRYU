@@ -12,7 +12,7 @@ export type FieldDef = {
   relation?: { model: "productType"; labelField: string };
   help?: string;
   placeholder?: string;
-  group?: "seo";
+  group?: "seo" | "id"
   /** Default for new records (booleans/numbers/selects). */
   def?: string | number | boolean;
 };
@@ -160,7 +160,7 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
     fields: [
       { name: "name", label: "Brand name", type: "text", required: true, max: 160 },
       { name: "logoId", label: "Logo (optional)", type: "image", help: "If empty, the brand name is shown as text." },
-      { name: "websiteUrl", label: "Website URL (optional)", type: "url", max: 255, placeholder: "https://", help: "Optional. Leave empty if the brand has no website; the logo will then not be a link." },
+      { name: "websiteUrl", label: "Website URL (optional)", type: "url", max: 255, placeholder: "https://" },
       order, active,
     ],
   },

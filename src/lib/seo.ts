@@ -22,18 +22,15 @@ import { getLang } from "./i18n";
 import { sv } from "./lang";
 
 export async function buildMetadata(o: Opts): Promise<Metadata> {
-  const lang = await getLang();
-  const [s, seo] = await Promise.all([getSettings(), o.pageKey ? prisma.seoSetting.findUnique({ where: { pageKey: o.pageKey } }) : null]);
-  const title = (lang === "id" && seo?.titleId) || seo?.title || o.title || s.company_name;
-  const description = (lang === "id" && seo?.descriptionId) || seo?.description || o.description || sv(s, "tagline", lang);
-  const image = seo?.ogImageId ? `/media/${seo.ogImageId}` : o.image ?? undefined;
-  const noindex = seo?.noindex || o.noindex;
+  const s = await getSettings();
+  const title = o.title || s.company_name;
+  const description = o.description || s.tagline;
+  const image = o.image ?? undefined;
   return {
-    title,
-    description,
+    title, description,
     alternates: { canonical: o.path },
-    robots: noindex ? { index: false, follow: false } : undefined,
-    openGraph: { title, description, url: o.path, siteName: s.company_name, type: o.type ?? "website", locale: lang === "id" ? "id_ID" : "en_US", images: image ? [{ url: image }] : undefined },
+    robots: o.noindex ? { index: false, follow: false } : undefined,
+    openGraph: { title, description, url: o.path, siteName: s.company_name, type: o.type ?? "website", locale: "en_US", images: image ? [{ url: image }] : undefined },
     twitter: { card: image ? "summary_large_image" : "summary", title, description },
   };
 }

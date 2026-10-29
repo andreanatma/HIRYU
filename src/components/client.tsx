@@ -251,7 +251,8 @@ export function IdleGuard() {
 }
 
 /** Public gallery: images only (no visible titles/descriptions) with a keyboard-accessible lightbox. */
-export function Lightbox({ items }: { items: { id: number; imageId: number }[] }) {
+export function Lightbox({ items, lang = "en" }: { items: { id: number; imageId: number }[]; lang?: string }) {
+  const idn = lang === "id";
   const [i, setI] = useState<number | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -271,7 +272,7 @@ export function Lightbox({ items }: { items: { id: number; imageId: number }[] }
     <>
       <div className="columns-1 gap-4 sm:columns-2 lg:columns-3 [&>*]:mb-4">
         {items.map((it, idx) => (
-          <button key={it.id} onClick={() => setI(idx)} aria-label={`Open photo ${idx + 1} of ${items.length}`} className="group block w-full overflow-hidden rounded-lg border border-line bg-mist">
+          <button key={it.id} onClick={() => setI(idx)} aria-label={idn ? `Buka foto ${idx + 1} dari ${items.length}` : `Open photo ${idx + 1} of ${items.length}`} className="group block w-full overflow-hidden rounded-lg border border-line bg-mist">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`/media/${it.imageId}`} alt={`Hiryu Techno photo ${idx + 1}`} loading="lazy" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
           </button>
@@ -279,13 +280,13 @@ export function Lightbox({ items }: { items: { id: number; imageId: number }[] }
       </div>
       {cur && (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-navy/90 p-4" onClick={() => setI(null)}>
-          <div role="dialog" aria-modal="true" aria-label={`Photo ${i! + 1} of ${items.length}`} className="relative flex max-h-[92vh] w-full max-w-5xl items-center justify-center" onClick={(e) => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-label={idn ? `Foto ${i! + 1} dari ${items.length}` : `Photo ${i! + 1} of ${items.length}`} className="relative flex max-h-[92vh] w-full max-w-5xl items-center justify-center" onClick={(e) => e.stopPropagation()}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`/media/${cur.imageId}`} alt={`Hiryu Techno photo ${i! + 1}`} className="max-h-[88vh] w-auto max-w-full rounded-lg object-contain" />
-            <button ref={closeRef} onClick={() => setI(null)} aria-label="Close" className="absolute right-2 top-2 rounded-full bg-white/90 p-2 text-navy hover:bg-white"><Icon name="close" /></button>
+            <button ref={closeRef} onClick={() => setI(null)} aria-label={idn ? "Tutup" : "Close"} className="absolute right-2 top-2 rounded-full bg-white/90 p-2 text-navy hover:bg-white"><Icon name="close" /></button>
             {items.length > 1 && <>
-              <button onClick={() => setI((i! - 1 + items.length) % items.length)} aria-label="Previous photo" className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-navy hover:bg-white"><Icon name="chevron_left" /></button>
-              <button onClick={() => setI((i! + 1) % items.length)} aria-label="Next photo" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-navy hover:bg-white"><Icon name="chevron_right" /></button>
+              <button onClick={() => setI((i! - 1 + items.length) % items.length)} aria-label={idn ? "Foto sebelumnya" : "Previous photo"} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-navy hover:bg-white"><Icon name="chevron_left" /></button>
+              <button onClick={() => setI((i! + 1) % items.length)} aria-label={idn ? "Foto berikutnya" : "Next photo"} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-white/90 p-2 text-navy hover:bg-white"><Icon name="chevron_right" /></button>
             </>}
           </div>
         </div>
@@ -297,7 +298,8 @@ export function Lightbox({ items }: { items: { id: number; imageId: number }[] }
 export type AccordionGroup = { id: number; name: string; description: string | null; products: { id: number; slug: string; name: string; brand: string | null; model: string | null; imageId: number | null }[] };
 
 /** Products page: Product Type accordion. Native <button>s give Enter/Space support; aria-expanded/controls for assistive tech. */
-export function ProductAccordion({ groups, openFirst = false }: { groups: AccordionGroup[]; openFirst?: boolean }) {
+export function ProductAccordion({ groups, openFirst = false, lang = "en" }: { groups: AccordionGroup[]; openFirst?: boolean; lang?: string }) {
+  const idn = lang === "id";
   const [open, setOpen] = useState<Set<number>>(new Set(openFirst && groups[0] ? [groups[0].id] : []));
   const toggle = (id: number) => setOpen((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   return (
@@ -315,7 +317,7 @@ export function ProductAccordion({ groups, openFirst = false }: { groups: Accord
             {isOpen && (
               <div id={`acc-${g.id}`} role="region" aria-labelledby={`acc-h-${g.id}`} className="acc-panel border-t border-line bg-mist/50 px-6 py-6">
                 {g.description && <p className="mb-5 max-w-3xl text-body-md text-on-surface-variant">{g.description}</p>}
-                {g.products.length === 0 ? <p className="text-body-md text-on-surface-variant">No products are available in this category yet.</p> : (
+                {g.products.length === 0 ? <p className="text-body-md text-on-surface-variant">{idn ? "Belum ada produk pada kategori ini." : "No products are available in this category yet."}</p> : (
                   <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     {g.products.map((p) => (
                       <li key={p.id}>
@@ -324,7 +326,7 @@ export function ProductAccordion({ groups, openFirst = false }: { groups: Accord
                           <div className="flex flex-1 flex-col p-4">
                             <h3 className="text-title-md text-navy group-hover:text-primary">{p.name}</h3>
                             {(p.brand || p.model) && <p className="mt-1 text-body-sm text-on-surface-variant">{[p.brand, p.model].filter(Boolean).join(" · ")}</p>}
-                            <span className="mt-3 inline-flex items-center gap-1 text-title-md text-primary">View Product<Icon name="arrow_forward" className="text-[16px]" /></span>
+                            <span className="mt-3 inline-flex items-center gap-1 text-title-md text-primary">{idn ? "Lihat Produk" : "View Product"}<Icon name="arrow_forward" className="text-[16px]" /></span>
                           </div>
                         </Link>
                       </li>
