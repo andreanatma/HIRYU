@@ -9,14 +9,14 @@ import { Icon, MediaImg } from "@/components/ui";
 import { SectionHead } from "@/components/public";
 import { LogoStrip } from "@/components/client";
 import { ContactSection } from "@/components/contact-section";
-import { ABOUT_SECTIONS, CLIENT_LOGOS } from "@/content/site-content";
+import { CLIENT_LOGOS } from "@/content/site-content";
 
 export const generateMetadata = () => buildMetadata({ pageKey: "home", path: "/" });
 
 export default async function Home() {
   const { lang, t } = await getT();
   const L = (row: object, f: string) => loc(row, f, lang);
-  const about = ABOUT_SECTIONS[0];
+  
   const [s, services, products, portfolio, brands, gallery, team, blogs] = await Promise.all([
     getSettings(),
     prisma.service.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }], take: 3, include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } } }),
@@ -27,6 +27,7 @@ export default async function Home() {
     prisma.teamMember.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { id: "asc" }], take: 3 }),
     prisma.blog.findMany({ where: { status: "PUBLISHED" }, orderBy: { publishedAt: "desc" }, take: 3 }),
   ]);
+  
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({ "@context": "https://schema.org", "@type": "Organization", name: s.company_name, url: SITE_URL, email: s.email || undefined, address: s.address || undefined }) }} />
@@ -50,20 +51,18 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 2. About Us (statis: src/content/site-content.ts) */}
-      <section className="bg-white py-20" aria-labelledby="home-about">
-        <div className="container-x">
-          <SectionHead eyebrow="About us" title="Who We Are" />
-          <h2 id="home-about" className="sr-only">About Us</h2>
-          <div className={`grid items-center gap-10 ${about.image ? "lg:grid-cols-2" : ""}`}>
-            <div><h3 className="text-headline-lg text-navy">{about.heading}</h3><p className="mt-4 whitespace-pre-line text-body-lg text-on-surface-variant">{truncate(about.body.replace(/\n{2,}/g, "\n"), 620)}</p><Link href="/about-us" className="btn-primary mt-6">Learn More<Icon name="arrow_forward" className="text-[18px]" /></Link></div>
-            {about.image && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={about.image} alt={about.heading} loading="lazy" className="h-72 w-full rounded-lg object-cover lg:h-80" />
-            )}
+      {/* 2. Trust Indicators (Clients) - Dipindahkan ke atas untuk kredibilitas instan */}
+      {CLIENT_LOGOS.length > 0 && (
+        <section className="bg-white py-10 border-b border-slate-200" aria-labelledby="clients-h">
+          <div className="container-x">
+            <h2 id="clients-h" className="sr-only">Trusted by Clients</h2>
+            <p className="mb-6 text-center text-label-md uppercase tracking-widest text-slate-500">
+              {lang === "id" ? "Dipercaya oleh laboratorium dan industri terkemuka" : "Trusted by leading laboratories and industries"}
+            </p>
+            <LogoStrip items={CLIENT_LOGOS.map((c, i) => ({ id: i, name: c.name, logoId: null, src: c.logo ?? null, url: c.url ?? null }))} />
           </div>
-        </div>
-      </section>
+        </section>
+      )}
       
       {/* 3. Services */}
       {services.length > 0 && (
@@ -118,17 +117,7 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 7. Clients (statis; tampil hanya jika CLIENT_LOGOS terisi) */}
-      {CLIENT_LOGOS.length > 0 && (
-        <section className="bg-white py-16" aria-labelledby="clients-h">
-          <div className="container-x">
-            <h2 id="clients-h" className="mb-8 text-center text-headline-lg text-navy">Clients</h2>
-            <LogoStrip items={CLIENT_LOGOS.map((c, i) => ({ id: i, name: c.name, logoId: null, src: c.logo ?? null, url: c.url ?? null }))} />
-          </div>
-        </section>
-      )}
-
-      {/* 8. Gallery */}
+      {/* 7. Gallery */}
       {gallery.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
           <SectionHead eyebrow={t("gal_eyebrow")} title={t("gal_latest")} href="/gallery" linkText={t("gal_view")} />
@@ -138,7 +127,7 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 9. Our team */}
+      {/* 8. Our team */}
       {team.length > 0 && (
         <section className="bg-white py-20"><div className="container-x">
           <SectionHead eyebrow={t("team_eyebrow")} title={t("team_title")} href="/about-us" linkText={t("nav_about")} />
@@ -148,7 +137,7 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* Blogs */}
+      {/* 9. Blogs */}
       {blogs.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
           <SectionHead eyebrow={t("blog_eyebrow")} title={t("blog_latest")} href="/blogs" linkText={t("blog_all")} />

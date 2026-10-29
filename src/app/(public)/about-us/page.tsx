@@ -1,10 +1,10 @@
 import { buildMetadata } from "@/lib/seo";
 import { getT } from "@/lib/i18n";
-import { loc } from "@/lib/lang"; // Anda mungkin tidak butuh ini lagi jika data sudah statis, kecuali untuk tim
+import { loc } from "@/lib/lang"; 
 import { MediaImg } from "@/components/ui";
 import { CtaBand, PageHero, SectionHead } from "@/components/public";
 import { AboutSections } from "@/components/about-sections";
-import { prisma } from "@/lib/db"; // Tetap pertahankan jika Anda masih mengambil data 'team' dari database
+import { prisma } from "@/lib/db"; 
 
 export async function generateMetadata() {
   const { t } = await getT();
@@ -16,8 +16,8 @@ export async function generateMetadata() {
   });
 }
 
-// 1. Definisikan data statis secara langsung
-const ABOUT_DATA = [
+// 1. Data Bahasa Indonesia
+const ABOUT_ID = [
   {
     id: 1,
     heading: "Tentang PT Hiryu Techno Indonesia",
@@ -44,16 +44,52 @@ const ABOUT_DATA = [
   },
   {
     id: 5,
-    heading: "Inilah Mengapa Anda Seharusnya Memilih Kami",
+    heading: "Mengapa Memilih Kami",
     body: "- Professional: Kami adalah ahli yang terampil dan berpengalaman dalam menganalisis, memperbaiki, dan merawat berbagai jenis peralatan laboratorium maupun alat industri dengan fokus pada kualitas dan keamanan.\n- Trusted: Kepercayaan anda adalah prioritas kami, dan kami berkomitmen memberikan solusi pelayanan terbaik dengan transparansi dan integritas.\n- Competitive Price: Kami memberikan solusi perbaikan berkualitas tinggi dengan tarif yang kompetitif dibanding kompetitor kami tanpa mengorbankan kualitas kerja.\n- Flexible: Menghadirkan fleksibilitas dalam layanan perbaikan kami. Dari jadwal yang dapat disesuaikan hingga pilihan solusi yang variatif, kami siap mengakomodasi kebutuhan unik anda.\n- Fast: Menawarkan layanan perbaikan yang cepat dan responsif. Kami menghargai waktu anda dan berkomitmen untuk memberikan hasil yang memuaskan dengan waktu respon yang singkat.\n- Customer Satisfication: Kami berupaya untuk memberikan layanan perbaikan yang tidak hanya memperbaiki masalah, tetapi juga meninggalkan anda dengan perasaan puas pada kualitas.",
     imageId: null,
   },
 ];
 
+// 2. Data Bahasa Inggris
+const ABOUT_EN = [
+  {
+    id: 1,
+    heading: "About PT Hiryu Techno Indonesia",
+    body: "We are a service company serving the needs for repair, maintenance, calibration, and supply of testing equipment, laboratory equipment, and industrial equipment. We have been working in this field for more than 10 years and have served a wide range of customers, from R&D laboratories, manufacturers, universities, clinics and hospitals, to government laboratories and many others.\n\nThe company was founded as Hiryu Teknik and was renewed as PT Hiryu Techno Indonesia under deed no. AHU-013946.AH.01.30. Year 2023.",
+    imageId: null,
+  },
+  {
+    id: 2,
+    heading: "Our Vision",
+    body: "To become the leading partner in providing innovative and reliable solutions for laboratory equipment repair, calibration, and supply. We are committed to supporting research and development by providing the best, fastest, and most precise service.",
+    imageId: null,
+  },
+  {
+    id: 3,
+    heading: "Our Mission",
+    body: "## Providing High-Quality Solutions\nOur core is to provide high-quality laboratory solutions to our customers. We are committed to delivering products and services that meet or even exceed industry standards and customer expectations.\n\n## Supporting Research and Innovation\nWe understand the important role of laboratories in research and innovation. Our mission is to be a reliable partner for the scientific and industrial community, providing equipment and services that support scientific progress.\n\n## Outstanding Customer Service\nWe emphasize customer satisfaction. Our mission is to provide outstanding customer service, including excellent technical support, so that our customers feel supported throughout the journey.",
+    imageId: null,
+  },
+  {
+    id: 4,
+    heading: "Company Principles",
+    body: "## Top Quality\nWe are committed to quality in every aspect of our business, from products and services to internal processes, and strive to give the best to our customers.\n\n## Safety First\nSafety is our top priority. We apply strict safety practices to protect our employees, customers, and the public from risks related to our products and services.\n\n## Continuous Innovation\nWe believe innovation is key to meeting evolving needs and staying relevant in an ever-changing industry.\n\n## Outstanding Customer Service\nWe pay special attention to customer satisfaction and work hard to understand our customers' needs and provide services that meet or exceed their expectations.\n\n## Social and Environmental Responsibility\nWe are aware of the impact of our business on society and the environment. We commit to acting responsibly, minimizing environmental impact, and supporting the community around us.\n\n## Partnership and Collaboration\nWe understand the importance of working together with customers, business partners, and other industry players, and we build mutually beneficial relationships.",
+    imageId: null,
+  },
+  {
+    id: 5,
+    heading: "Why Choose Us",
+    body: "- Professional: skilled experts in analyzing, repairing, and maintaining various types of laboratory and industrial equipment, with a focus on quality and safety.\n- Trusted: your trust is our priority; we commit to providing the best service with transparency and integrity.\n- Competitive Price: high-quality repair solutions at competitive rates without compromising work quality.\n- Flexible: flexible schedules and a variety of solution options to accommodate your unique needs.\n- Fast: fast and responsive service; we value your time and aim for satisfying results within a short response time.\n- Customer Satisfaction: repair services that not only fix the problem but also increase your satisfaction and trust in us.",
+    imageId: null,
+  },
+];
+
 export default async function AboutUs() {
-  const { lang, t } = await getT();
+  const { lang, t } = await getT(); // Mengambil bahasa saat ini (id atau en)
   
-  // Hanya ambil data tim jika masih menggunakan database untuk tim
+  // 3. Logika Pemilihan Bahasa
+  const activeData = lang === "id" ? ABOUT_ID : ABOUT_EN;
+  
   const team = await prisma.teamMember.findMany({
     where: { isActive: true },
     orderBy: [{ displayOrder: "asc" }, { id: "asc" }],
@@ -68,9 +104,9 @@ export default async function AboutUs() {
         icon="info"
       />
       
-      {/* Lempar data statis langsung ke komponen */}
+      {/* 4. Melempar data sesuai bahasa yang aktif */}
       <AboutSections
-        sections={ABOUT_DATA}
+        sections={activeData}
         companyName="PT Hiryu Techno Indonesia" 
       />
 
