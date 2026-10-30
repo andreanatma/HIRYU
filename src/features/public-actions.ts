@@ -17,6 +17,14 @@ const schema = z.object({
   message: z.string().trim().min(10, t.err_msg_min).max(2000, t.err_msg_max),
 });
 
+/**
+ * Alur pesan kontak:
+ *   1) Klien mengisi form  →  validasi + anti-spam (honeypot, rate limit)
+ *   2) Dikirim ke email company lewat SMTP
+ *   3) Disimpan ke database sebagai riwayat (beserta status email yang NYATA: SENT / FAILED / NOT_CONFIGURED)
+ *
+ * Pesan tetap disimpan walau email gagal, supaya tidak ada calon pelanggan yang hilang.
+ */
 export async function submitContact(_p: FormState, fd: FormData): Promise<FormState> {
   // Honeypot: bots fill the hidden field. Pretend success so we give no signal.
   if (String(fd.get("website") ?? "") !== "") return { ok: true, message: t.ok_received };
@@ -36,15 +44,18 @@ export async function submitContact(_p: FormState, fd: FormData): Promise<FormSt
     for (const i of parsed.error.issues) errors[String(i.path[0])] = i.message;
     return { ok: false, message: t.err_review, errors };
   }
-  let id: number;
+
+  // 2) Kirim ke email company (tidak pernah melempar error; mengembalikan status)
+  const emailStatus = await sendContactNotification(parsed.data);
+
+  // 3) Simpan ke database sebagai riwayat, lengkap dengan status email
   try {
-    const row = await prisma.contactMessage.create({ data: { ...parsed.data, ipHash } });
-    id = row.id;
+    await prisma.contactMessage.create({ data: { ...parsed.data, ipHash, emailStatus } });
   } catch (e) {
     console.error("contact", e);
+    // Email sudah sampai ke company → bagi klien pesannya tetap berhasil terkirim.
+    if (emailStatus === "SENT") return { ok: true, message: t.ok_received };
     return { ok: false, message: t.err_save };
   }
-  const emailStatus = await sendContactNotification(parsed.data);
-  await prisma.contactMessage.update({ where: { id }, data: { emailStatus } }).catch(() => undefined);
   return { ok: true, message: t.ok_saved };
 }

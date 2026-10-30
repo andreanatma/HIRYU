@@ -2,30 +2,66 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { buildMetadata } from "@/lib/seo";
 import { t } from "@/lib/dictionary";
-import { EmptyState, MediaImg } from "@/components/ui";
+import { EmptyState, Icon, MediaImg } from "@/components/ui";
 import { CtaBand, PageHero } from "@/components/public";
+import { Reveal } from "@/components/public/reveal";
 
 export async function generateMetadata() {
   return buildMetadata({ pageKey: "portfolio", title: t("nav_portfolio"), description: t("pf_meta_desc"), path: "/portfolio" });
 }
 
 export default async function Portfolio() {
-  const items = await prisma.portfolio.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { projectDate: "desc" }, { createdAt: "desc" }], include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } } });
+  const items = await prisma.portfolio.findMany({
+    where: { isActive: true },
+    orderBy: [{ displayOrder: "asc" }, { projectDate: "desc" }, { createdAt: "desc" }],
+    include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } },
+  });
+
   return (
     <>
-      <PageHero eyebrow={t("pf_hero_eyebrow")} title={t("pf_hero_title")} text={t("pf_hero_text")} icon="folder_special" />
-      <section className="container-x py-14">
-        {items.length === 0 ? <EmptyState icon="folder_special" title={t("pf_empty")} /> : (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((p) => (
-              <Link key={p.id} href={`/portfolio/${p.slug}`} className="card group flex flex-col overflow-hidden transition-shadow hover:shadow-md">
-                <div className="overflow-hidden"><MediaImg id={p.imageId ?? p.images[0]?.mediaId} alt={p.name} className="h-56 w-full transition-transform duration-500 group-hover:scale-105" icon="folder_special" /></div>
-                <div className="p-6"><h2 className="text-headline-md text-navy group-hover:text-primary">{p.name}</h2>{p.clientName && <p className="mt-1 text-label-md uppercase text-primary">{p.clientName}</p>}</div>
-              </Link>
-            ))}
-          </div>
-        )}
+      <PageHero eyebrow={t("pf_hero_eyebrow")} title={t("pf_hero_title")} text={t("pf_hero_text")} icon="folder_special" blend="white" />
+
+      {/* Hero memudar ke putih (blend="white") lalu section dimulai dari putih → krem, jadi tanpa garis batas */}
+      <section className="sec-deco sec-warm bg-gradient-to-b from-white via-[#FFFBEA] to-[#FFF4C9] pb-12 pt-6 md:pb-16 md:pt-8">
+        <div className="container-x">
+          {items.length === 0 ? (
+            <EmptyState icon="folder_special" title={t("pf_empty")} />
+          ) : (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+              {items.map((p, i) => (
+                <Reveal key={p.id} delay={(i % 3) * 100} className="h-full">
+                  <Link
+                    href={`/portfolio/${p.slug}`}
+                    className="group relative block h-full overflow-hidden rounded-xl bg-navy shadow-md transition-all duration-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40 motion-safe:hover:-translate-y-2 hover:shadow-[0_28px_50px_-20px_rgba(8,102,217,0.55)]"
+                  >
+                    <MediaImg
+                      id={p.imageId ?? p.images[0]?.mediaId}
+                      alt={p.name}
+                      className="aspect-[4/3] w-full transition-transform duration-700 ease-out sm:aspect-[16/11] group-hover:scale-110 group-hover:opacity-90"
+                      icon="folder_special"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/30 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
+                      {p.clientName && (
+                        <p className="line-clamp-1 text-label-sm uppercase tracking-wider text-accent">
+                          {t("client_label")} {p.clientName}
+                        </p>
+                      )}
+                      <h2 className="mt-1 line-clamp-2 text-title-lg text-white">{p.name}</h2>
+                      {/* Mobile/touch: selalu terlihat. Desktop: muncul saat hover/fokus. */}
+                      <span className="mt-2 inline-flex items-center gap-1 text-body-sm font-semibold text-white transition-all duration-300 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:group-focus-visible:translate-y-0 md:group-focus-visible:opacity-100">
+                        {t("learn_more")}
+                        <Icon name="arrow_forward" className="text-[16px] transition-transform duration-300 group-hover:translate-x-1" />
+                      </span>
+                    </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          )}
+        </div>
       </section>
+
       <CtaBand title={t("pf_cta_t")} text={t("pf_cta_x")} />
     </>
   );
