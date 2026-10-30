@@ -10,6 +10,7 @@ import { TeamSection } from "@/components/about-sections";
 import { LogoStrip } from "@/components/client";
 import { ContactSection } from "@/components/contact-section";
 import { CLIENT_LOGOS } from "@/content/site-content";
+import { HeroSlider } from "@/components/public/hero-slider";
 
 export const generateMetadata = () => buildMetadata({ pageKey: "home", path: "/" });
 
@@ -25,28 +26,23 @@ export default async function Home() {
     prisma.blog.findMany({ where: { status: "PUBLISHED" }, orderBy: { publishedAt: "desc" }, take: 3 }),
   ]);
 
+  // Ekstrak teks gambar dengan Type Assertion agar terhindar dari Error TypeScript
+  const settingsData = s as Record<string, string>;
+  const heroImagesStr = settingsData.hero_images;
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({ "@context": "https://schema.org", "@type": "Organization", name: s.company_name, url: SITE_URL, email: s.email || undefined, address: s.address || undefined }) }} />
 
-      {/* 1. Hero */}
-      <section className="relative overflow-hidden bg-navy text-white">
-        <div className="pointer-events-none absolute -right-32 -top-32 h-[520px] w-[520px] rounded-full bg-primary/30 blur-[110px]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:28px_28px] opacity-[0.06]" />
-        <div className="container-x relative grid items-center gap-10 py-20 lg:grid-cols-12 lg:py-28">
-          <div className="flex flex-col gap-6 lg:col-span-8">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-label-md uppercase tracking-wider"><span className="h-2 w-2 rounded-full bg-accent" />{s.company_name}</span>
-            <h1 className="text-display-lg-mobile leading-tight tracking-tight text-white md:text-display-lg">{s.hero_title}</h1>
-            <div className="h-1 w-24 rounded bg-accent" />
-            <p className="max-w-2xl text-body-lg text-slate-300">{s.hero_subtitle}</p>
-            <div className="flex flex-wrap gap-4 pt-2">
-              <Link href="/products" className="btn-accent !px-7 !py-3.5">{t("hero_explore")}<Icon name="arrow_forward" className="text-[18px]" /></Link>
-              <Link href="/about-us" className="btn-outline-light !px-7 !py-3.5">{t("hero_about")}</Link>
-            </div>
-          </div>
-          <div className="hidden lg:col-span-4 lg:block" aria-hidden="true"><div className="flex h-64 items-center justify-center rounded-2xl border border-white/10 bg-white/5"><Icon name="biotech" className="text-[110px] text-white/30" /></div></div>
-        </div>
-      </section>
+      {/* 1. Hero Baru dengan Slider */}
+      <HeroSlider 
+        companyName={s.company_name}
+        title={s.hero_title}
+        subtitle={s.hero_subtitle}
+        exploreText={t("hero_explore")}
+        aboutText={t("hero_about")}
+        images={heroImagesStr ? heroImagesStr.split(',').map((img: string) => img.trim()).filter(Boolean) : undefined}
+      />
 
       {/* 2. Trust indicators (Clients) */}
       {CLIENT_LOGOS.length > 0 && (
@@ -61,7 +57,7 @@ export default async function Home() {
         </section>
       )}
 
-      {/* 3. Services (Rata Kiri, Hover Animasi Penuh) */}
+      {/* 3. Services */}
       {services.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
           <SectionHead eyebrow={t("svc_eyebrow")} title={t("svc_title")} href="/service" linkText={t("svc_all")} />
@@ -76,7 +72,7 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 4. Featured products (Dikembalikan Rata Kiri, Hover Animasi Penuh) */}
+      {/* 4. Featured products */}
       <section className="bg-white py-20"><div className="container-x">
         <SectionHead eyebrow={t("prod_eyebrow")} title={t("prod_featured")} href="/products" linkText={t("prod_all")} />
         {products.length === 0 ? <p className="text-body-md text-on-surface-variant">{t("prod_none")} <Link href="/products" className="text-primary underline">{t("prod_browse")}</Link>.</p> : (
@@ -93,7 +89,7 @@ export default async function Home() {
         )}
       </div></section>
 
-      {/* 5. Featured portfolio (Rata Kiri, Hover Animasi Penuh) */}
+      {/* 5. Featured portfolio */}
       {portfolio.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
           <SectionHead eyebrow={t("pf_eyebrow")} title={t("pf_featured")} href="/portfolio" linkText={t("pf_all")} />
@@ -108,7 +104,7 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 6. Brands (Rata Tengah, Tambahan Aksen Garis Kuning) */}
+      {/* 6. Brands */}
       {brands.length > 0 && (
         <section className="bg-navy py-16" aria-labelledby="brands-h"><div className="container-x">
           <div className="mb-12 text-center">
@@ -119,7 +115,7 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 7. Gallery (Rata Kiri, Hover Animasi Penuh) */}
+      {/* 7. Gallery */}
       {gallery.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
           <SectionHead eyebrow={t("gal_eyebrow")} title={t("gal_latest")} href="/gallery" linkText={t("gal_view")} />
@@ -129,14 +125,14 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 8. Our team (Rata Tengah Bawaan Komponen) */}
+      {/* 8. Our team */}
       <TeamSection
         members={team.map((m) => ({ id: m.id, name: m.name, role: m.position, imageUrl: m.photoId ? `/media/${m.photoId}` : null }))}
         eyebrow={t("team_eyebrow")}
         title={t("team_title")}
       />
 
-      {/* 9. Blogs (Rata Kiri, Link Semua Artikel di Kanan Atas) */}
+      {/* 9. Blogs */}
       {blogs.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
           <SectionHead eyebrow={t("blog_eyebrow")} title={t("blog_latest")} href="/blogs" linkText={t("blog_all")} />
@@ -153,7 +149,7 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 10. Contact (Rata Kiri) */}
+      {/* 10. Contact */}
       <section className="bg-white py-20" id="contact" aria-labelledby="contact-h"><div className="container-x">
         <SectionHead eyebrow={t("contact_eyebrow")} title={t("contact_title")} />
         <h2 id="contact-h" className="sr-only">{t("nav_contact")}</h2>
