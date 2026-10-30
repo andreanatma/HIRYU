@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "./ui";
+import { BrandLogo } from "./brand-logo";
 import { cn } from "@/lib/utils";
 
 // 082-2211-0-1122 -> format internasional
@@ -28,26 +29,78 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
+// Halaman yang (hampir pasti) memakai hero gelap; hanya untuk tebakan awal sebelum DOM diperiksa.
+const HERO_ROUTES = ["/", "/service", "/products", "/portfolio", "/about-us", "/gallery", "/blogs", "/contact"];
+
 export type NavType = { slug: string; name: string };
 
 export function SiteNav({ name, productTypes = [] }: { name: string; productTypes?: NavType[] }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const [mProd, setMProd] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [hovered, setHovered] = useState(false); // kursor mouse di atas navbar
+  const [focused, setFocused] = useState(false); // fokus KEYBOARD di dalam navbar
   useEffect(() => {
     setOpen(false);
     setMProd(false);
+    setHovered(false); // setelah pindah halaman, kembali transparan sampai kursor bergerak lagi
+    setFocused(false);
+    (document.activeElement as HTMLElement | null)?.blur?.(); // fokus hasil klik link tidak boleh "menempel"
   }, [path]);
+
+  // Navbar transparan saat halaman paling atas HANYA di halaman yang punya hero gelap
+  // (hero homepage & PageHero memberi atribut data-nav-hero). Di halaman tanpa hero (mis. detail produk)
+  // navbar tetap solid. Latar muncul saat di-scroll, di-hover/fokus, atau menu mobile terbuka.
+  const [hasHero, setHasHero] = useState(HERO_ROUTES.includes(path)); // tebakan awal agar tidak berkedip saat load pertama
+  useEffect(() => {
+    const check = () => setHasHero(!!document.querySelector("[data-nav-hero]"));
+    check();
+    // Halaman baru bisa tampil SETELAH loading.tsx / streaming selesai → pantau perubahan isi <main>.
+    const main = document.getElementById("main");
+    if (!main) return;
+    let raf = 0;
+    const mo = new MutationObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(check);
+    });
+    mo.observe(main, { childList: true, subtree: true });
+    return () => {
+      mo.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [path]);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  const solid = !hasHero || scrolled || hovered || focused || open;
 
   // Home ("/") hanya aktif jika path persis "/", agar tidak ikut aktif di semua halaman.
   const active = (h: string) => (h === "/" ? path === "/" : path === h || path.startsWith(h + "/"));
   const waProps = { href: `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(WA_TEXT)}`, target: "_blank", rel: "noopener noreferrer" } as const;
 
   return (
-    <header className="fixed top-0 z-50 w-full bg-gradient-to-r from-primary to-brand-hover text-white shadow-md">
+    <header
+      className={cn(
+        "fixed top-0 z-50 isolate w-full text-white transition-shadow duration-500",
+        solid ? "shadow-md" : "shadow-none",
+      )}
+      onPointerEnter={(e) => e.pointerType === "mouse" && setHovered(true)}
+      onPointerMove={(e) => e.pointerType === "mouse" && !hovered && setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
+      onFocus={(e) => e.target.matches(":focus-visible") && setFocused(true)}
+      onBlur={() => setFocused(false)}
+    >
+      {/* Lapisan latar: memudar masuk/keluar (opacity) agar transisi halus */}
+      <div aria-hidden="true" className={cn("absolute inset-0 -z-10 bg-gradient-to-r from-primary to-brand-hover transition-opacity duration-500", solid ? "opacity-100" : "opacity-0")} />
+      <div aria-hidden="true" className={cn("absolute inset-0 -z-10 bg-gradient-to-b from-navy/60 to-transparent transition-opacity duration-500", solid ? "opacity-0" : "opacity-100")} />
+
       <div className="container-x flex h-20 items-center justify-between">
         <Link href="/" aria-label={`${name} home`} className="flex items-center gap-3 text-title-lg font-bold tracking-tight text-white">
-          <span className="flex h-9 w-9 items-center justify-center rounded bg-white text-primary"><Icon name="biotech" className="text-[22px]" /></span>
+          <BrandLogo />
           <span className="max-w-[210px] leading-tight sm:max-w-none">{name}</span>
         </Link>
 

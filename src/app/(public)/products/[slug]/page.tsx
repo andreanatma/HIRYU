@@ -4,10 +4,12 @@ import { prisma } from "@/lib/db";
 import { buildMetadata, jsonLd, SITE_URL } from "@/lib/seo";
 import { redirectIfRenamed } from "@/lib/redirects";
 import { getCatalogTree } from "@/lib/catalog";
+import { t } from "@/lib/dictionary";
 import { Icon, SafeText } from "@/components/ui";
 import { CtaBand } from "@/components/public";
+import { Reveal } from "@/components/public/reveal";
 import { ProductSidebar } from "@/components/product-sidebar";
-import { ProductImage } from "@/components/product-parts";
+import { ProductCard, ProductImage } from "@/components/product-parts";
 
 type P = { params: Promise<{ slug: string }> };
 const get = (slug: string) =>
@@ -37,11 +39,20 @@ export default async function ProductDetail({ params }: P) {
   const tree = await getCatalogTree();
   const typeName = p.productType?.name ?? null;
   const typeSlug = p.productType?.slug ?? null;
-  const facts: [string, string | null][] = [
-    ["Brand", p.brand],
-    ["Product origin", p.productOrigin],
-    ["Model", p.model],
-    ["Product type", typeName],
+
+  // Produk lain pada tipe yang sama (tautan internal + halaman lebih padat)
+  const related = await prisma.product.findMany({
+    where: { isActive: true, NOT: { id: p.id }, productType: { is: { isActive: true } }, ...(p.productTypeId ? { productTypeId: p.productTypeId } : {}) },
+    orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
+    take: 4,
+    select: { id: true, slug: true, name: true, brand: true, model: true, imageId: true },
+  });
+
+  const facts: [string, string, string | null][] = [
+    ["workspace_premium", "Brand", p.brand],
+    ["public", "Product origin", p.productOrigin],
+    ["tag", "Model", p.model],
+    ["category", "Product type", typeName],
   ];
   const hasPdf = !!p.pdf && p.pdf.isPublic && p.pdf.mimeType === "application/pdf";
 
@@ -62,55 +73,106 @@ export default async function ProductDetail({ params }: P) {
           }),
         }}
       />
-      <div className="container-x pt-8">
-        <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-label-md text-on-surface-variant">
-          <Link href="/" className="inline-flex items-center gap-1 hover:text-primary"><Icon name="home" className="text-[16px]" />Home</Link>
-          <Icon name="chevron_right" className="text-[14px]" />
-          <Link href="/products" className="hover:text-primary">Products</Link>
-          <Icon name="chevron_right" className="text-[14px]" />
-          {typeName && typeSlug && (
-            <>
-              <Link href={`/products?type=${typeSlug}`} className="hover:text-primary">{typeName}</Link>
-              <Icon name="chevron_right" className="text-[14px]" />
-            </>
-          )}
-          <span className="text-on-surface">{p.name}</span>
-        </nav>
 
-        <div className="grid gap-8 lg:grid-cols-[300px_1fr]">
-          <ProductSidebar groups={tree} activeType={typeSlug} activeProduct={p.slug} />
+      <section className="sec-deco sec-dots bg-gradient-to-b from-mist via-[#EAF3FF] to-white pb-14 pt-8 md:pb-16">
+        <div className="container-x">
+          <nav aria-label="Breadcrumb" className="hero-in mb-5 flex flex-wrap items-center gap-2 text-label-md text-on-surface-variant" style={{ "--d": "0ms" } as React.CSSProperties}>
+            <Link href="/" className="inline-flex items-center gap-1 transition-colors hover:text-primary"><Icon name="home" className="text-[16px]" />Home</Link>
+            <Icon name="chevron_right" className="text-[14px]" />
+            <Link href="/products" className="transition-colors hover:text-primary">Products</Link>
+            <Icon name="chevron_right" className="text-[14px]" />
+            {typeName && typeSlug && (
+              <>
+                <Link href={`/products?type=${typeSlug}`} className="transition-colors hover:text-primary">{typeName}</Link>
+                <Icon name="chevron_right" className="text-[14px]" />
+              </>
+            )}
+            <span className="text-on-surface">{p.name}</span>
+          </nav>
 
-          <article className="border border-line bg-white p-5 sm:p-6">
-            <div className="grid gap-8 md:grid-cols-5">
-              <ProductImage id={p.imageId} alt={p.name} className="md:col-span-2" />
-              <div className="md:col-span-3">
-                <h1 className="border-b border-line pb-4 text-headline-lg text-navy">{p.name}</h1>
-                <div className="mt-4 space-y-2">
-                  {facts.filter(([, v]) => v).map(([k, v]) => (
-                    <p key={k} className="text-body-md">
-                      <strong className="mr-2 text-navy">{k}</strong>
-                      <span className="text-on-surface-variant">{v}</span>
-                    </p>
-                  ))}
+          <div className="grid gap-6 lg:grid-cols-[290px_1fr] lg:gap-8">
+            <ProductSidebar groups={tree} activeType={typeSlug} activeProduct={p.slug} />
+
+            <Reveal>
+              <article className="rounded-xl border border-white/70 bg-white p-5 shadow-[0_26px_50px_-28px_rgba(7,29,51,0.45)] sm:p-7">
+                <div className="grid gap-7 md:grid-cols-5 md:gap-8">
+                  <div className="md:col-span-2">
+                    <div className="relative">
+                      <div aria-hidden="true" className="absolute -inset-2 -z-10 rounded-2xl bg-gradient-to-br from-primary/20 via-accent/25 to-transparent blur-xl" />
+                      <ProductImage id={p.imageId} alt={p.name} className="shadow-sm" />
+                    </div>
+                  </div>
+
+                  <div className="md:col-span-3">
+                    {typeName && (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-light px-3 py-1 text-label-md uppercase tracking-wider text-primary">
+                        <Icon name="category" className="text-[14px]" />{typeName}
+                      </span>
+                    )}
+                    <h1 className="mt-3 text-headline-lg text-navy md:text-headline-xl">{p.name}</h1>
+                    <div className="mt-3 h-1 w-14 rounded bg-accent" />
+
+                    {/* Fakta produk: kartu mini */}
+                    <dl className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {facts.filter(([, , v]) => v).map(([icon, k, v]) => (
+                        <div key={k} className="group flex items-center gap-3 rounded-lg border border-line bg-mist/60 p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-white hover:shadow-md">
+                          <span className="quick-ico flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-light text-primary"><Icon name={icon} className="text-[20px]" /></span>
+                          <div className="min-w-0">
+                            <dt className="text-label-sm uppercase text-slate-text">{k}</dt>
+                            <dd className="truncate text-title-md text-navy">{v}</dd>
+                          </div>
+                        </div>
+                      ))}
+                    </dl>
+
+                    <div className="mt-6">
+                      <h2 className="text-title-md text-navy">{t("intro")}:</h2>
+                      <div className="mt-2"><SafeText text={p.description} /></div>
+                    </div>
+
+                    <div className="mt-7 flex flex-wrap gap-3">
+                      {hasPdf && (
+                        <a href={`/media/${p.pdf!.id}?download=1`} className="btn-accent group !px-6 shadow-lg shadow-accent/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-accent/30">
+                          <Icon name="download" className="text-[18px] transition-transform duration-300 group-hover:translate-y-0.5" />{t("download_pdf")}
+                        </a>
+                      )}
+                      <Link href="/contact" className="btn-secondary group !px-6 hover:-translate-y-0.5">
+                        {t("request_quote")}<Icon name="arrow_forward" className="text-[18px] transition-transform duration-300 group-hover:translate-x-1" />
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-5">
-                  <h2 className="text-title-md text-navy">Introduction:</h2>
-                  <div className="mt-2"><SafeText text={p.description} /></div>
-                </div>
-                <div className="mt-6 flex flex-wrap gap-3">
-                  {hasPdf && (
-                    <a href={`/media/${p.pdf!.id}?download=1`} className="btn-accent">
-                      <Icon name="download" className="text-[18px]" />Download PDF
-                    </a>
-                  )}
-                  <Link href="/contact" className="btn-secondary">Request a Quote</Link>
-                </div>
-              </div>
-            </div>
-          </article>
+              </article>
+            </Reveal>
+          </div>
         </div>
-      </div>
-      <CtaBand title="Need a quotation or technical advice?" text="Send us the product name and model and our team will follow up." />
+      </section>
+
+      {related.length > 0 && (
+        <section className="sec-deco sec-warm bg-gradient-to-b from-white via-[#FFFBEA] to-white py-14 md:py-16">
+          <div className="container-x">
+            <Reveal>
+              <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <span className="text-label-md uppercase tracking-wider text-primary">{typeName ?? t("prod_eyebrow")}</span>
+                  <h2 className="mt-2 text-headline-xl text-navy">Related Products</h2>
+                  <div className="mt-3 h-1 w-14 rounded bg-accent" />
+                </div>
+                <Link href={typeSlug ? `/products?type=${typeSlug}` : "/products"} className="inline-flex items-center gap-1 text-title-md text-primary transition-colors hover:text-brand-hover">
+                  {t("prod_all")}<Icon name="arrow_forward" className="arrow-shift text-[18px]" />
+                </Link>
+              </div>
+            </Reveal>
+            <ul className="grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
+              {related.map((r, i) => (
+                <li key={r.id} className="h-full"><ProductCard p={r} index={i} /></li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <CtaBand title={t("prod_cta_t")} text={t("prod_cta_x")} tight />
     </>
   );
 }

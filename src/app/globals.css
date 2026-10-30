@@ -72,6 +72,71 @@
 .ico-trigger:focus-within .ico-pulse,
 .ico-trigger:active .ico-pulse { animation: ico-pulse .8s ease-in-out infinite; }
 
+/* =====================================================================
+   HOMEPAGE MOTION & POLISH
+   ===================================================================== */
+@keyframes reveal-up { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+.reveal-hidden { opacity: 0; transform: translateY(28px); }
+.reveal-in { animation: reveal-up .75s cubic-bezier(.22, 1, .36, 1) var(--reveal-delay, 0ms) both; }
+
+@keyframes hero-in { from { opacity: 0; transform: translateY(22px); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+.hero-in { animation: hero-in .85s cubic-bezier(.22, 1, .36, 1) var(--d, 0ms) both; }
+
+@keyframes ken-burns { from { transform: scale(1.02); } to { transform: scale(1.12) translate3d(-1.5%, -1%, 0); } }
+.ken-burns { animation: ken-burns 14s ease-in-out infinite alternate; will-change: transform; }
+
+@keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+.float-slow { animation: float-y 7s ease-in-out infinite; }
+
+@keyframes progress-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.progress-fill { animation-name: progress-fill; animation-timing-function: linear; animation-fill-mode: forwards; }
+
+@keyframes gradient-pan { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+.bg-animated { background-size: 200% 200%; animation: gradient-pan 12s ease-in-out infinite alternate; }
+
+.bg-grid-faint {
+  background-image: linear-gradient(rgba(255, 255, 255, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  -webkit-mask-image: radial-gradient(70% 70% at 70% 30%, #000, transparent);
+  mask-image: radial-gradient(70% 70% at 70% 30%, #000, transparent);
+}
+
+/* Kartu: terangkat + glow + kilau yang menyapu saat hover */
+.card-lift { transition: transform .35s cubic-bezier(.22, 1, .36, 1), box-shadow .35s ease, border-color .35s ease; }
+.card-lift:hover, .card-lift:focus-visible { transform: translateY(-6px); box-shadow: 0 24px 44px -20px rgba(8, 102, 217, .38); border-color: rgba(8, 102, 217, .35); }
+.shine { position: relative; overflow: hidden; }
+.shine::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, .5) 50%, transparent 65%); transform: translateX(-130%); transition: transform .9s ease; }
+.shine:hover::after { transform: translateX(130%); }
+
+/* Garis aksen kuning yang memanjang di dasar kartu */
+.accent-bar { position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: linear-gradient(90deg, #FFD43B, #F2BE20); transition: width .5s cubic-bezier(.22, 1, .36, 1); }
+.group:hover .accent-bar, .group:focus-visible .accent-bar { width: 100%; }
+
+/* Panah tautan bergeser saat hover */
+.arrow-shift { transition: transform .3s ease; }
+.group:hover .arrow-shift, a:hover > .arrow-shift { transform: translateX(5px); }
+
+/* Ikon di kotak menu cepat: isi biru + putar sedikit saat hover */
+.quick-ico { transition: background-color .3s ease, color .3s ease, transform .45s cubic-bezier(.34, 1.56, .64, 1); }
+.group:hover .quick-ico, .group:focus-visible .quick-ico { background-color: #0866D9; color: #fff; transform: rotate(-8deg) scale(1.12); }
+
+/* ---------- Latar section berbeda-beda (dekorasi di belakang konten) ---------- */
+.sec-deco { position: relative; overflow: hidden; }
+.sec-deco { isolation: isolate; }
+.sec-deco::before, .sec-deco::after { content: ""; position: absolute; pointer-events: none; z-index: -1; }
+/* Biru: grid blueprint */
+.sec-grid::before { inset: 0; background-image: linear-gradient(rgba(8, 102, 217, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(8, 102, 217, .08) 1px, transparent 1px); background-size: 42px 42px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent); }
+.sec-grid::after { right: -8rem; top: -6rem; width: 30rem; height: 30rem; border-radius: 9999px; background: radial-gradient(circle, rgba(8, 102, 217, .18), transparent 65%); }
+/* Netral: titik-titik */
+.sec-dots::before { inset: 0; background-image: radial-gradient(rgba(7, 29, 51, .13) 1.3px, transparent 1.5px); background-size: 22px 22px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent); }
+.sec-dots::after { left: -9rem; bottom: -9rem; width: 28rem; height: 28rem; border-radius: 9999px; background: radial-gradient(circle, rgba(8, 102, 217, .14), transparent 65%); }
+/* Hangat: garis diagonal kuning */
+.sec-warm::before { inset: 0; background: repeating-linear-gradient(135deg, rgba(255, 212, 59, .16) 0 2px, transparent 2px 24px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 75%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 75%, transparent); }
+.sec-warm::after { right: -7rem; bottom: -7rem; width: 28rem; height: 28rem; border-radius: 9999px; background: radial-gradient(circle, rgba(255, 212, 59, .38), transparent 65%); }
+/* Gelombang biru muda: lingkaran konsentris */
+.sec-rings::before { left: -10rem; top: -10rem; width: 30rem; height: 30rem; border-radius: 9999px; border: 1px solid rgba(8, 102, 217, .14); box-shadow: 0 0 0 36px rgba(8, 102, 217, .04), 0 0 0 37px rgba(8, 102, 217, .12), 0 0 0 76px rgba(8, 102, 217, .03), 0 0 0 77px rgba(8, 102, 217, .09); }
+.sec-rings::after { right: -6rem; bottom: -8rem; width: 26rem; height: 26rem; border-radius: 9999px; background: radial-gradient(circle, rgba(8, 102, 217, .14), transparent 65%); }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
   /* Static, wrapped layout instead of a moving track (declared after the rule above so it wins). */
@@ -79,5 +144,8 @@
   .logo-viewport { -webkit-mask-image: none !important; mask-image: none !important; }
   .logo-dup { display: none; }
   /* Matikan animasi ikon bagi pengguna yang meminta gerakan minimal. */
+  .ken-burns, .float-slow, .bg-animated, .shine::after { animation: none !important; transition: none !important; }
+  .reveal-hidden { opacity: 1 !important; transform: none !important; }
+  .card-lift:hover { transform: none !important; }
   .ico-box, .ico-anim { transform: none !important; animation: none !important; box-shadow: none !important; }
 }

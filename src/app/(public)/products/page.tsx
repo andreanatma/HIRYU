@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { buildMetadata } from "@/lib/seo";
+import { t } from "@/lib/dictionary";
 import { getCatalogTree } from "@/lib/catalog";
 import { pageParam, str } from "@/lib/utils";
 import { EmptyState, Icon, Pagination } from "@/components/ui";
+import { PageHero } from "@/components/public";
+import { Reveal } from "@/components/public/reveal";
 import { ProductSidebar } from "@/components/product-sidebar";
-import { ProductImage } from "@/components/product-parts";
+import { ProductCard } from "@/components/product-parts";
 
 export async function generateMetadata() {
   return buildMetadata({
@@ -43,58 +46,70 @@ export default async function Products({ searchParams }: { searchParams: Promise
   ]);
 
   return (
-    <div className="container-x pt-8">
-      <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-label-md text-on-surface-variant">
-        <Link href="/" className="inline-flex items-center gap-1 hover:text-primary"><Icon name="home" className="text-[16px]" />Home</Link>
-        <Icon name="chevron_right" className="text-[14px]" />
-        {active ? <Link href="/products" className="hover:text-primary">Products</Link> : <span className="text-on-surface">Products</span>}
-        {active && (
-          <>
+    <>
+      <PageHero
+        eyebrow={t("prod_hero_eyebrow")}
+        title={active ? active.name : t("prod_hero_title")}
+        text={t("prod_hero_text")}
+        icon="science"
+        blend="mist"
+      />
+
+      {/* Latar: mist → biru muda (pola titik) → putih */}
+      <section className="sec-deco sec-dots bg-gradient-to-b from-mist via-[#EAF3FF] to-white pb-14 pt-4 md:pb-16 md:pt-6">
+        <div className="container-x">
+          <nav aria-label="Breadcrumb" className="mb-5 flex flex-wrap items-center gap-2 text-label-md text-on-surface-variant">
+            <Link href="/" className="inline-flex items-center gap-1 transition-colors hover:text-primary"><Icon name="home" className="text-[16px]" />Home</Link>
             <Icon name="chevron_right" className="text-[14px]" />
-            <span className="text-on-surface">{active.name}</span>
-          </>
-        )}
-      </nav>
+            {active ? <Link href="/products" className="transition-colors hover:text-primary">Products</Link> : <span className="text-on-surface">Products</span>}
+            {active && (
+              <>
+                <Icon name="chevron_right" className="text-[14px]" />
+                <span className="text-on-surface">{active.name}</span>
+              </>
+            )}
+          </nav>
 
-      <div className="grid gap-8 lg:grid-cols-[300px_1fr]">
-        <ProductSidebar groups={tree} activeType={active?.slug} />
+          <div className="grid gap-6 lg:grid-cols-[290px_1fr] lg:gap-8">
+            <ProductSidebar groups={tree} activeType={active?.slug} />
 
-        <section aria-labelledby="prod-h">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-2 border-b border-line pb-4">
-            <h1 id="prod-h" className="text-headline-lg text-navy">{active ? active.name : "All Products"}</h1>
-            <p className="text-body-sm text-on-surface-variant">{total} product(s)</p>
+            <section aria-labelledby="prod-h">
+              <Reveal>
+                <div className="mb-5 flex flex-wrap items-end justify-between gap-2 border-b border-line pb-4">
+                  <div>
+                    <h2 id="prod-h" className="text-headline-lg text-navy">{active ? active.name : "All Products"}</h2>
+                    <div className="mt-2 h-1 w-12 rounded bg-accent" />
+                  </div>
+                  <p className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-body-sm text-on-surface-variant shadow-sm ring-1 ring-line">
+                    <Icon name="inventory_2" className="text-[16px] text-primary" />{total} product(s)
+                  </p>
+                </div>
+              </Reveal>
+
+              {items.length === 0 ? (
+                <EmptyState
+                  icon="inventory_2"
+                  title={active ? "No products in this category yet." : t("prod_empty_t")}
+                  text={active ? undefined : t("prod_empty_x")}
+                />
+              ) : (
+                <ul className="grid grid-cols-2 gap-3 md:gap-5 xl:grid-cols-3">
+                  {items.map((p, i) => (
+                    <li key={p.id} className="h-full"><ProductCard p={p} index={i} /></li>
+                  ))}
+                </ul>
+              )}
+
+              <Pagination
+                page={page}
+                pages={Math.max(1, Math.ceil(total / PER))}
+                basePath="/products"
+                params={active ? { type: active.slug } : undefined}
+              />
+            </section>
           </div>
-
-          {items.length === 0 ? (
-            <EmptyState
-              icon="inventory_2"
-              title={active ? "No products in this category yet." : "Products are not available yet"}
-              text={active ? undefined : "The catalog is being prepared."}
-            />
-          ) : (
-            <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {items.map((p) => (
-                <li key={p.id}>
-                  <Link href={`/products/${p.slug}`} className="group block">
-                    <ProductImage id={p.imageId} alt={p.name} />
-                    <h2 className="mt-3 line-clamp-2 px-1 text-center text-body-md text-navy group-hover:text-primary">{p.name}</h2>
-                    {(p.brand || p.model) && (
-                      <p className="mt-0.5 text-center text-body-sm text-on-surface-variant">{[p.brand, p.model].filter(Boolean).join(" · ")}</p>
-                    )}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-
-          <Pagination
-            page={page}
-            pages={Math.max(1, Math.ceil(total / PER))}
-            basePath="/products"
-            params={active ? { type: active.slug } : undefined}
-          />
-        </section>
-      </div>
-    </div>
+        </div>
+      </section>
+    </>
   );
 }

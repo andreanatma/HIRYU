@@ -2,9 +2,11 @@ import Link from "next/link";
 import { getSettings } from "@/lib/settings";
 import { safeMapsUrl } from "@/lib/maps";
 import { Icon } from "@/components/ui";
+import { BrandLogo } from "@/components/brand-logo";
 import { SiteNav } from "@/components/site-nav";
 import { AdminBar } from "@/components/admin-bar";
 import { getSession } from "@/lib/auth";
+import { getNavTypes } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +17,7 @@ const COLS: [string, [string, string][]][] = [
 ];
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const [s, admin] = await Promise.all([getSettings(), getSession()]);
+  const [s, admin, navTypes] = await Promise.all([getSettings(), getSession(), getNavTypes().catch(() => [])]);
   const wa = s.whatsapp?.replace(/\D/g, "") ?? "";
   const map = safeMapsUrl(s.maps_embed_url);
 
@@ -28,7 +30,7 @@ export default async function PublicLayout({ children }: { children: React.React
         Skip to content
       </a>
 
-      <SiteNav name={s.company_name} />
+      <SiteNav name={s.company_name} productTypes={navTypes} />
       {admin && <AdminBar name={admin.name} />}
 
       <main id="main" className="min-h-[60vh] pt-20">
@@ -42,9 +44,7 @@ export default async function PublicLayout({ children }: { children: React.React
             {/* 1. Brand & Information */}
             <div className={`flex flex-col gap-3 md:gap-4 ${map ? "lg:col-span-4" : "lg:col-span-6"}`}>
               <span className="flex items-center gap-3 text-title-lg font-bold text-white">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded bg-white text-primary">
-                  <Icon name="biotech" className="text-[22px]" />
-                </span>
+                <BrandLogo />
                 {s.company_name}
               </span>
 
