@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { SubmitButton } from "@/components/client";
 import { changeOwnPassword, loginAction, bootstrapSignupAction } from "../auth-actions";
 import { createUser, saveSettings, updateUser } from "../admin-actions";
 import type { FormState } from "../crud-actions";
 import { SETTING_FIELDS } from "@/lib/settings-fields";
+import { AuthAlert, AuthInput, AuthSubmit, PasswordStrength } from "./auth-ui";
 
 const init: FormState = { ok: false };
 
@@ -26,12 +27,23 @@ function Field({ label, name, error, children }: { label: string; name: string; 
 
 export function LoginForm() {
   const [s, a] = useActionState(loginAction, init);
+  const [email, setEmail] = useState("");
   return (
-    <form action={a} className="space-y-4">
-      <Msg s={s} />
-      <Field label="Email" name="email"><input id="email" name="email" type="email" required autoComplete="username" className="input" placeholder="name@company.com" /></Field>
-      <Field label="Password" name="password"><input id="password" name="password" type="password" required autoComplete="current-password" className="input" /></Field>
-      <SubmitButton className="btn-accent w-full !py-3" pendingText="Checking…">Sign in to dashboard</SubmitButton>
+    <form action={a} className="space-y-5">
+      {s.message && <AuthAlert tone={s.ok ? "success" : "error"}>{s.message}</AuthAlert>}
+      <div className="auth-rise" style={{ "--d": "380ms" } as React.CSSProperties}>
+        <AuthInput name="email" label="Email" icon="mail" type="email" value={email} onChange={setEmail} autoComplete="username" placeholder="name@company.com" autoFocus />
+      </div>
+      <div className="auth-rise" style={{ "--d": "460ms" } as React.CSSProperties}>
+        <AuthInput name="password" label="Password" icon="lock" type="password" autoComplete="current-password" placeholder="Enter your password" />
+      </div>
+      <div className="auth-rise" style={{ "--d": "540ms" } as React.CSSProperties}>
+        <AuthSubmit pendingText="Checking…">Sign in to dashboard</AuthSubmit>
+      </div>
+      <p className="auth-rise flex items-center justify-center gap-1.5 text-center text-body-sm text-on-surface-variant" style={{ "--d": "620ms" } as React.CSSProperties}>
+        <span className="icon text-[16px]" aria-hidden="true">help</span>
+        Forgot your password? Ask a Super Admin to reset it.
+      </p>
     </form>
   );
 }
@@ -39,17 +51,45 @@ export function LoginForm() {
 export function SignupForm() {
   const [s, a] = useActionState(bootstrapSignupAction, init);
   const e = s.errors ?? {};
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const mismatch = confirm.length > 0 && pw !== confirm;
+  const matched = confirm.length > 0 && pw === confirm;
   return (
-    <form action={a} className="space-y-4">
-      <Msg s={s} />
-      <Field label="Full name" name="name" error={e.name}><input id="name" name="name" required className="input" autoComplete="name" /></Field>
-      <Field label="Email" name="email" error={e.email}><input id="email" name="email" type="email" required className="input" autoComplete="username" /></Field>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Password (min. 10 characters)" name="password" error={e.password}><input id="password" name="password" type="password" required className="input" autoComplete="new-password" /></Field>
-        <Field label="Confirm password" name="confirm" error={e.confirm}><input id="confirm" name="confirm" type="password" required className="input" autoComplete="new-password" /></Field>
+    <form action={a} className="space-y-5">
+      {s.message && <AuthAlert tone={s.ok ? "success" : "error"}>{s.message}</AuthAlert>}
+      <div className="auth-rise" style={{ "--d": "360ms" } as React.CSSProperties}>
+        <AuthInput name="name" label="Full name" icon="person" value={name} onChange={setName} error={e.name} autoComplete="name" placeholder="Your full name" autoFocus />
       </div>
-      <Field label="Bootstrap token (BOOTSTRAP_TOKEN)" name="token" error={e.token}><input id="token" name="token" type="password" required className="input" autoComplete="off" /></Field>
-      <SubmitButton className="btn-accent w-full !py-3">Create Super Admin</SubmitButton>
+      <div className="auth-rise" style={{ "--d": "430ms" } as React.CSSProperties}>
+        <AuthInput name="email" label="Email" icon="mail" type="email" value={email} onChange={setEmail} error={e.email} autoComplete="username" placeholder="name@company.com" />
+      </div>
+      <div className="auth-rise space-y-3" style={{ "--d": "500ms" } as React.CSSProperties}>
+        <AuthInput name="password" label="Password" icon="lock" type="password" value={pw} onChange={setPw} error={e.password} autoComplete="new-password" placeholder="Min. 10 characters" />
+        <PasswordStrength value={pw} />
+      </div>
+      <div className="auth-rise" style={{ "--d": "570ms" } as React.CSSProperties}>
+        <AuthInput
+          name="confirm"
+          label="Confirm password"
+          icon="lock_reset"
+          type="password"
+          value={confirm}
+          onChange={setConfirm}
+          error={e.confirm ?? (mismatch ? "Password confirmation does not match" : undefined)}
+          hint={matched ? <span className="flex items-center gap-1.5 text-success"><span className="icon text-[16px]" aria-hidden="true">check_circle</span>Passwords match</span> : undefined}
+          autoComplete="new-password"
+          placeholder="Re-enter your password"
+        />
+      </div>
+      <div className="auth-rise" style={{ "--d": "640ms" } as React.CSSProperties}>
+        <AuthInput name="token" label="Bootstrap token" icon="vpn_key" type="password" error={e.token} autoComplete="off" placeholder="BOOTSTRAP_TOKEN from the server" />
+      </div>
+      <div className="auth-rise" style={{ "--d": "710ms" } as React.CSSProperties}>
+        <AuthSubmit pendingText="Creating account…" icon="rocket_launch">Create Super Admin</AuthSubmit>
+      </div>
     </form>
   );
 }
