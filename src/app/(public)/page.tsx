@@ -6,6 +6,7 @@ import { buildMetadata, jsonLd, SITE_URL } from "@/lib/seo";
 import { formatDate, truncate } from "@/lib/utils";
 import { Icon, MediaImg } from "@/components/ui";
 import { SectionHead } from "@/components/public";
+import { TeamSection } from "@/components/about-sections";
 import { LogoStrip } from "@/components/client";
 import { ContactSection } from "@/components/contact-section";
 import { CLIENT_LOGOS } from "@/content/site-content";
@@ -60,14 +61,14 @@ export default async function Home() {
         </section>
       )}
 
-      {/* 3. Services */}
+      {/* 3. Services (Rata Kiri, Hover Animasi Penuh) */}
       {services.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
           <SectionHead eyebrow={t("svc_eyebrow")} title={t("svc_title")} href="/service" linkText={t("svc_all")} />
           <div className="grid gap-6 md:grid-cols-3">
             {services.map((x) => (
-              <Link key={x.id} href={`/service/${x.slug}`} className="card group flex flex-col overflow-hidden transition-shadow hover:shadow-md">
-                <div className="overflow-hidden"><MediaImg id={x.imageId ?? x.images[0]?.mediaId} alt={x.name} className="h-44 w-full transition-transform duration-500 group-hover:scale-105" icon="design_services" /></div>
+              <Link key={x.id} href={`/service/${x.slug}`} className="card group flex flex-col overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+                <div className="overflow-hidden"><MediaImg id={x.imageId ?? x.images[0]?.mediaId} alt={x.name} className="h-44 w-full transition-transform duration-500 group-hover:scale-110" icon="design_services" /></div>
                 <div className="flex flex-1 flex-col p-6"><h3 className="text-headline-md text-navy group-hover:text-primary">{x.name}</h3><p className="mt-2 flex-1 text-body-sm text-on-surface-variant">{truncate(x.description, 140)}</p><span className="mt-4 inline-flex items-center gap-1 text-title-md text-primary">{t("learn_more")}<Icon name="arrow_forward" className="text-[16px]" /></span></div>
               </Link>
             ))}
@@ -75,14 +76,16 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 4. Featured products */}
+      {/* 4. Featured products (Dikembalikan Rata Kiri, Hover Animasi Penuh) */}
       <section className="bg-white py-20"><div className="container-x">
         <SectionHead eyebrow={t("prod_eyebrow")} title={t("prod_featured")} href="/products" linkText={t("prod_all")} />
         {products.length === 0 ? <p className="text-body-md text-on-surface-variant">{t("prod_none")} <Link href="/products" className="text-primary underline">{t("prod_browse")}</Link>.</p> : (
           <div className="grid gap-8 lg:grid-cols-2">
             {products.map((p) => (
-              <article key={p.id} className="card flex flex-col gap-5 p-6 sm:flex-row">
-                <MediaImg id={p.imageId} alt={p.name} className="h-48 w-full shrink-0 rounded sm:w-48" icon="science" />
+              <article key={p.id} className="card group flex flex-col gap-5 p-6 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl sm:flex-row">
+                <div className="shrink-0 overflow-hidden rounded sm:w-48">
+                  <MediaImg id={p.imageId} alt={p.name} className="h-48 w-full transition-transform duration-500 group-hover:scale-110" icon="science" />
+                </div>
                 <div className="flex flex-1 flex-col"><h3 className="text-headline-md text-navy">{p.name}</h3>{(p.brand || p.model) && <p className="mt-1 text-label-md uppercase text-primary">{[p.brand, p.model].filter(Boolean).join(" · ")}</p>}<p className="mt-2 flex-1 text-body-sm text-on-surface-variant">{truncate(p.description, 150)}</p><Link href={`/products/${p.slug}`} className="btn-primary mt-4 w-fit">{t("view_product")}</Link></div>
               </article>
             ))}
@@ -90,14 +93,14 @@ export default async function Home() {
         )}
       </div></section>
 
-      {/* 5. Featured portfolio */}
+      {/* 5. Featured portfolio (Rata Kiri, Hover Animasi Penuh) */}
       {portfolio.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
           <SectionHead eyebrow={t("pf_eyebrow")} title={t("pf_featured")} href="/portfolio" linkText={t("pf_all")} />
           <div className="grid gap-8 md:grid-cols-2">
             {portfolio.map((p) => (
-              <Link key={p.id} href={`/portfolio/${p.slug}`} className="card group overflow-hidden transition-shadow hover:shadow-lg">
-                <div className="overflow-hidden"><MediaImg id={p.imageId ?? p.images[0]?.mediaId} alt={p.name} className="h-60 w-full transition-transform duration-500 group-hover:scale-105" icon="folder_special" /></div>
+              <Link key={p.id} href={`/portfolio/${p.slug}`} className="card group overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
+                <div className="overflow-hidden"><MediaImg id={p.imageId ?? p.images[0]?.mediaId} alt={p.name} className="h-60 w-full transition-transform duration-500 group-hover:scale-110" icon="folder_special" /></div>
                 <div className="p-6"><h3 className="text-title-lg text-navy group-hover:text-primary">{p.name}</h3>{p.clientName && <p className="mt-1 text-body-sm text-on-surface-variant">{t("client_label")} {p.clientName}</p>}</div>
               </Link>
             ))}
@@ -105,42 +108,44 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 6. Brands */}
+      {/* 6. Brands (Rata Tengah, Tambahan Aksen Garis Kuning) */}
       {brands.length > 0 && (
         <section className="bg-navy py-16" aria-labelledby="brands-h"><div className="container-x">
-          <h2 id="brands-h" className="mb-8 text-center text-headline-lg text-white">{t("brands")}</h2>
+          <div className="mb-12 text-center">
+            <h2 id="brands-h" className="text-headline-xl text-white">{t("brands")}</h2>
+            <div className="mx-auto mt-3 h-1 w-12 rounded bg-accent" />
+          </div>
           <LogoStrip dark items={brands.map((b) => ({ id: b.id, name: b.name, logoId: b.logoId, url: b.websiteUrl }))} />
         </div></section>
       )}
 
-      {/* 7. Gallery */}
+      {/* 7. Gallery (Rata Kiri, Hover Animasi Penuh) */}
       {gallery.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
           <SectionHead eyebrow={t("gal_eyebrow")} title={t("gal_latest")} href="/gallery" linkText={t("gal_view")} />
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {gallery.map((g, i) => <li key={g.id}><Link href="/gallery" className="group block overflow-hidden rounded-lg"><MediaImg id={g.imageId} alt={t("gal_alt", { n: i + 1 })} className="h-60 w-full transition-transform duration-500 group-hover:scale-105" /></Link></li>)}
+            {gallery.map((g, i) => <li key={g.id}><Link href="/gallery" className="group block overflow-hidden rounded-lg shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"><MediaImg id={g.imageId} alt={t("gal_alt", { n: i + 1 })} className="h-60 w-full transition-transform duration-500 group-hover:scale-110" /></Link></li>)}
           </ul>
         </div></section>
       )}
 
-      {/* 8. Our team */}
-      {team.length > 0 && (
-        <section className="bg-white py-20"><div className="container-x">
-          <SectionHead eyebrow={t("team_eyebrow")} title={t("team_title")} href="/about-us" linkText={t("nav_about")} />
-          <div className="grid gap-6 sm:grid-cols-3">
-            {team.map((m) => <div key={m.id} className="card overflow-hidden"><MediaImg id={m.photoId} alt={m.name} className="aspect-[4/3] w-full" icon="person" /><div className="p-5"><h3 className="text-title-lg text-navy">{m.name}</h3><p className="text-body-sm text-primary">{m.position}</p></div></div>)}
-          </div>
-        </div></section>
-      )}
+      {/* 8. Our team (Rata Tengah Bawaan Komponen) */}
+      <TeamSection
+        members={team.map((m) => ({ id: m.id, name: m.name, role: m.position, imageUrl: m.photoId ? `/media/${m.photoId}` : null }))}
+        eyebrow={t("team_eyebrow")}
+        title={t("team_title")}
+      />
 
-      {/* 9. Blogs */}
+      {/* 9. Blogs (Rata Kiri, Link Semua Artikel di Kanan Atas) */}
       {blogs.length > 0 && (
         <section className="bg-mist py-20"><div className="container-x">
           <SectionHead eyebrow={t("blog_eyebrow")} title={t("blog_latest")} href="/blogs" linkText={t("blog_all")} />
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="flex flex-wrap justify-center gap-8 md:justify-start">
             {blogs.map((b) => (
-              <article key={b.id} className="card overflow-hidden transition-shadow hover:shadow-md">
-                <MediaImg id={b.featuredImageId} alt={b.title} className="h-44 w-full" icon="article" />
+              <article key={b.id} className="card group w-full overflow-hidden shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl sm:w-[calc((100%-2rem)/2)] lg:w-[calc((100%-4rem)/3)]">
+                <div className="overflow-hidden">
+                  <MediaImg id={b.featuredImageId} alt={b.title} className="h-44 w-full transition-transform duration-500 group-hover:scale-110" icon="article" />
+                </div>
                 <div className="p-6"><p className="text-label-sm text-on-surface-variant">{formatDate(b.publishedAt)}</p><h3 className="mt-2 text-title-lg"><Link href={`/blogs/${b.slug}`} className="hover:text-primary">{b.title}</Link></h3><p className="mt-2 text-body-sm text-on-surface-variant">{truncate(b.excerpt ?? "", 120)}</p></div>
               </article>
             ))}
@@ -148,7 +153,7 @@ export default async function Home() {
         </div></section>
       )}
 
-      {/* 10. Contact */}
+      {/* 10. Contact (Rata Kiri) */}
       <section className="bg-white py-20" id="contact" aria-labelledby="contact-h"><div className="container-x">
         <SectionHead eyebrow={t("contact_eyebrow")} title={t("contact_title")} />
         <h2 id="contact-h" className="sr-only">{t("nav_contact")}</h2>

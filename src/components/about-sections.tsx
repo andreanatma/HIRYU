@@ -1,6 +1,11 @@
+"use client"; // Tambahkan ini agar bisa menggunakan interaksi client-side
+
+import { useState } from "react";
 import { Icon, MediaImg } from "./ui";
 
 export type AboutRow = { id: number; heading: string; body: string; imageId: number | null };
+export type TeamMember = { id: number; name: string; role: string; imageUrl: string | null };
+
 type Item = { title: string; text: string };
 
 /* ---------- parsing ("## " = subjudul, "- Judul: isi" = bullet) ---------- */
@@ -30,7 +35,7 @@ function parse(body: string): { lead: string[]; items: Item[] } {
   return { lead, items };
 }
 
-/* ---------- ikon & foto (disamakan dengan PDF Company Profile) ---------- */
+/* ---------- ikon & foto ---------- */
 type Meta = { re: RegExp; icon: string; photo?: string };
 const PRINCIPLES: Meta[] = [
   { re: /quality|kualitas/i, icon: "military_tech", photo: "quality" },
@@ -55,19 +60,23 @@ function Paras({ items, className = "" }: { items: string[]; className?: string 
   return <div className={`space-y-4 ${className}`}>{items.map((t, i) => <p key={i} className="whitespace-pre-line">{t}</p>)}</div>;
 }
 
-function IconTitle({ icon, title }: { icon: string; title: string }) {
+function CardHead({ id, icon, title }: { id: string; icon: string; title: string }) {
   return (
-    <div className="flex flex-col items-center">
-      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/10 ring-2 ring-white/40"><Icon name={icon} className="text-[36px] text-white" /></span>
-      <h2 className="mt-3 text-title-lg text-white">{title}</h2>
-      <div className="mt-3 h-1 w-16 rounded bg-accent" />
+    <div className="flex items-center gap-4">
+      <span className="ico-box flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/10 ring-2 ring-white/40">
+        <Icon name={icon} className="text-[30px] text-white" />
+      </span>
+      <div>
+        <h2 id={id} className="text-title-lg text-white md:text-headline-md">{title}</h2>
+        <div className="mt-2 h-1 w-14 rounded bg-accent" />
+      </div>
     </div>
   );
 }
 
 function Badge({ icon, className = "" }: { icon: string; className?: string }) {
   return (
-    <span className={`flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-white bg-gradient-to-br from-primary to-brand-hover text-white shadow-lg ${className}`}>
+    <span className={`ico-box flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-white bg-gradient-to-br from-primary to-brand-hover text-white shadow-lg ${className}`}>
       <Icon name={icon} className="text-[26px]" />
     </span>
   );
@@ -75,7 +84,7 @@ function Badge({ icon, className = "" }: { icon: string; className?: string }) {
 
 function PrincipleCard({ item, m }: { item: Item; m: Meta }) {
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl border-2 border-primary-container bg-white shadow-[0_10px_25px_-8px_rgba(8,102,217,0.35)] transition-transform hover:-translate-y-1">
+    <article className="ico-trigger flex flex-col overflow-hidden rounded-2xl border-2 border-primary-container bg-white shadow-[0_10px_25px_-8px_rgba(8,102,217,0.35)] transition-transform hover:-translate-y-1">
       <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-primary to-navy">
         {m.photo ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -96,7 +105,7 @@ function PrincipleCard({ item, m }: { item: Item; m: Meta }) {
 
 function WhyItem({ item, icon }: { item: Item; icon: string }) {
   return (
-    <li className="flex flex-col items-center px-2 text-center">
+    <li className="ico-trigger flex flex-col items-center px-2 text-center">
       <Badge icon={icon} className="!h-16 !w-16 ring-4 ring-white/15" />
       <h3 className="mt-4 text-title-lg text-white">{item.title}</h3>
       {item.text && <p className="mt-2 max-w-xs text-body-sm leading-relaxed text-slate-300">{item.text}</p>}
@@ -104,12 +113,101 @@ function WhyItem({ item, icon }: { item: Item; icon: string }) {
   );
 }
 
-/* ---------- komponen utama ---------- */
-export function AboutSections({ sections, companyName }: { sections: AboutRow[]; companyName: string }) {
+/* ---------- Komponen Our Team ---------- */
+export function TeamSection({ members, eyebrow = "People", title = "Our Team" }: { members: TeamMember[]; eyebrow?: string; title?: string }) {
+  // 1. Tambahkan state untuk mendeteksi member yang sedang diklik
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+
+  if (!members || members.length === 0) return null;
+
+  return (
+    <section aria-labelledby="team-heading" className="bg-white py-16 relative">
+      <div className="container-x">
+        {/* Header di tengah */}
+        <div className="mb-12 text-center">
+          <span className="text-label-md font-bold uppercase tracking-wider text-primary">{eyebrow}</span>
+          <h2 id="team-heading" className="mt-1 text-headline-xl text-navy">{title}</h2>
+          <div className="mx-auto mt-2 h-1 w-12 rounded bg-accent" />
+        </div>
+
+        {/* Maks. 3 kartu per baris; sisa baris selalu di tengah (1 kartu = tepat di tengah) */}
+        <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-8">
+          {members.map((m) => (
+            <div
+              key={m.id}
+              onClick={() => setSelectedMember(m)} // 2. Set member saat diklik
+              className="w-full cursor-pointer overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-md sm:w-[calc((100%-2rem)/2)] lg:w-[calc((100%-4rem)/3)]"
+            >
+              <div className="aspect-[4/3] w-full overflow-hidden bg-mist">
+                {m.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={m.imageUrl} alt={m.name} loading="lazy" className="h-full w-full object-cover object-top" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-primary/40"><Icon name="person" className="text-[64px]" /></div>
+                )}
+              </div>
+              <div className="p-5 text-left">
+                <h3 className="text-title-lg font-bold text-navy">{m.name}</h3>
+                <p className="mt-0.5 text-label-md uppercase tracking-wider text-primary">{m.role}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Modal Pop-Up untuk member yang dipilih */}
+      {selectedMember && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm transition-opacity"
+          onClick={() => setSelectedMember(null)} // Tutup modal saat klik area luar
+        >
+          <div
+            className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl"
+            onClick={(e) => e.stopPropagation()} // Cegah klik dari menjalar ke background
+          >
+            {/* Tombol Tutup */}
+            <button
+              onClick={() => setSelectedMember(null)}
+              className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md transition-colors hover:bg-black/60"
+            >
+              <Icon name="close" className="text-[20px]" />
+            </button>
+
+            {/* Foto Modal */}
+            <div className="aspect-[4/3] w-full overflow-hidden bg-mist sm:aspect-square">
+              {selectedMember.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={selectedMember.imageUrl}
+                  alt={selectedMember.name}
+                  loading="lazy"
+                  className="h-full w-full object-cover object-top"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-primary/40">
+                  <Icon name="person" className="text-[120px]" />
+                </div>
+              )}
+            </div>
+
+            {/* Konten Modal */}
+            <div className="p-8 text-center">
+              <h3 className="text-headline-sm font-bold text-navy">{selectedMember.name}</h3>
+              <div className="mx-auto mt-3 h-1 w-12 rounded bg-accent" />
+              <p className="mt-4 text-title-md uppercase tracking-wider text-primary">{selectedMember.role}</p>
+            </div>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------- Komponen Utama AboutSections ---------- */
+export function AboutSections({ sections, companyName, team, teamEyebrow, teamTitle }: { sections: AboutRow[]; companyName: string; team?: TeamMember[]; teamEyebrow?: string; teamTitle?: string }) {
   const used = new Set<number>();
   const take = (re: RegExp) => { const s = sections.find((x) => !used.has(x.id) && re.test(x.heading)); if (s) used.add(s.id); return s; };
 
-  // Kata kunci Inggris + Indonesia
   const vision = take(/vision|visi/i);
   const mission = take(/mission|misi/i);
   let principles = take(/principle|prinsip|value|nilai/i);
@@ -117,7 +215,6 @@ export function AboutSections({ sections, companyName }: { sections: AboutRow[];
 
   const principlesP = principles ? parse(principles.body) : null;
   const whyP = why ? parse(why.body) : null;
-  // Jika formatnya bukan daftar item, jangan hilangkan: tampilkan sebagai blok biasa.
   if (principles && principlesP && principlesP.items.length === 0) { used.delete(principles.id); principles = undefined; }
   if (why && whyP && whyP.items.length === 0) { used.delete(why.id); why = undefined; }
 
@@ -128,52 +225,69 @@ export function AboutSections({ sections, companyName }: { sections: AboutRow[];
   const introP = intro ? parse(intro.body) : null;
   const visionP = vision ? parse(vision.body) : null;
   const missionP = mission ? parse(mission.body) : null;
-  const hasTop = !!(intro || vision || mission || extra.length);
+  const hasSide = !!(vision || mission);
+  const hasMain = !!(intro || hasSide);
+  const hasTop = hasMain || extra.length > 0;
 
   return (
     <div>
       <div className="h-2 bg-accent" aria-hidden="true" />
 
-      {/* BAND 1 — biru brand: intro, vision, mission */}
+      {/* BAND 1 — Intro, Visi & Misi */}
       {hasTop && (
         <div className="relative overflow-hidden bg-gradient-to-b from-brand-hover via-primary to-brand-hover text-white">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:26px_26px] opacity-[0.07]" />
           <div className="pointer-events-none absolute -right-32 -top-20 h-96 w-96 rounded-full bg-white/10 blur-[110px]" />
 
-          {intro && introP && (
-            <section aria-labelledby="ab-intro" className="container-x relative max-w-4xl py-16 text-center">
-              <div className="mx-auto mb-8 flex items-center justify-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-lg border border-white/40 bg-white/10"><Icon name="biotech" className="text-[30px]" /></span>
-                <span className="text-left text-title-md font-bold uppercase leading-tight tracking-wide">{companyName}</span>
-              </div>
-              <h2 id="ab-intro" className="sr-only">{intro.heading}</h2>
-              <Paras items={introP.lead.length ? introP.lead : [intro.body]} className="text-body-lg font-semibold leading-relaxed" />
-              {intro.imageId && <MediaImg id={intro.imageId} alt={intro.heading} className="mt-10 h-72 w-full rounded-xl border border-white/20" />}
-            </section>
-          )}
+          {hasMain && (
+            <div className="container-x relative py-14 lg:py-20">
+              <div className="grid items-start gap-8 lg:grid-cols-12 lg:gap-10">
+                {intro && introP && (
+                  <section aria-labelledby="ab-intro" className={hasSide ? "lg:col-span-5" : "mx-auto max-w-4xl text-center lg:col-span-12"}>
+                    <div className={`ico-trigger mb-6 flex items-center gap-3 ${hasSide ? "" : "justify-center"}`}>
+                      <span className="ico-box flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-white/40 bg-white/10">
+                        <Icon name="biotech" className="text-[30px]" />
+                      </span>
+                      <span className="text-left text-title-md font-bold uppercase leading-tight tracking-wide">{companyName}</span>
+                    </div>
+                    <h2 id="ab-intro" className="sr-only">{intro.heading}</h2>
+                    <Paras items={introP.lead.length ? introP.lead : [intro.body]} className="text-body-lg font-semibold leading-relaxed" />
+                    {intro.imageId && <MediaImg id={intro.imageId} alt={intro.heading} className="mt-8 h-64 w-full rounded-xl border border-white/20" />}
+                  </section>
+                )}
 
-          {vision && visionP && (
-            <section aria-labelledby="ab-vision" className="container-x relative max-w-3xl pb-14 text-center">
-              <div id="ab-vision"><IconTitle icon="rocket_launch" title={vision.heading} /></div>
-              <Paras items={visionP.lead.length ? visionP.lead : [vision.body]} className="mt-6 text-body-lg text-white/90" />
-            </section>
-          )}
+                {hasSide && (
+                  <div className={`space-y-6 ${intro ? "lg:col-span-7" : "lg:col-span-12"}`}>
+                    {vision && visionP && (
+                      <section aria-labelledby="ab-vision" className="ico-trigger rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-sm transition-colors hover:bg-white/[0.14] md:p-8">
+                        <CardHead id="ab-vision" icon="rocket_launch" title={vision.heading} />
+                        <Paras items={visionP.lead.length ? visionP.lead : [vision.body]} className="mt-5 text-body-md leading-relaxed text-white/90" />
+                      </section>
+                    )}
 
-          {mission && missionP && (
-            <section aria-labelledby="ab-mission" className="container-x relative max-w-3xl pb-16 text-center">
-              <div id="ab-mission"><IconTitle icon="target" title={mission.heading} /></div>
-              {missionP.lead.length > 0 && <Paras items={missionP.lead} className="mt-6 text-body-lg text-white/90" />}
-              <div className="mt-8 space-y-8">
-                {missionP.items.map((it) => (
-                  <div key={it.title}>
-                    <h3 className="inline-flex items-center gap-2 text-title-md text-white">
-                      <Icon name="add_circle" className="text-[16px] text-accent" />{it.title}<Icon name="add_circle" className="text-[16px] text-accent" />
-                    </h3>
-                    <p className="mt-2 whitespace-pre-line text-body-md leading-relaxed text-white/85">{it.text}</p>
+                    {mission && missionP && (
+                      <section aria-labelledby="ab-mission" className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-sm md:p-8">
+                        <div className="ico-trigger w-fit">
+                          <CardHead id="ab-mission" icon="target" title={mission.heading} />
+                        </div>
+                        {missionP.lead.length > 0 && <Paras items={missionP.lead} className="mt-5 text-body-md text-white/90" />}
+                        <ul className="mt-6 space-y-5">
+                          {missionP.items.map((it) => (
+                            <li key={it.title} className="group flex gap-3 rounded-lg p-2 -m-2 transition-colors hover:bg-white/10">
+                              <Icon name="add_circle" className="mt-0.5 shrink-0 text-[20px] text-accent transition-transform duration-300 group-hover:scale-125 group-hover:-translate-y-0.5" />
+                              <div>
+                                <h3 className="text-title-md text-white">{it.title}</h3>
+                                {it.text && <p className="mt-1 whitespace-pre-line text-body-sm leading-relaxed text-white/85">{it.text}</p>}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    )}
                   </div>
-                ))}
+                )}
               </div>
-            </section>
+            </div>
           )}
 
           {extra.map((s) => (
@@ -187,7 +301,7 @@ export function AboutSections({ sections, companyName }: { sections: AboutRow[];
         </div>
       )}
 
-      {/* BAND 2 — terang: prinsip perusahaan dengan 6 foto */}
+      {/* BAND 2 — Prinsip */}
       {principles && principlesP && principlesP.items.length > 0 && (
         <section aria-labelledby="ab-principles" className="bg-mist py-16">
           <div className="container-x">
@@ -202,7 +316,7 @@ export function AboutSections({ sections, companyName }: { sections: AboutRow[];
         </section>
       )}
 
-      {/* BAND 3 — navy-2: mengapa memilih kami */}
+      {/* BAND 3 — Mengapa Memilih Kami */}
       {why && whyP && whyP.items.length > 0 && (
         <section aria-labelledby="ab-why" className="relative overflow-hidden bg-navy-2 py-16 text-white">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:26px_26px] opacity-[0.05]" />
@@ -217,6 +331,9 @@ export function AboutSections({ sections, companyName }: { sections: AboutRow[];
           </div>
         </section>
       )}
+
+      {/* Bagian Our Team */}
+      {team && <TeamSection members={team} eyebrow={teamEyebrow} title={teamTitle} />}
     </div>
   );
 }

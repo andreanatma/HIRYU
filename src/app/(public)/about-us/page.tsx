@@ -1,7 +1,6 @@
 import { buildMetadata } from "@/lib/seo";
 import { t } from "@/lib/dictionary";
-import { MediaImg } from "@/components/ui";
-import { CtaBand, PageHero, SectionHead } from "@/components/public";
+import { CtaBand, PageHero } from "@/components/public";
 import { AboutSections } from "@/components/about-sections";
 import { prisma } from "@/lib/db";
 
@@ -41,7 +40,7 @@ const ABOUT = [
   },
   {
     id: 5,
-    heading: "Mengapa Memilih Kami",
+    heading: "Mengapa Memilih Kami?",
     body: "- Professional: Kami adalah ahli yang terampil dan berpengalaman dalam menganalisis, memperbaiki, dan merawat berbagai jenis peralatan laboratorium maupun alat industri dengan fokus pada kualitas dan keamanan.\n- Trusted: Kepercayaan Anda adalah prioritas kami, dan kami berkomitmen memberikan solusi pelayanan terbaik dengan transparansi dan integritas.\n- Competitive Price: Kami memberikan solusi perbaikan berkualitas tinggi dengan tarif yang kompetitif dibanding kompetitor kami tanpa mengorbankan kualitas kerja.\n- Flexible: Menghadirkan fleksibilitas dalam layanan perbaikan kami. Dari jadwal yang dapat disesuaikan hingga pilihan solusi yang variatif, kami siap mengakomodasi kebutuhan unik Anda.\n- Fast: Menawarkan layanan perbaikan yang cepat dan responsif. Kami menghargai waktu Anda dan berkomitmen untuk memberikan hasil yang memuaskan dengan waktu respon yang singkat.\n- Customer Satisfaction: Kami berupaya untuk memberikan layanan perbaikan yang tidak hanya memperbaiki masalah, tetapi juga meninggalkan Anda dengan perasaan puas pada kualitas.",
     imageId: null,
   },
@@ -62,34 +61,13 @@ export default async function AboutUs() {
         icon="info"
       />
 
-      <AboutSections sections={ABOUT} companyName="PT Hiryu Techno Indonesia" />
-
-      {team.length > 0 && (
-        <div className="container-x py-14">
-          <section aria-labelledby="team-h">
-            <SectionHead eyebrow={t("team_eyebrow")} title={t("team_title")} />
-            <h2 id="team-h" className="sr-only">
-              {t("team_title")}
-            </h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {team.map((m) => (
-                <div key={m.id} className="card overflow-hidden">
-                  <MediaImg
-                    id={m.photoId}
-                    alt={m.name}
-                    className="aspect-[4/3] w-full"
-                    icon="person"
-                  />
-                  <div className="p-5">
-                    <h3 className="text-title-lg text-navy">{m.name}</h3>
-                    <p className="text-body-sm text-primary">{m.position}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-      )}
+      <AboutSections
+        sections={ABOUT}
+        companyName="PT Hiryu Techno Indonesia"
+        team={team.map((m) => ({ id: m.id, name: m.name, role: m.position, imageUrl: m.photoId ? `/media/${m.photoId}` : null }))}
+        teamEyebrow={t("team_eyebrow")}
+        teamTitle={t("team_title")}
+      />
 
       <CtaBand title={t("about_cta_t")} text={t("about_cta_x")} />
     </>

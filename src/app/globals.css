@@ -46,10 +46,38 @@
 .logo-marquee:hover,
 .logo-marquee:focus-within { animation-play-state: paused; }
 
+/* ---------- Animasi ikon (About Us) ----------
+   .ico-trigger = induk (hover / fokus keyboard / sentuhan). .ico-box = wadah ikon. .ico-anim + varian = glyph ikon. */
+.ico-box { transition: transform .35s cubic-bezier(.34, 1.56, .64, 1), box-shadow .35s ease; will-change: transform; }
+.ico-anim { display: inline-block; transition: transform .5s cubic-bezier(.34, 1.56, .64, 1); will-change: transform; }
+
+.ico-trigger:hover .ico-box,
+.ico-trigger:focus-within .ico-box,
+.ico-trigger:active .ico-box { transform: translateY(-3px) scale(1.08); box-shadow: 0 10px 22px -6px rgba(255, 212, 59, 0.6); }
+
+.ico-trigger:hover .ico-tilt,
+.ico-trigger:focus-within .ico-tilt,
+.ico-trigger:active .ico-tilt { transform: rotate(-12deg) scale(1.15); }
+
+.ico-trigger:hover .ico-fly,
+.ico-trigger:focus-within .ico-fly,
+.ico-trigger:active .ico-fly { transform: translate(3px, -4px) rotate(8deg) scale(1.15); }
+
+.ico-trigger:hover .ico-spin,
+.ico-trigger:focus-within .ico-spin,
+.ico-trigger:active .ico-spin { transform: rotate(360deg) scale(1.12); transition-duration: .7s; }
+
+@keyframes ico-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.22) rotate(-6deg); } }
+.ico-trigger:hover .ico-pulse,
+.ico-trigger:focus-within .ico-pulse,
+.ico-trigger:active .ico-pulse { animation: ico-pulse .8s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
   /* Static, wrapped layout instead of a moving track (declared after the rule above so it wins). */
   .logo-marquee { animation: none !important; width: auto; flex-wrap: wrap; justify-content: center; row-gap: 1rem; }
   .logo-viewport { -webkit-mask-image: none !important; mask-image: none !important; }
   .logo-dup { display: none; }
+  /* Matikan animasi ikon bagi pengguna yang meminta gerakan minimal. */
+  .ico-box, .ico-anim { transform: none !important; animation: none !important; box-shadow: none !important; }
 }
