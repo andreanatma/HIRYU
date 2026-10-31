@@ -24,7 +24,7 @@ export function MediaImg({ id, alt, className, icon = "image" }: { id?: number |
 export function EmptyState({ icon = "inbox", title, text, action }: { icon?: string; title: string; text?: string; action?: React.ReactNode }) {
   return (
     <div className="flex flex-col items-center gap-2 px-6 py-14 text-center">
-      <Icon name={icon} className="text-[44px] text-outline" />
+      <span className="mb-1 flex h-16 w-16 items-center justify-center rounded-full bg-brand-light text-primary"><Icon name={icon} className="text-[34px]" /></span>
       <h3 className="text-title-lg">{title}</h3>
       {text && <p className="max-w-md text-body-md text-on-surface-variant">{text}</p>}
       {action}
@@ -45,7 +45,7 @@ export function Pagination({ page, pages, basePath, params, prev = "Previous", n
       {nums.map((n, i) => (
         <span key={n} className="flex items-center gap-1.5">
           {i > 0 && n - nums[i - 1] > 1 && <span className="text-outline">…</span>}
-          <Link href={href(n)} aria-current={n === page ? "page" : undefined} className={cn("flex h-9 w-9 items-center justify-center rounded text-title-md", n === page ? "bg-primary-container text-white" : "bg-white border border-[#DCE3EC] hover:bg-[#F2F5F9]")}>{n}</Link>
+          <Link href={href(n)} aria-current={n === page ? "page" : undefined} className={cn("flex h-9 w-9 items-center justify-center rounded text-title-md", n === page ? "bg-primary-container text-white" : "border border-[#DCE3EC] bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-brand-light")}>{n}</Link>
         </span>
       ))}
       {page < pages && <Link className="btn-secondary !px-3 !py-1.5" href={href(page + 1)}>{next}</Link>}

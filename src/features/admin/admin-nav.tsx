@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui";
-import { cn } from "@/lib/utils";
 
 type Item = readonly [href: string, label: string, icon: string, superOnly?: boolean];
 const GROUPS: { title: string; items: Item[] }[] = [
   { title: "Overview", items: [["/dashboard-admin", "Dashboard", "dashboard"]] },
-  { title: "Content Management", items: [
+  { title: "Content management", items: [
     ["/dashboard-admin/services", "Services", "design_services"],
     ["/dashboard-admin/product-types", "Product Types", "category"],
     ["/dashboard-admin/products", "Products", "inventory_2"],
@@ -26,23 +25,35 @@ const GROUPS: { title: string; items: Item[] }[] = [
   ] },
 ];
 
-export function AdminNav({ role }: { role: "SUPER_ADMIN" | "ADMIN" }) {
+/** `badges` memetakan href menu ke angka kecil (mis. pesan belum dibaca). */
+export function AdminNav({ role, badges = {} }: { role: "SUPER_ADMIN" | "ADMIN"; badges?: Record<string, number> }) {
   const path = usePathname();
   return (
-    <nav aria-label="Admin navigation" className="flex flex-col gap-1 px-3 pb-4">
-      {GROUPS.map((g) => (
-        <div key={g.title} className="flex flex-col gap-1">
-          <p className="px-3 pb-1 pt-4 text-label-sm uppercase tracking-wider text-slate-400">{g.title}</p>
-          {g.items.filter((i) => !i[3] || role === "SUPER_ADMIN").map(([href, label, icon]) => {
-            const active = href === "/dashboard-admin" ? path === href : path.startsWith(href);
-            return (
-              <Link key={href} href={href} aria-current={active ? "page" : undefined} className={cn("flex items-center gap-3 rounded px-3 py-2 text-body-sm transition-colors", active ? "bg-primary text-white" : "text-inverse-on-surface hover:bg-white/10")}>
-                <Icon name={icon} className="text-[20px]" />{label}
-              </Link>
-            );
-          })}
-        </div>
-      ))}
+    <nav aria-label="Admin navigation" className="flex flex-col gap-0.5 px-3 pb-4">
+      {GROUPS.map((g) => {
+        const items = g.items.filter((i) => !i[3] || role === "SUPER_ADMIN");
+        if (items.length === 0) return null;
+        return (
+          <div key={g.title} className="flex flex-col gap-0.5">
+            <p className="px-3 pb-1 pt-5 text-[11px] font-semibold tracking-wide text-white/40">{g.title}</p>
+            {items.map(([href, label, icon]) => {
+              const active = href === "/dashboard-admin" ? path === href : path === href || path.startsWith(`${href}/`);
+              const badge = badges[href] ?? 0;
+              return (
+                <Link key={href} href={href} aria-current={active ? "page" : undefined} className="adm-nav-link">
+                  <span className="adm-nav-ico"><Icon name={icon} className="text-[19px]" /></span>
+                  <span className="truncate">{label}</span>
+                  {badge > 0 && (
+                    <span className="ml-auto inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-navy" aria-label={`${badge} unread`}>
+                      {badge > 99 ? "99+" : badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        );
+      })}
     </nav>
   );
 }

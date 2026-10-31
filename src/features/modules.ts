@@ -17,7 +17,13 @@ export type FieldDef = {
   def?: string | number | boolean;
 };
 
-export type ColumnDef = { key: string; label: string; kind?: "text" | "image" | "date" | "status" | "bool" };
+export type ColumnDef = {
+  key: string;
+  label: string;
+  kind?: "text" | "image" | "date" | "status" | "bool" | "order" | "relation";
+  /** Untuk kind "relation": model yang menyediakan teks label dari ID (mis. nama Product Type). */
+  relation?: { model: "productType"; labelField: string };
+};
 
 export type ModuleKey = "services" | "product-types" | "products" | "portfolio" | "gallery" | "blogs" | "our-team" | "brands";
 
@@ -59,7 +65,7 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
     searchFields: ["name", "description"], orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }], mediaFields: ["imageId"],
     multiImage: { field: "galleryIds", model: "serviceImage", fk: "serviceId", media: "mediaId" },
     publicPaths: ["/", "/service"],
-    columns: [{ key: "imageId", label: "Image", kind: "image" }, { key: "name", label: "Name" }, { key: "displayOrder", label: "Order" }, { key: "isFeatured", label: "Featured", kind: "bool" }, { key: "isActive", label: "Active", kind: "bool" }, { key: "updatedAt", label: "Updated", kind: "date" }],
+    columns: [{ key: "imageId", label: "Image", kind: "image" }, { key: "name", label: "Name" }, { key: "displayOrder", label: "Order", kind: "order" }, { key: "isFeatured", label: "Featured", kind: "bool" }, { key: "isActive", label: "Active", kind: "bool" }, { key: "updatedAt", label: "Updated", kind: "date" }],
     fields: [
       { name: "name", label: "Service title", type: "text", required: true, max: 160 },
       { name: "slug", label: "Slug", type: "slug", max: 190, help: "Leave empty to generate from the title." },
@@ -74,7 +80,7 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
     searchFields: ["name", "description"], orderBy: [{ displayOrder: "asc" }, { name: "asc" }], mediaFields: [],
     deleteGuard: { model: "product", fk: "productTypeId", message: "This product type still has products. Move or delete those products first." },
     publicPaths: ["/", "/products"],
-    columns: [{ key: "name", label: "Name" }, { key: "slug", label: "Slug" }, { key: "displayOrder", label: "Order" }, { key: "isActive", label: "Active", kind: "bool" }, { key: "updatedAt", label: "Updated", kind: "date" }],
+    columns: [{ key: "name", label: "Name" }, { key: "slug", label: "Slug" }, { key: "displayOrder", label: "Order", kind: "order" }, { key: "isActive", label: "Active", kind: "bool" }, { key: "updatedAt", label: "Updated", kind: "date" }],
     fields: [
       { name: "name", label: "Name", type: "text", required: true, max: 160 },
       { name: "slug", label: "Slug", type: "slug", max: 190 },
@@ -85,7 +91,7 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
   products: {
     key: "products", model: "product", label: "Products", singular: "product", nameField: "name", slugSource: "name", slugRedirect: "product", section: "content",
     searchFields: ["name", "brand", "model", "description"], orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }], mediaFields: ["imageId", "pdfId"], publicPaths: ["/", "/products"],
-    columns: [{ key: "imageId", label: "Image", kind: "image" }, { key: "name", label: "Title" }, { key: "brand", label: "Brand" }, { key: "model", label: "Model" }, { key: "isFeatured", label: "Featured", kind: "bool" }, { key: "isActive", label: "Active", kind: "bool" }],
+    columns: [{ key: "imageId", label: "Image", kind: "image" }, { key: "name", label: "Title" }, { key: "productTypeId", label: "Product type", kind: "relation", relation: { model: "productType", labelField: "name" } }, { key: "brand", label: "Brand" }, { key: "model", label: "Model" }, { key: "displayOrder", label: "Order", kind: "order" }, { key: "isFeatured", label: "Featured", kind: "bool" }, { key: "isActive", label: "Active", kind: "bool" }],
     fields: [
       { name: "productTypeId", label: "Product type", type: "relation", required: true, relation: { model: "productType", labelField: "name" }, help: "Create a Product Type first if the list is empty." },
       { name: "name", label: "Title", type: "text", required: true, max: 160 },
@@ -119,7 +125,7 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
   gallery: {
     key: "gallery", model: "gallery", label: "Gallery", singular: "photo", nameField: "title", section: "content",
     searchFields: ["title", "description"], orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }], mediaFields: ["imageId"], publicPaths: ["/", "/gallery"],
-    columns: [{ key: "imageId", label: "Image", kind: "image" }, { key: "title", label: "Internal label" }, { key: "displayOrder", label: "Order" }, { key: "isActive", label: "Active", kind: "bool" }, { key: "createdAt", label: "Added", kind: "date" }],
+    columns: [{ key: "imageId", label: "Image", kind: "image" }, { key: "title", label: "Internal label" }, { key: "displayOrder", label: "Order", kind: "order" }, { key: "isActive", label: "Active", kind: "bool" }, { key: "createdAt", label: "Added", kind: "date" }],
     fields: [
       { name: "title", label: "Internal label (not shown publicly)", type: "text", required: true, max: 160 },
       { name: "description", label: "Internal note (not shown publicly)", type: "textarea", max: 2000, rows: 3 },
@@ -145,7 +151,7 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
   "our-team": {
     key: "our-team", model: "teamMember", label: "Our Team", singular: "team member", nameField: "name", section: "content",
     searchFields: ["name", "position"], orderBy: [{ displayOrder: "asc" }, { id: "asc" }], mediaFields: ["photoId"], publicPaths: ["/", "/about-us"],
-    columns: [{ key: "photoId", label: "Photo", kind: "image" }, { key: "name", label: "Name" }, { key: "position", label: "Position" }, { key: "displayOrder", label: "Order" }, { key: "isActive", label: "Active", kind: "bool" }],
+    columns: [{ key: "photoId", label: "Photo", kind: "image" }, { key: "name", label: "Name" }, { key: "position", label: "Position" }, { key: "displayOrder", label: "Order", kind: "order" }, { key: "isActive", label: "Active", kind: "bool" }],
     fields: [
       { name: "name", label: "Name", type: "text", required: true, max: 160 },
       { name: "position", label: "Position", type: "text", required: true, max: 160 },
@@ -156,7 +162,7 @@ export const MODULES: Record<ModuleKey, ModuleDef> = {
   brands: {
     key: "brands", model: "brand", label: "Brands", singular: "brand", nameField: "name", section: "content",
     searchFields: ["name"], orderBy: [{ displayOrder: "asc" }, { name: "asc" }], mediaFields: ["logoId"], publicPaths: ["/"],
-    columns: [{ key: "logoId", label: "Logo", kind: "image" }, { key: "name", label: "Name" }, { key: "displayOrder", label: "Order" }, { key: "isActive", label: "Active", kind: "bool" }],
+    columns: [{ key: "logoId", label: "Logo", kind: "image" }, { key: "name", label: "Name" }, { key: "displayOrder", label: "Order", kind: "order" }, { key: "isActive", label: "Active", kind: "bool" }],
     fields: [
       { name: "name", label: "Brand name", type: "text", required: true, max: 160 },
       { name: "logoId", label: "Logo (optional)", type: "image", help: "If empty, the brand name is shown as text." },

@@ -22,8 +22,7 @@ export default async function SignupPage() {
       text="One-time setup for a brand-new installation. Once an account exists, this page closes automatically."
       points={[
         { icon: "badge", title: "1. Your details", text: "Name, email, and a strong password.", anim: "ico-tilt" },
-        { icon: "vpn_key", title: "2. Server token", text: "Prove access with the BOOTSTRAP_TOKEN.", anim: "ico-spin" },
-        { icon: "rocket_launch", title: "3. Start managing", text: "Sign in and add other administrators.", anim: "ico-fly" },
+        { icon: "rocket_launch", title: "2. Start managing", text: "Sign in and add other administrators.", anim: "ico-fly" },
       ]}
     >
       {enabled ? (

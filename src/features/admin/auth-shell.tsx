@@ -26,9 +26,9 @@ export function AuthShell({ eyebrow, heading, text, points, footnote, children }
       <div className="absolute inset-0 -z-10" aria-hidden="true">
         <div className="absolute inset-0 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/hero/hero-1.JP" alt="" decoding="async" className="ken-burns h-full w-full object-cover object-center" />
+          <img src="/hero/hero-1.JPG" alt="" decoding="async" className="ken-burns h-full w-full object-cover object-center" />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy/90 to-navy/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-navy/85 via-navy/65 to-navy/45" />
         <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_85%_15%,rgba(8,102,217,0.4),transparent_70%)]" />
         <div className="bg-grid-faint absolute inset-0 opacity-40" />
         <div className="float-slow absolute -left-24 top-1/4 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
@@ -41,13 +41,9 @@ export function AuthShell({ eyebrow, heading, text, points, footnote, children }
         <span className="text-title-lg font-bold">PT Hiryu Techno Indonesia</span>
       </div>
 
-      <div className="auth-card-in grid w-full max-w-5xl overflow-hidden rounded-xl border border-white/15 bg-white shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)] lg:grid-cols-[1.05fr_1fr]">
+      <div className="auth-card-in grid w-full max-w-5xl overflow-hidden rounded-xl border border-white/20 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)] lg:grid-cols-[1.05fr_1fr]">
         {/* ===== Panel brand (desktop) ===== */}
-        <aside className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-[#0B132B] via-navy to-navy-2 p-10 text-white lg:flex">
-          <div className="bg-grid-faint pointer-events-none absolute inset-0 opacity-50" aria-hidden="true" />
-          <div className="float-slow pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-primary/30 blur-3xl" aria-hidden="true" />
-          <div className="float-slow pointer-events-none absolute -bottom-24 -left-16 h-60 w-60 rounded-full bg-accent/20 blur-3xl [animation-delay:-4s]" aria-hidden="true" />
-
+        <aside className="relative hidden flex-col justify-between gap-8 p-10 text-white [text-shadow:0_1px_12px_rgba(7,29,51,0.55)] lg:flex">
           <div className="auth-rise relative flex items-center gap-3" style={{ "--d": "100ms" } as React.CSSProperties}>
             <BrandLogo />
             <span className="text-title-lg font-bold">PT Hiryu Techno Indonesia</span>
@@ -66,19 +62,19 @@ export function AuthShell({ eyebrow, heading, text, points, footnote, children }
             </h2>
             <div className="auth-rise mt-3 flex items-start gap-3" style={{ "--d": "360ms" } as React.CSSProperties}>
               <div className="mt-2.5 h-1 w-10 shrink-0 rounded bg-accent" />
-              <p className="text-body-md text-slate-300">{text}</p>
+              <p className="text-body-md text-slate-100">{text}</p>
             </div>
 
             <ul className="mt-8 space-y-2">
               {points.map((p, i) => (
                 <li key={p.title} className="auth-rise" style={{ "--d": `${460 + i * 100}ms` } as React.CSSProperties}>
-                  <div className="ico-trigger flex items-center gap-4 rounded-lg border border-transparent p-3 transition-all duration-300 hover:translate-x-1 hover:border-white/15 hover:bg-white/10">
+                  <div className="ico-trigger flex items-center gap-4 rounded-lg border border-transparent p-3 transition-all duration-300 hover:translate-x-1 hover:border-white/15 hover:bg-white/10 hover:backdrop-blur-sm">
                     <span className="ico-box flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent text-navy">
                       <Icon name={p.icon} fill className={`ico-anim ${p.anim ?? "ico-tilt"} text-[22px]`} />
                     </span>
                     <div>
                       <p className="text-title-md text-white">{p.title}</p>
-                      <p className="text-body-sm text-slate-300">{p.text}</p>
+                      <p className="text-body-sm text-slate-200">{p.text}</p>
                     </div>
                   </div>
                 </li>
@@ -86,13 +82,13 @@ export function AuthShell({ eyebrow, heading, text, points, footnote, children }
             </ul>
           </div>
 
-          <p className="auth-rise relative text-label-md text-slate-400" style={{ "--d": "800ms" } as React.CSSProperties}>
+          <p className="auth-rise relative text-label-md text-slate-200" style={{ "--d": "800ms" } as React.CSSProperties}>
             {footnote ?? `© ${year} PT Hiryu Techno Indonesia`}
           </p>
         </aside>
 
         {/* ===== Panel form ===== */}
-        <section className="relative p-6 sm:p-10 lg:p-12">
+        <section className="relative bg-white p-6 sm:p-10 lg:p-12">
           <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-primary to-accent" aria-hidden="true" />
           {children}
           <Link href="/" className="group mt-8 inline-flex items-center gap-1.5 text-body-sm text-on-surface-variant transition-colors hover:text-primary">

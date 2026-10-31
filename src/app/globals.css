@@ -164,3 +164,91 @@
   .card-lift:hover { transform: none !important; }
   .ico-box, .ico-anim { transform: none !important; animation: none !important; box-shadow: none !important; }
 }
+
+/* =====================================================================
+   ADMIN DASHBOARD  (prefix adm-)  — memakai token tema yang sama dengan website
+   ===================================================================== */
+
+/* ---------- Sidebar ---------- */
+.adm-sidebar {
+  /* JANGAN set position di sini: posisi (fixed di desktop, absolute di drawer) datang dari class Tailwind di admin-shell.tsx */
+  isolation: isolate; color: #eaf1ff;
+  background:
+    radial-gradient(90% 45% at 0% 0%, rgba(8, 102, 217, .42), transparent 70%),
+    radial-gradient(70% 35% at 100% 100%, rgba(255, 212, 59, .09), transparent 70%),
+    linear-gradient(180deg, #0A2440 0%, #071D33 45%, #05172A 100%);
+}
+.adm-sidebar::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px);
+  background-size: 32px 32px;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 55%); mask-image: linear-gradient(to bottom, #000, transparent 55%);
+}
+.adm-scroll { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.18) transparent; }
+.adm-scroll::-webkit-scrollbar { width: 6px; }
+.adm-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); border-radius: 9999px; }
+
+.adm-nav-link { position: relative; display: flex; align-items: center; gap: .75rem; border-radius: .75rem; padding: .375rem .625rem; font-size: 13.5px; font-weight: 500; color: rgba(234,241,255,.78); transition: background-color .25s ease, color .25s ease, transform .3s cubic-bezier(.22,1,.36,1); }
+.adm-nav-link:hover { background: rgba(255,255,255,.07); color: #fff; transform: translateX(3px); }
+.adm-nav-link:focus-visible { outline-color: #FFD43B; }
+.adm-nav-link[aria-current="page"] { background: linear-gradient(90deg, rgba(8,102,217,.6), rgba(8,102,217,.15)); color: #fff; font-weight: 600; transform: none; }
+.adm-nav-link[aria-current="page"]::before { content: ""; position: absolute; left: -12px; top: 18%; bottom: 18%; width: 4px; border-radius: 0 4px 4px 0; background: #FFD43B; box-shadow: 0 0 14px rgba(255,212,59,.75); }
+.adm-nav-ico { display: flex; height: 2rem; width: 2rem; flex-shrink: 0; align-items: center; justify-content: center; border-radius: .5rem; background: rgba(255,255,255,.06); transition: background-color .25s ease, color .25s ease, transform .45s cubic-bezier(.34,1.56,.64,1); }
+.adm-nav-link:hover .adm-nav-ico { background: rgba(255,255,255,.14); transform: rotate(-8deg) scale(1.1); }
+.adm-nav-link[aria-current="page"] .adm-nav-ico { background: #FFD43B; color: #071D33; transform: none; }
+
+/* ---------- Hero ---------- */
+.adm-hero { position: relative; overflow: hidden; isolation: isolate; background: linear-gradient(120deg, #071D33 0%, #0B2D52 55%, #0A4FA8 100%); }
+.adm-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px); background-size: 40px 40px; -webkit-mask-image: radial-gradient(70% 90% at 85% 20%, #000, transparent); mask-image: radial-gradient(70% 90% at 85% 20%, #000, transparent); }
+.adm-hero::after { content: ""; position: absolute; z-index: -1; pointer-events: none; right: -6rem; bottom: -9rem; width: 24rem; height: 24rem; border-radius: 9999px; background: radial-gradient(circle, rgba(255,212,59,.35), transparent 65%); }
+
+/* ---------- Kartu statistik ---------- */
+.adm-stat { position: relative; overflow: hidden; transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .35s ease; }
+.adm-stat:hover, .adm-stat:focus-visible { transform: translateY(-4px); border-color: rgba(8,102,217,.35); box-shadow: 0 18px 36px -18px rgba(8,102,217,.45); }
+.adm-stat-ico { transition: background-color .3s ease, color .3s ease, transform .45s cubic-bezier(.34,1.56,.64,1); }
+.adm-stat:hover .adm-stat-ico, .adm-stat:focus-visible .adm-stat-ico { background: #0866D9; color: #fff; transform: rotate(-8deg) scale(1.12); }
+
+/* ---------- Animasi masuk (fill backwards agar hover transform tetap bekerja setelah selesai) ---------- */
+@keyframes adm-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.adm-in { animation: adm-rise .6s cubic-bezier(.22,1,.36,1) var(--d, 0ms) backwards; }
+@keyframes adm-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.adm-bar { transform-origin: bottom; animation: adm-grow .8s cubic-bezier(.22,1,.36,1) var(--d, 0ms) backwards; transition: filter .2s ease, box-shadow .2s ease; }
+.group:hover > .adm-bar { filter: brightness(1.12); box-shadow: 0 8px 18px -8px rgba(8,102,217,.6); }
+
+/* ---------- Baris tabel & daftar ---------- */
+.adm-row { transition: background-color .2s ease; }
+.adm-row:hover { background: rgba(232,241,255,.6); }
+.adm-row > td:first-child { box-shadow: inset 3px 0 0 transparent; transition: box-shadow .25s ease; }
+.adm-row:hover > td:first-child { box-shadow: inset 3px 0 0 #0866D9; }
+.adm-item { border-radius: .75rem; transition: background-color .2s ease, transform .25s cubic-bezier(.22,1,.36,1); }
+.adm-item:hover { background: #F2F5F9; transform: translateX(3px); }
+
+/* ---------- Tombol ikon ---------- */
+.adm-icon-btn { display: inline-flex; height: 2.25rem; width: 2.25rem; align-items: center; justify-content: center; border-radius: .5rem; color: #526174; transition: background-color .2s ease, color .2s ease, transform .3s cubic-bezier(.34,1.56,.64,1); }
+.adm-icon-btn:hover, .adm-icon-btn:focus-visible { background: #E8F1FF; color: #0866D9; transform: translateY(-1px) scale(1.1); }
+.adm-icon-btn-danger:hover, .adm-icon-btn-danger:focus-visible { background: #ffdad6; color: #DC3545; }
+
+/* ---------- Toast, dialog, skeleton ---------- */
+@keyframes adm-toast-in { from { opacity: 0; transform: translateX(24px) scale(.97); } to { opacity: 1; transform: none; } }
+.adm-toast { animation: adm-toast-in .4s cubic-bezier(.22,1,.36,1) backwards; }
+@keyframes adm-toast-bar { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.adm-toast-bar { transform-origin: left; animation: adm-toast-bar 5s linear forwards; }
+@keyframes adm-fade { from { opacity: 0; } to { opacity: 1; } }
+.adm-fade { animation: adm-fade .2s ease both; }
+@keyframes adm-pop { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
+.adm-pop { animation: adm-pop .3s cubic-bezier(.22,1,.36,1) backwards; }
+@keyframes adm-shimmer { to { transform: translateX(100%); } }
+.adm-skeleton { position: relative; overflow: hidden; background: #E3EAF3; border-radius: .75rem; }
+.adm-skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); animation: adm-shimmer 1.4s infinite; }
+
+/* ---------- Penyempurnaan komponen global, hanya di area admin ---------- */
+.adm-main .btn:active { transform: scale(.98); }
+.adm-main .btn-accent:hover { transform: translateY(-1px); box-shadow: 0 10px 20px -10px rgba(242,190,32,.9); }
+.adm-main .btn-secondary:hover { transform: translateY(-1px); }
+.adm-main .input:hover { border-color: #B7C4D6; }
+
+@media (prefers-reduced-motion: reduce) {
+  .adm-in, .adm-bar, .adm-toast, .adm-pop, .adm-fade, .adm-skeleton::after { animation: none !important; }
+  .adm-toast-bar { animation-duration: 5s !important; }
+  .adm-stat:hover, .adm-nav-link:hover, .adm-item:hover, .adm-icon-btn:hover { transform: none !important; }
+}

@@ -8,6 +8,7 @@ import { Icon, MediaImg } from "./ui";
 import { pingSession } from "@/features/auth-actions";
 import { createGalleryItems, uploadMedia } from "@/features/crud-actions";
 import { T, fmt } from "@/lib/dictionary";
+import { cn } from "@/lib/utils";
 
 export function SubmitButton({ children, className = "btn-accent", pendingText = "Saving…" }: { children: React.ReactNode; className?: string; pendingText?: string }) {
   const { pending } = useFormStatus();
@@ -38,10 +39,11 @@ export function Toast() {
   if (!text) return null;
   const bad = /fail|denied|cannot|could not|not found|still in use|invalid/i.test(text);
   return (
-    <div role="status" aria-live="polite" className={`fixed bottom-6 right-6 z-[100] flex max-w-sm items-start gap-3 rounded-lg border bg-white px-4 py-3 shadow-[0_10px_15px_-3px_rgba(15,23,42,0.07)] ${bad ? "border-error/40" : "border-line"}`}>
+    <div key={text} role="status" aria-live="polite" className={`adm-toast fixed inset-x-4 bottom-4 z-[100] flex items-start gap-3 overflow-hidden rounded-xl border bg-white px-4 py-3.5 shadow-[0_18px_40px_-12px_rgba(7,29,51,0.35)] sm:inset-x-auto sm:bottom-6 sm:right-6 sm:max-w-sm ${bad ? "border-error/40" : "border-line"}`}>
       <Icon name={bad ? "error" : "check_circle"} fill className={bad ? "text-error" : "text-success"} />
-      <p className="text-body-sm text-navy">{text}</p>
-      <button onClick={() => setText(null)} aria-label="Close notification" className="text-outline hover:text-navy"><Icon name="close" className="text-[18px]" /></button>
+      <p className="flex-1 text-body-sm text-navy">{text}</p>
+      <button onClick={() => setText(null)} aria-label="Close notification" className="text-outline transition-transform duration-300 hover:rotate-90 hover:text-navy"><Icon name="close" className="text-[18px]" /></button>
+      <span aria-hidden="true" className={`adm-toast-bar absolute inset-x-0 bottom-0 h-1 ${bad ? "bg-error" : "bg-accent"}`} />
     </div>
   );
 }
@@ -62,13 +64,13 @@ export function ConfirmButton({ action, label = "Delete", title, text, variant =
   return (
     <>
       {variant === "icon" ? (
-        <button type="button" onClick={() => setOpen(true)} aria-label={`${label}: ${title}`} title={label} className="rounded p-1.5 text-on-surface-variant hover:bg-error-container hover:text-error"><Icon name={icon} className="text-[20px]" /></button>
+        <button type="button" onClick={() => setOpen(true)} aria-label={`${label}: ${title}`} title={label} className="adm-icon-btn adm-icon-btn-danger"><Icon name={icon} className="text-[20px]" /></button>
       ) : (
         <button type="button" onClick={() => setOpen(true)} className="btn-secondary !text-error">{label}</button>
       )}
       {open && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-navy/40 p-4" onClick={() => setOpen(false)}>
-          <div role="alertdialog" aria-modal="true" aria-labelledby={titleId} className="w-full max-w-md rounded-lg border border-line bg-white p-6 shadow-[0_20px_25px_-5px_rgba(15,23,42,0.1)]" onClick={(e) => e.stopPropagation()}>
+        <div className="adm-fade fixed inset-0 z-[90] flex items-center justify-center bg-navy/50 p-4 backdrop-blur-[2px]" onClick={() => setOpen(false)}>
+          <div role="alertdialog" aria-modal="true" aria-labelledby={titleId} className="adm-pop w-full max-w-md rounded-xl border border-line bg-white p-6 shadow-[0_30px_60px_-20px_rgba(7,29,51,0.45)]" onClick={(e) => e.stopPropagation()}>
             <h3 id={titleId} className="text-title-lg">{title}</h3>
             <p className="mt-2 text-body-md text-on-surface-variant">{text}</p>
             <div className="mt-6 flex justify-end gap-3">
@@ -82,6 +84,30 @@ export function ConfirmButton({ action, label = "Delete", title, text, variant =
   );
 }
 
+/** Drag & drop: mengembalikan status "sedang di atas area" dan handler yang dipasang ke elemen dropzone. */
+function useDrop(onFiles: (files: File[]) => void, multiple: boolean, disabled: boolean) {
+  const [over, setOver] = useState(false);
+  return {
+    over,
+    props: {
+      onDragOver: (e: React.DragEvent) => { if (disabled) return; e.preventDefault(); setOver(true); },
+      onDragLeave: (e: React.DragEvent) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setOver(false); },
+      onDrop: (e: React.DragEvent) => {
+        e.preventDefault(); setOver(false);
+        if (disabled) return;
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length) onFiles(multiple ? files : files.slice(0, 1));
+      },
+    },
+  };
+}
+
+function Spin() {
+  return <span aria-hidden="true" className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />;
+}
+
+const IMG_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
+
 /** Single image/PDF upload with preview. Stores the media ID in a hidden input. */
 export function FileField({ name, kind, initialId, initialName, error }: { name: string; kind: "image" | "pdf"; initialId?: number | null; initialName?: string; error?: string }) {
   const [id, setId] = useState<number | null>(initialId ?? null);
@@ -90,9 +116,7 @@ export function FileField({ name, kind, initialId, initialName, error }: { name:
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
+  async function upload(f: File) {
     setErr(null);
     setBusy(true);
     const fd = new FormData();
@@ -104,28 +128,43 @@ export function FileField({ name, kind, initialId, initialName, error }: { name:
     setBusy(false);
     if (inputRef.current) inputRef.current.value = "";
   }
+  const { over, props } = useDrop((files) => upload(files[0]), false, busy);
+  const pick = () => inputRef.current?.click();
+  const failed = Boolean(err || error);
 
   return (
     <div>
       <input type="hidden" name={name} value={id ?? ""} />
-      <div className="flex items-center gap-4 rounded border border-dashed border-[#C3CDDA] bg-mist p-3">
-        {kind === "image" ? (
-          id ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={`/media/${id}`} alt="Preview" decoding="async" className="h-20 w-28 rounded object-cover" /> : <div className="flex h-20 w-28 items-center justify-center rounded bg-surface-container text-outline"><Icon name="image" className="text-[32px]" /></div>
+      <div {...props} className={cn("relative overflow-hidden rounded-xl border-2 border-dashed transition-all duration-200", over ? "border-primary bg-brand-light" : failed ? "border-error/50 bg-error-container/20" : "border-[#C3CDDA] bg-mist hover:border-primary/50")}>
+        {id ? (
+          <>
+            {kind === "image" ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={`/media/${id}`} alt="Preview" decoding="async" className="h-44 w-full bg-white object-contain p-2" />
+            ) : (
+              <div className="flex h-28 items-center justify-center bg-white text-primary"><Icon name="picture_as_pdf" fill className="text-[48px]" /></div>
+            )}
+            <div className="flex items-center gap-2 border-t border-line bg-white px-3 py-2.5">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-body-sm font-semibold text-navy">{info?.name ?? `File #${id}`}</p>
+                <p className="text-label-md text-slate-text">{info?.size ? `${(info.size / 1024).toFixed(0)} KB · ` : ""}{kind === "image" ? "JPG, PNG, WebP, GIF" : "PDF"}</p>
+              </div>
+              {kind === "pdf" && <a href={`/media/${id}`} target="_blank" rel="noreferrer" aria-label="Open file" title="Open" className="adm-icon-btn"><Icon name="open_in_new" className="text-[20px]" /></a>}
+              <button type="button" className="btn-secondary !px-3 !py-1.5 !text-body-sm" disabled={busy} onClick={pick}>Replace</button>
+              <button type="button" aria-label="Remove file" title="Remove" className="adm-icon-btn adm-icon-btn-danger" onClick={() => { setId(null); setInfo(null); }}><Icon name="delete" className="text-[20px]" /></button>
+            </div>
+          </>
         ) : (
-          <div className="flex h-20 w-28 items-center justify-center rounded bg-surface-container text-primary"><Icon name="picture_as_pdf" className="text-[32px]" /></div>
+          <button type="button" onClick={pick} disabled={busy} className="flex w-full flex-col items-center gap-2 px-4 py-8 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-primary shadow-sm"><Icon name={kind === "image" ? "cloud_upload" : "upload_file"} className="text-[26px]" /></span>
+            <span className="text-title-md text-navy">Click to upload <span className="font-normal text-slate-text">or drag and drop</span></span>
+            <span className="text-body-sm text-slate-text">{kind === "image" ? "JPG, PNG, WebP or GIF" : "PDF document"}</span>
+          </button>
         )}
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-title-md">{info ? info.name : "No file yet"}</p>
-          <p className="text-body-sm text-on-surface-variant">{info?.size ? `${(info.size / 1024).toFixed(0)} KB · ` : ""}{kind === "image" ? "JPG, PNG, WebP, GIF" : "PDF"}</p>
-          <div className="mt-2 flex gap-2">
-            <button type="button" className="btn-secondary !px-3 !py-1.5" disabled={busy} onClick={() => inputRef.current?.click()}>{busy ? "Uploading…" : id ? "Replace file" : "Choose file"}</button>
-            {id && <button type="button" className="btn-ghost !px-3 !py-1.5" onClick={() => { setId(null); setInfo(null); }}>Remove</button>}
-            {kind === "pdf" && id && <a href={`/media/${id}`} target="_blank" rel="noreferrer" className="btn-ghost !px-3 !py-1.5">Open</a>}
-          </div>
-        </div>
-        <input ref={inputRef} type="file" className="sr-only" accept={kind === "image" ? "image/jpeg,image/png,image/webp,image/gif" : "application/pdf"} onChange={onPick} aria-label="Choose file" />
+        {busy && <div className="absolute inset-0 flex items-center justify-center gap-2 bg-white/80 text-body-sm font-semibold text-navy backdrop-blur-sm"><Spin />Uploading…</div>}
+        <input ref={inputRef} type="file" className="sr-only" accept={kind === "image" ? IMG_ACCEPT : "application/pdf"} onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} aria-label="Choose file" />
       </div>
-      {(err || error) && <p role="alert" className="mt-1 text-body-sm text-error">{err ?? error}</p>}
+      {(err || error) && <p role="alert" className="mt-1.5 flex items-center gap-1 text-body-sm font-medium text-error"><Icon name="error" fill className="text-[16px]" />{err ?? error}</p>}
     </div>
   );
 }
@@ -137,8 +176,7 @@ export function MultiImageField({ name, initial }: { name: string; initial: numb
   const [err, setErr] = useState<string | null>(null);
   const ref = useRef<HTMLInputElement>(null);
 
-  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
+  async function upload(files: File[]) {
     if (!files.length) return;
     setBusy(true); setErr(null);
     const added: number[] = [];
@@ -156,35 +194,41 @@ export function MultiImageField({ name, initial }: { name: string; initial: numb
     setBusy(false);
     if (ref.current) ref.current.value = "";
   }
+  const { over, props } = useDrop((files) => upload(files.filter((f) => f.type.startsWith("image/"))), true, busy);
   const move = (i: number, d: -1 | 1) => setIds((cur) => { const n = [...cur]; const j = i + d; if (j < 0 || j >= n.length) return cur; [n[i], n[j]] = [n[j], n[i]]; return n; });
+
   return (
     <div>
       <input type="hidden" name={name} value={ids.join(",")} />
-      <div className="rounded border border-dashed border-[#C3CDDA] bg-mist p-3">
-        {ids.length === 0 ? <p className="py-3 text-center text-body-sm text-on-surface-variant">No additional images yet.</p> : (
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {ids.map((id, i) => (
-              <li key={id} className="overflow-hidden rounded border border-line bg-white">
-                <MediaImg id={id} alt={`Image ${i + 1}`} className="h-24 w-full" />
-                <div className="flex items-center justify-between px-1 py-1">
-                  <span className="px-1 text-label-sm text-on-surface-variant">#{i + 1}</span>
-                  <span className="flex">
-                    <button type="button" aria-label="Move earlier" disabled={i === 0} onClick={() => move(i, -1)} className="rounded p-1 hover:bg-mist disabled:opacity-30"><Icon name="arrow_back" className="text-[18px]" /></button>
-                    <button type="button" aria-label="Move later" disabled={i === ids.length - 1} onClick={() => move(i, 1)} className="rounded p-1 hover:bg-mist disabled:opacity-30"><Icon name="arrow_forward" className="text-[18px]" /></button>
-                    <button type="button" aria-label="Remove image" onClick={() => setIds((c) => c.filter((x) => x !== id))} className="rounded p-1 text-error hover:bg-error-container"><Icon name="close" className="text-[18px]" /></button>
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-        <div className="mt-3 flex items-center gap-3">
-          <button type="button" className="btn-secondary !px-3 !py-1.5" disabled={busy} onClick={() => ref.current?.click()}><Icon name="add_photo_alternate" className="text-[18px]" />{busy ? "Uploading…" : "Add images"}</button>
-          <span className="text-body-sm text-on-surface-variant">JPG, PNG, WebP, GIF · up to 40 images</span>
-        </div>
-        <input ref={ref} type="file" multiple className="sr-only" accept="image/jpeg,image/png,image/webp,image/gif" onChange={onPick} aria-label="Add images" />
+      <div {...props} className={cn("relative rounded-xl border-2 border-dashed p-3 transition-all duration-200", over ? "border-primary bg-brand-light" : "border-[#C3CDDA] bg-mist")}>
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {ids.map((id, i) => (
+            <li key={id} className="group overflow-hidden rounded-lg border border-line bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
+              <div className="relative aspect-square overflow-hidden">
+                <MediaImg id={id} alt={`Image ${i + 1}`} className="h-full w-full transition-transform duration-500 group-hover:scale-105" />
+                <span className="absolute left-1.5 top-1.5 rounded-md bg-navy/75 px-1.5 py-0.5 text-label-sm text-white backdrop-blur">{i + 1}</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-line px-1 py-1">
+                <button type="button" aria-label="Move earlier" disabled={i === 0} onClick={() => move(i, -1)} className="adm-icon-btn !h-8 !w-8 disabled:opacity-30"><Icon name="arrow_back" className="text-[18px]" /></button>
+                <button type="button" aria-label="Move later" disabled={i === ids.length - 1} onClick={() => move(i, 1)} className="adm-icon-btn !h-8 !w-8 disabled:opacity-30"><Icon name="arrow_forward" className="text-[18px]" /></button>
+                <button type="button" aria-label="Remove image" onClick={() => setIds((c) => c.filter((x) => x !== id))} className="adm-icon-btn adm-icon-btn-danger !h-8 !w-8"><Icon name="close" className="text-[18px]" /></button>
+              </div>
+            </li>
+          ))}
+          {ids.length < 40 && (
+            <li>
+              <button type="button" disabled={busy} onClick={() => ref.current?.click()} className="flex aspect-square w-full flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-primary/40 bg-white text-primary transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-light hover:shadow-md">
+                <Icon name="add_photo_alternate" className="text-[30px]" />
+                <span className="text-body-sm font-semibold">Add images</span>
+              </button>
+            </li>
+          )}
+        </ul>
+        <p className="mt-3 text-center text-body-sm text-slate-text">{ids.length === 0 ? "No additional images yet. " : ""}Drag images here or use the add tile · JPG, PNG, WebP, GIF · up to 40 images</p>
+        {busy && <div className="absolute inset-0 flex items-center justify-center gap-2 rounded-xl bg-white/80 text-body-sm font-semibold text-navy backdrop-blur-sm"><Spin />Uploading…</div>}
+        <input ref={ref} type="file" multiple className="sr-only" accept={IMG_ACCEPT} onChange={(e) => upload(Array.from(e.target.files ?? []))} aria-label="Add images" />
       </div>
-      {err && <p role="alert" className="mt-1 text-body-sm text-error">{err}</p>}
+      {err && <p role="alert" className="mt-1.5 flex items-center gap-1 text-body-sm font-medium text-error"><Icon name="error" fill className="text-[16px]" />{err}</p>}
     </div>
   );
 }
@@ -195,8 +239,7 @@ export function BulkGalleryUpload() {
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  async function onPick(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
+  async function upload(files: File[]) {
     if (!files.length) return;
     setBusy(true); setMsg(null);
     const ids: number[] = []; const errors: string[] = [];
@@ -213,14 +256,19 @@ export function BulkGalleryUpload() {
     if (ref.current) ref.current.value = "";
     router.refresh();
   }
+  const { over, props } = useDrop((files) => upload(files.filter((f) => f.type.startsWith("image/"))), true, busy);
   return (
-    <div className="card mb-6 p-5">
+    <div {...props} className={cn("card adm-in relative mb-6 border-2 border-dashed p-5 transition-all duration-200", over ? "!border-primary bg-brand-light" : "!border-[#C3CDDA] hover:!border-primary/50")}>
       <div className="flex flex-wrap items-center gap-4">
-        <div className="min-w-[220px] flex-1"><h2 className="text-title-lg">Bulk upload</h2><p className="text-body-sm text-on-surface-variant">Select multiple images (8 MB max each). They are added to the gallery as active items.</p></div>
-        <button type="button" className="btn-accent" disabled={busy} onClick={() => ref.current?.click()}><Icon name="upload" className="text-[20px]" />{busy ? "Uploading…" : "Upload images"}</button>
-        <input ref={ref} type="file" multiple className="sr-only" accept="image/jpeg,image/png,image/webp,image/gif" onChange={onPick} aria-label="Upload gallery images" />
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-light text-primary"><Icon name="cloud_upload" className="text-[26px]" /></span>
+        <div className="min-w-[220px] flex-1">
+          <h2 className="text-title-md text-navy">Bulk upload</h2>
+          <p className="text-body-sm text-slate-text">Drag images here or select several files (8 MB max each). They are added to the gallery as active items.</p>
+        </div>
+        <button type="button" className="btn-accent w-full sm:w-auto" disabled={busy} onClick={() => ref.current?.click()}>{busy ? <><Spin />Uploading…</> : <><Icon name="upload" className="text-[20px]" />Upload images</>}</button>
+        <input ref={ref} type="file" multiple className="sr-only" accept={IMG_ACCEPT} onChange={(e) => upload(Array.from(e.target.files ?? []))} aria-label="Upload gallery images" />
       </div>
-      {msg && <p role={msg.ok ? "status" : "alert"} className={`mt-3 text-body-sm ${msg.ok ? "text-success" : "text-error"}`}>{msg.text}</p>}
+      {msg && <p role={msg.ok ? "status" : "alert"} className={`mt-3 text-body-sm font-medium ${msg.ok ? "text-success" : "text-error"}`}>{msg.text}</p>}
     </div>
   );
 }

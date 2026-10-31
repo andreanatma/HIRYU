@@ -31,12 +31,18 @@ export default async function ContactList({ searchParams }: { searchParams: Prom
   return (
     <>
       <PageHeader title="Contact Messages" desc={`${total} message(s) match the filters.`} />
-      <form className="card mb-4 grid gap-3 p-4 md:grid-cols-[1fr_160px_150px_150px_auto]" role="search">
-        <input name="q" defaultValue={q} className="input" placeholder="Search name, company, subject or email…" aria-label="Search" />
-        <select name="status" defaultValue={status} className="input" aria-label="Status"><option value="">All statuses</option><option value="UNREAD">Unread</option><option value="READ">Read</option><option value="REPLIED">Replied</option></select>
-        <input type="date" name="from" defaultValue={from} className="input" aria-label="From date" />
-        <input type="date" name="to" defaultValue={to} className="input" aria-label="To date" />
-        <div className="flex gap-2"><button className="btn-primary">Apply</button>{Object.keys(params).length > 0 && <Link href="/dashboard-admin/contact" className="btn-ghost">Reset</Link>}</div>
+      <form className="card adm-in mb-4 grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_170px_160px_160px_auto] lg:items-end" role="search">
+        <div className="sm:col-span-2 lg:col-span-1">
+          <label htmlFor="f-q" className="mb-1.5 block text-body-sm font-semibold text-navy">Search</label>
+          <div className="relative"><Icon name="search" className="pointer-events-none absolute left-3 top-2.5 text-outline" /><input id="f-q" name="q" defaultValue={q} className="input !pl-10" placeholder="Name, company, subject or email…" /></div>
+        </div>
+        <div>
+          <label htmlFor="f-status" className="mb-1.5 block text-body-sm font-semibold text-navy">Status</label>
+          <select id="f-status" name="status" defaultValue={status} className="input"><option value="">All statuses</option><option value="UNREAD">Unread</option><option value="READ">Read</option><option value="REPLIED">Replied</option></select>
+        </div>
+        <div><label htmlFor="f-from" className="mb-1.5 block text-body-sm font-semibold text-navy">From</label><input id="f-from" type="date" name="from" defaultValue={from} className="input" /></div>
+        <div><label htmlFor="f-to" className="mb-1.5 block text-body-sm font-semibold text-navy">To</label><input id="f-to" type="date" name="to" defaultValue={to} className="input" /></div>
+        <div className="flex gap-2 sm:col-span-2 lg:col-span-1"><button className="btn-primary flex-1 lg:flex-none"><Icon name="filter_alt" className="text-[20px]" />Apply</button>{Object.keys(params).length > 0 && <Link href="/dashboard-admin/contact" className="btn-ghost">Reset</Link>}</div>
       </form>
       <div className="card overflow-hidden">
         {rows.length === 0 ? <EmptyState icon="mail" title="No messages" text="Messages from the contact form will appear here." /> : (
@@ -45,7 +51,7 @@ export default async function ContactList({ searchParams }: { searchParams: Prom
               <thead className="border-b border-[#DCE3EC] bg-[#F2F5F9] text-label-md text-[#526174]"><tr><th className="px-4 py-3">Sender</th><th className="px-4 py-3">Subject / message</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Received</th><th className="px-4 py-3 text-right">Actions</th></tr></thead>
               <tbody className="divide-y divide-[#E8F1FF]">
                 {rows.map((m) => (
-                  <tr key={m.id} className="hover:bg-[#F2F5F9]">
+                  <tr key={m.id} className="adm-row">
                     <td className="px-4 py-3"><p className={m.status === "UNREAD" ? "text-title-md" : ""}>{m.name}</p><p className="text-on-surface-variant">{m.email}{m.company ? ` · ${m.company}` : ""}</p></td>
                     <td className="max-w-xs px-4 py-3 text-on-surface-variant"><p className="text-navy">{m.subject ?? "—"}</p>{truncate(m.message, 80)}</td>
                     <td className="px-4 py-3"><StatusBadge value={m.status} /></td>

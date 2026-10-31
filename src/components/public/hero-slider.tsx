@@ -16,7 +16,10 @@ type HeroSliderProps = {
 const SLIDE_MS = 6000;
 
 // Nama file harus SAMA PERSIS dengan di /public/hero (Linux case-sensitive: hero-1.JPG ≠ hero-1.jpg).
-const DEFAULT_IMAGES = ["/hero/hero-1.JPG", "/hero/hero-2.png", "/hero/hero-3.png"];
+const DEFAULT_IMAGES = 
+["/hero/hero-1.JPG", 
+  "/hero/hero-2.JPG", 
+  "/hero/hero-3.JPG"];
 
 export function HeroSlider({ companyName, title, subtitle, exploreText, aboutText, images }: HeroSliderProps) {
   const slides = images && images.length > 0 ? images : DEFAULT_IMAGES;

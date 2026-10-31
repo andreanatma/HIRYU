@@ -7,6 +7,8 @@ const securityHeaders = [
 ];
 const nextConfig = {
   poweredByHeader: false,
+  // Pindahkan lencana "N" Next.js (hanya muncul saat dev) agar tidak menutupi tombol View website di sidebar.
+  devIndicators: { position: "bottom-right" },
   experimental: { serverActions: { bodySizeLimit: "10mb" } },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

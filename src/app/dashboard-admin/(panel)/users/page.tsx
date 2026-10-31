@@ -27,13 +27,13 @@ export default async function Users() {
         <table className="w-full text-left text-body-sm">
           <thead className="border-b border-[#DCE3EC] bg-[#F2F5F9] text-label-md text-[#526174]"><tr><th className="px-4 py-3">Name</th><th className="px-4 py-3">Role</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Last login</th><th className="px-4 py-3 text-right">Actions</th></tr></thead>
           <tbody className="divide-y divide-[#E8F1FF]">{users.map((u) => (
-            <tr key={u.id} className="hover:bg-[#F2F5F9]">
+            <tr key={u.id} className="adm-row">
               <td className="px-4 py-3"><p className="text-title-md">{u.name}{u.id === me.id && <span className="ml-2 text-body-sm font-normal text-outline">(You)</span>}</p><p className="text-on-surface-variant">{u.email}</p></td>
               <td className="px-4 py-3"><StatusBadge value={u.role} /></td>
               <td className="px-4 py-3">{u.isActive ? <span className="badge-success">Active</span> : <span className="badge-warn">Inactive</span>}</td>
               <td className="px-4 py-3 tabular-nums">{formatDate(u.lastLoginAt, true)}</td>
               <td className="px-4 py-3"><div className="flex justify-end gap-1">
-                <Link href={`/dashboard-admin/users/${u.id}`} aria-label={`Edit ${u.name}`} className="rounded p-1.5 hover:bg-surface-container hover:text-primary"><Icon name="edit" className="text-[20px]" /></Link>
+                <Link href={`/dashboard-admin/users/${u.id}`} aria-label={`Edit ${u.name}`} className="adm-icon-btn"><Icon name="edit" className="text-[20px]" /></Link>
                 <ConfirmButton label="Reset password" icon="lock_reset" action={resetUserPassword.bind(null, u.id)} title={`Reset password of ${u.name}`} text="A temporary random password will be generated and all sessions of this user will be terminated." />
                 {u.id !== me.id && <ConfirmButton action={deleteUser.bind(null, u.id)} title={u.name} text="This account will be permanently deleted. Its activity history is kept without the user name." />}
               </div></td>
