@@ -65,7 +65,7 @@ export function AdminBar({ name: initialName }: AdminBarProps = {}) {
       <Link
         href="/dashboard-admin"
         aria-label="Back to Dashboard"
-        className="fixed bottom-4 right-4 z-[80] flex h-12 w-12 items-center justify-center rounded-full bg-accent text-navy shadow-lg transition-colors hover:bg-accent-hover"
+        className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] right-4 z-[80] flex h-12 w-12 items-center justify-center rounded-full bg-accent text-navy shadow-lg transition-colors hover:bg-accent-hover"
       >
         <Icon name="dashboard" />
       </Link>
@@ -76,7 +76,7 @@ export function AdminBar({ name: initialName }: AdminBarProps = {}) {
     <div
       role="region"
       aria-label="Admin bar"
-      className="fixed bottom-4 left-1/2 z-[80] flex max-w-[calc(100vw-1.5rem)] -translate-x-1/2 items-center gap-2 rounded-full bg-navy py-2 pl-4 pr-2 text-white shadow-[0_10px_25px_-5px_rgba(15,23,42,0.4)]"
+      className="fixed bottom-[max(1rem,env(safe-area-inset-bottom))] left-1/2 z-[80] flex max-w-[calc(100vw-1rem)] -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full bg-navy py-1.5 pl-2 pr-1.5 text-white sm:gap-2 sm:py-2 sm:pl-4 sm:pr-2 shadow-[0_10px_25px_-5px_rgba(15,23,42,0.4)]"
     >
       <span className="hidden items-center gap-1.5 text-label-md text-slate-300 md:flex">
         <Icon name="shield_person" className="text-[18px]" />
@@ -86,26 +86,29 @@ export function AdminBar({ name: initialName }: AdminBarProps = {}) {
       {section && (
         <Link
           href={section.target}
-          className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-2 text-label-md transition-colors hover:bg-white/20"
+          aria-label={`Manage ${section.label}`}
+          className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-2 text-label-md transition-colors hover:bg-white/20 sm:px-3"
         >
           <Icon name="edit" className="text-[16px]" />
-          Manage {section.label}
+          {/* HP: hanya ikon agar bar tidak melebihi lebar layar */}
+          <span className="hidden sm:inline">Manage {section.label}</span>
         </Link>
       )}
 
       <Link
         href="/dashboard-admin"
-        className="inline-flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-label-md font-semibold text-navy transition-colors hover:bg-accent-hover"
+        className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-2 text-label-md font-semibold text-navy transition-colors hover:bg-accent-hover sm:px-4"
       >
         <Icon name="arrow_back" className="text-[16px]" />
-        Back to Dashboard
+        <span className="sm:hidden">Dashboard</span>
+        <span className="hidden sm:inline">Back to Dashboard</span>
       </Link>
 
       <button
         type="button"
         onClick={() => setHidden(true)}
         aria-label="Hide admin bar"
-        className="rounded-full p-1.5 text-slate-300 transition-colors hover:bg-white/10"
+        className="flex h-9 w-9 items-center justify-center rounded-full text-slate-300 transition-colors hover:bg-white/10 sm:h-8 sm:w-8"
       >
         <Icon name="close" className="text-[18px]" />
       </button>

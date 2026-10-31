@@ -68,9 +68,9 @@ const config: Config = {
       fontFamily: { sans: ["Plus Jakarta Sans", "ui-sans-serif", "system-ui", "sans-serif"] },
       fontSize: {
           "title-md": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600"}],
-          "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
-          "display-md-mobile": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-          "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "display-lg-mobile": ["clamp(1.875rem, 1.2rem + 3vw, 2.25rem)", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+          "display-md-mobile": ["clamp(1.625rem, 1.2rem + 2vw, 1.875rem)", {"lineHeight": "1.25", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+          "headline-xl": ["clamp(1.625rem, 1.3rem + 1.4vw, 2rem)", {"lineHeight": "1.25", "letterSpacing": "-0.02em", "fontWeight": "700"}],
           "display-md": ["44px", {"lineHeight": "52px", "letterSpacing": "-0.025em", "fontWeight": "700"}],
           "title-lg": ["18px", {"lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "600"}],
           "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.06em", "fontWeight": "700"}],
@@ -78,7 +78,7 @@ const config: Config = {
           "body-sm": ["13px", {"lineHeight": "20px", "letterSpacing": "0.005em", "fontWeight": "400"}],
           "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600"}],
           "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-          "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+          "headline-lg": ["clamp(1.375rem, 1.2rem + 0.8vw, 1.5rem)", {"lineHeight": "1.3", "letterSpacing": "-0.015em", "fontWeight": "600"}],
           "body-lg": ["18px", {"lineHeight": "28px", "letterSpacing": "-0.005em", "fontWeight": "400"}],
           "display-lg": ["56px", {"lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800"}]
       }

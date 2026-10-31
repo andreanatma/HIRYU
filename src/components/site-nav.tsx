@@ -49,6 +49,23 @@ export function SiteNav({ name, productTypes = [] }: { name: string; productType
     (document.activeElement as HTMLElement | null)?.blur?.(); // fokus hasil klik link tidak boleh "menempel"
   }, [path]);
 
+  // Menu HP terbuka: Escape menutup, scroll halaman di belakangnya dikunci, dan menu otomatis tertutup bila layar melebar ke desktop.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const mq = window.matchMedia("(min-width: 1280px)");
+    const onMq = () => { if (mq.matches) setOpen(false); };
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKey);
+    mq.addEventListener("change", onMq);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
+      mq.removeEventListener("change", onMq);
+    };
+  }, [open]);
+
   // Navbar transparan saat halaman paling atas HANYA di halaman yang punya hero gelap
   // (hero homepage & PageHero memberi atribut data-nav-hero). Di halaman tanpa hero (mis. detail produk)
   // navbar tetap solid. Latar muncul saat di-scroll, di-hover/fokus, atau menu mobile terbuka.
@@ -98,13 +115,13 @@ export function SiteNav({ name, productTypes = [] }: { name: string; productType
       <div aria-hidden="true" className={cn("absolute inset-0 -z-10 bg-gradient-to-r from-primary to-brand-hover transition-opacity duration-500", solid ? "opacity-100" : "opacity-0")} />
       <div aria-hidden="true" className={cn("absolute inset-0 -z-10 bg-gradient-to-b from-navy/60 to-transparent transition-opacity duration-500", solid ? "opacity-0" : "opacity-100")} />
 
-      <div className="container-x flex h-20 items-center justify-between">
-        <Link href="/" aria-label={`${name} home`} className="flex items-center gap-3 text-title-lg font-bold tracking-tight text-white">
+      <div className="container-x flex h-20 items-center justify-between gap-3">
+        <Link href="/" aria-label={`${name} home`} className="flex min-w-0 items-center gap-2 text-title-lg font-bold tracking-tight text-white sm:gap-3">
           <BrandLogo />
-          <span className="max-w-[210px] leading-tight sm:max-w-none">{name}</span>
+          <span className="line-clamp-2 min-w-0 text-[15px] leading-tight sm:text-title-lg">{name}</span>
         </Link>
 
-        <nav aria-label="Main" className="hidden h-full items-center gap-7 lg:flex">
+        <nav aria-label="Main" className="hidden h-full items-center gap-5 xl:flex 2xl:gap-7">
           {LINKS.map(([h, label]) => {
             const linkCls = cn(
               "border-b-2 py-1 text-body-md transition-colors",
@@ -136,19 +153,19 @@ export function SiteNav({ name, productTypes = [] }: { name: string; productType
           <a {...waProps} className="btn-accent !px-5 !py-2.5"><WhatsAppIcon />Contact Us</a>
         </nav>
 
-        <div className="flex items-center gap-2 lg:hidden">
-          <button className="rounded p-2 hover:bg-white/10" aria-expanded={open} aria-controls="mobile-nav" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(!open)}>
+        <div className="flex shrink-0 items-center gap-2 xl:hidden">
+          <button className="-mr-1 flex h-11 w-11 items-center justify-center rounded-lg transition-colors hover:bg-white/10 active:bg-white/20" aria-expanded={open} aria-controls="mobile-nav" aria-label={open ? "Close menu" : "Open menu"} onClick={() => setOpen(!open)}>
             <Icon name={open ? "close" : "menu"} />
           </button>
         </div>
       </div>
 
       {open && (
-        <nav id="mobile-nav" aria-label="Mobile" className="container-x flex max-h-[calc(100vh-5rem)] flex-col gap-1 overflow-y-auto border-t border-white/20 pb-4 pt-2 lg:hidden">
+        <nav id="mobile-nav" aria-label="Mobile" className="acc-panel container-x flex max-h-[calc(100vh-5rem)] flex-col gap-1 overflow-y-auto overscroll-contain border-t border-white/20 pb-5 pt-2 supports-[height:100dvh]:max-h-[calc(100dvh-5rem)] xl:hidden">
           {LINKS.map(([h, label]) => {
             if (h !== "/products") {
               return (
-                <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={cn("rounded px-3 py-2.5", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>
+                <Link key={h} href={h} aria-current={active(h) ? "page" : undefined} className={cn("rounded-lg px-3 py-3 transition-colors", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10 active:bg-white/15")}>
                   {label}
                 </Link>
               );
@@ -156,9 +173,9 @@ export function SiteNav({ name, productTypes = [] }: { name: string; productType
             return (
               <div key={h}>
                 <div className={cn("flex items-center justify-between rounded", active(h) ? "bg-white/15 font-semibold" : "hover:bg-white/10")}>
-                  <Link href={h} aria-current={active(h) ? "page" : undefined} className="flex-1 px-3 py-2.5">{label}</Link>
+                  <Link href={h} aria-current={active(h) ? "page" : undefined} className="flex-1 px-3 py-3">{label}</Link>
                   {productTypes.length > 0 && (
-                    <button type="button" onClick={() => setMProd(!mProd)} aria-expanded={mProd} aria-label="Expand product types" className="p-2.5">
+                    <button type="button" onClick={() => setMProd(!mProd)} aria-expanded={mProd} aria-label="Expand product types" className="flex h-11 w-11 items-center justify-center">
                       <Icon name={mProd ? "remove" : "add"} />
                     </button>
                   )}
@@ -167,7 +184,7 @@ export function SiteNav({ name, productTypes = [] }: { name: string; productType
                   <ul className="ml-3 border-l border-white/20 pl-2">
                     {productTypes.map((x) => (
                       <li key={x.slug}>
-                        <Link href={`/products?type=${x.slug}`} className="block rounded px-3 py-2 text-body-sm text-white/85 hover:bg-white/10 hover:text-white">{x.name}</Link>
+                        <Link href={`/products?type=${x.slug}`} className="block rounded-lg px-3 py-2.5 text-body-sm text-white/85 hover:bg-white/10 hover:text-white active:bg-white/15">{x.name}</Link>
                       </li>
                     ))}
                   </ul>
@@ -175,7 +192,7 @@ export function SiteNav({ name, productTypes = [] }: { name: string; productType
               </div>
             );
           })}
-          <a {...waProps} className="btn-accent mt-2"><WhatsAppIcon />Contact Us</a>
+          <a {...waProps} className="btn-accent mt-2 !py-3"><WhatsAppIcon />Contact Us</a>
         </nav>
       )}
     </header>

@@ -28,7 +28,7 @@ export function HeroSlider({ companyName, title, subtitle, exploreText, aboutTex
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [cycle, setCycle] = useState(0); // dinaikkan agar timer & progress bar sinkron setelah pause / klik manual
-  const touchX = useRef<number | null>(null);
+  const touch = useRef<{ x: number; y: number } | null>(null);
 
   const go = useCallback(
     (i: number) => {
@@ -57,19 +57,28 @@ export function HeroSlider({ companyName, title, subtitle, exploreText, aboutTex
       data-nav-hero
       aria-roledescription="carousel"
       aria-label="Highlights"
-      className="relative isolate -mt-20 flex min-h-[680px] w-full items-center overflow-hidden bg-navy text-white lg:min-h-[780px]"
-      onMouseEnter={pause}
-      onMouseLeave={resume}
-      onFocus={pause}
+      className="relative isolate -mt-20 flex min-h-[640px] w-full items-center overflow-hidden bg-navy text-white md:min-h-[700px] lg:min-h-[780px]"
+      // Jeda saat hover HANYA untuk mouse. Di layar sentuh, "mouseenter" ikut terpicu saat ditap dan tidak pernah
+      // "leave" sehingga slider berhenti selamanya setelah pengunjung menyentuh hero.
+      onPointerEnter={(e) => e.pointerType === "mouse" && pause()}
+      onPointerLeave={(e) => e.pointerType === "mouse" && resume()}
+      // Fokus keyboard saja yang menjeda (tap pada tombol indikator di Android memberi fokus yang "menempel").
+      onFocus={(e) => e.target.matches(":focus-visible") && pause()}
       onBlur={resume}
       onTouchStart={(e) => {
-        touchX.current = e.touches[0].clientX;
+        touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }}
+      onTouchCancel={() => {
+        touch.current = null;
       }}
       onTouchEnd={(e) => {
-        if (touchX.current === null) return;
-        const dx = e.changedTouches[0].clientX - touchX.current;
-        touchX.current = null;
-        if (Math.abs(dx) > 50) go(index + (dx < 0 ? 1 : -1));
+        const start = touch.current;
+        touch.current = null;
+        if (!start) return;
+        const dx = e.changedTouches[0].clientX - start.x;
+        const dy = e.changedTouches[0].clientY - start.y;
+        // Geser horizontal saja; gestur scroll vertikal yang sedikit miring tidak boleh mengganti slide.
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(index + (dx < 0 ? 1 : -1));
       }}
     >
       {/* ===== Latar gambar (crossfade + zoom pelan) ===== */}
@@ -121,7 +130,7 @@ export function HeroSlider({ companyName, title, subtitle, exploreText, aboutTex
           </span>
 
           <h1
-            className="hero-in whitespace-pre-line text-display-lg-mobile font-extrabold tracking-tight text-white md:text-display-md lg:text-display-lg"
+            className="hero-in whitespace-pre-line break-words text-display-lg-mobile font-extrabold tracking-tight text-white md:text-display-md lg:text-display-lg"
             style={{ "--d": "120ms" } as React.CSSProperties}
           >
             {title}
@@ -132,17 +141,17 @@ export function HeroSlider({ companyName, title, subtitle, exploreText, aboutTex
             <p className="max-w-xl whitespace-pre-line text-body-lg leading-relaxed text-white/90">{subtitle}</p>
           </div>
 
-          <div className="hero-in mt-2 flex flex-wrap items-center gap-4" style={{ "--d": "400ms" } as React.CSSProperties}>
+          <div className="hero-in mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4" style={{ "--d": "400ms" } as React.CSSProperties}>
             <Link
               href="/products"
-              className="btn-accent group !px-7 !py-3.5 !font-bold shadow-lg shadow-accent/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-accent/30"
+              className="btn-accent group w-full !px-7 !py-3.5 !font-bold shadow-lg sm:w-auto shadow-accent/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-accent/30"
             >
               {exploreText}
               <Icon name="arrow_forward" className="text-[18px] transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
             <Link
               href="/about-us"
-              className="btn-outline-light !border-white/30 !px-7 !py-3.5 !font-bold backdrop-blur hover:!-translate-y-0.5 hover:!border-white hover:!bg-white/15"
+              className="btn-outline-light w-full !border-white/30 !px-7 !py-3.5 !font-bold backdrop-blur hover:!-translate-y-0.5 hover:!border-white hover:!bg-white/15 sm:w-auto"
             >
               {aboutText}
             </Link>

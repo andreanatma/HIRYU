@@ -16,7 +16,7 @@ export function GalleryGrid({ items }: { items: Item[] }) {
   const [i, setI] = useState<number | null>(null);
   const [ready, setReady] = useState(false);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const touchX = useRef<number | null>(null);
+  const touch = useRef<{ x: number; y: number } | null>(null);
   const n = items.length;
 
   const go = (dir: 1 | -1) => { setReady(false); setI((v) => (v === null ? v : (v + dir + n) % n)); };
@@ -85,19 +85,21 @@ export function GalleryGrid({ items }: { items: Item[] }) {
         <div
           className="fixed inset-0 z-[90] flex items-center justify-center bg-navy/95 p-3 backdrop-blur-sm sm:p-6"
           onClick={() => setI(null)}
-          onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
+          onTouchStart={(e) => { touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }}
           onTouchEnd={(e) => {
-            if (touchX.current === null || n < 2) return;
-            const dx = e.changedTouches[0].clientX - touchX.current;
-            touchX.current = null;
-            if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
+            const start = touch.current;
+            touch.current = null;
+            if (!start || n < 2) return;
+            const dx = e.changedTouches[0].clientX - start.x;
+            const dy = e.changedTouches[0].clientY - start.y;
+            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
           }}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-label={fmt(T.lb_dialog, { n: i + 1, total: n })}
-            className="reveal-in relative flex max-h-[92vh] w-full max-w-5xl items-center justify-center"
+            className="reveal-in relative flex max-h-[92vh] supports-[height:100dvh]:max-h-[92dvh] w-full max-w-5xl items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -108,7 +110,7 @@ export function GalleryGrid({ items }: { items: Item[] }) {
               src={`/media/${cur.imageId}`}
               alt={alt(i + 1)}
               decoding="async"
-              className={`max-h-[84vh] w-auto max-w-full rounded-xl object-contain shadow-2xl transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"}`}
+              className={`max-h-[84vh] supports-[height:100dvh]:max-h-[84dvh] w-auto max-w-full rounded-xl object-contain shadow-2xl transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"}`}
             />
 
             <button

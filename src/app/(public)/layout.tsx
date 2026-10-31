@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui";
 import { BrandLogo } from "@/components/brand-logo";
 import { SiteNav } from "@/components/site-nav";
 import { AdminBar } from "@/components/admin-bar";
+import { Reveal } from "@/components/public/reveal";
 import { getSession } from "@/lib/auth";
 import { getNavTypes } from "@/lib/catalog";
 
@@ -15,6 +16,24 @@ const COLS: [string, [string, string][]][] = [
   ["Company", [["/about-us", "About Us"], ["/gallery", "Gallery"], ["/blogs", "Blogs"]]],
   ["Connect", [["/contact", "Contact Us"]]],
 ];
+
+/** Baris info kontak di footer: ikon berputar + berubah kuning saat hover, teks menyala. */
+function InfoRow({ icon, href, external, children }: { icon: string; href?: string; external?: boolean; children: React.ReactNode }) {
+  const inner = (
+    <>
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/5 text-accent ring-1 ring-white/10 transition-all duration-300 group-hover/row:-rotate-6 group-hover/row:scale-110 group-hover/row:bg-accent group-hover/row:text-navy group-hover/row:ring-accent">
+        <Icon name={icon} className="text-[18px]" />
+      </span>
+      <span className="min-w-0 pt-1 [overflow-wrap:anywhere] transition-colors duration-200 group-hover/row:text-white">{children}</span>
+    </>
+  );
+  const cls = "group/row flex items-start gap-3 rounded-lg transition-transform duration-300 hover:translate-x-0.5";
+  return href ? (
+    <a href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} className={cls}>{inner}</a>
+  ) : (
+    <div className={cls}>{inner}</div>
+  );
+}
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const [s, admin, navTypes] = await Promise.all([getSettings(), getSession(), getNavTypes().catch(() => [])]);
@@ -37,93 +56,97 @@ export default async function PublicLayout({ children }: { children: React.React
         {children}
       </main>
 
-      <footer className="mt-12 bg-navy pb-8 pt-10 md:mt-20 md:pb-10 md:pt-16 text-slate-300">
+      <footer className="relative isolate mt-12 overflow-hidden bg-navy pb-6 pt-10 text-slate-300 md:mt-20 md:pb-8 md:pt-16">
+        {/* Dekorasi: garis kuning di tepi atas, glow, dan grid halus */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/70 to-transparent" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+          <div className="bg-grid-faint absolute inset-0 opacity-20" />
+          <div className="float-slow absolute -left-24 top-10 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
+          <div className="float-slow absolute -right-20 bottom-0 h-56 w-56 rounded-full bg-accent/10 blur-3xl [animation-delay:-3s]" />
+        </div>
+
         <div className="container-x">
-          <div className="mb-8 grid gap-8 md:mb-12 md:gap-10 lg:grid-cols-12">
-            
-            {/* 1. Brand & Information */}
-            <div className={`flex flex-col gap-3 md:gap-4 ${map ? "lg:col-span-4" : "lg:col-span-6"}`}>
-              <span className="flex items-center gap-3 text-title-lg font-bold text-white">
-                <BrandLogo />
-                {s.company_name}
-              </span>
+          {/* Mobile: 1 kolom · Tablet (md): brand + peta berdampingan, link di bawahnya · Desktop (lg): 12 kolom */}
+          <div className="mb-8 grid gap-8 md:mb-12 md:grid-cols-2 md:gap-x-8 md:gap-y-10 lg:grid-cols-12 lg:gap-10">
+            {/* 1. Brand & informasi */}
+            <Reveal className={`flex flex-col gap-3 md:gap-4 ${map ? "md:col-span-1 lg:col-span-4" : "md:col-span-2 lg:col-span-6"}`}>
+              <Link href="/" aria-label={`${s.company_name} — Home`} className="group/brand inline-flex w-fit max-w-full items-center gap-3 text-title-lg font-bold text-white transition-colors duration-300 hover:text-accent">
+                <BrandLogo className="transition-transform duration-300 group-hover/brand:-rotate-3 group-hover/brand:scale-105" />
+                <span className="min-w-0">{s.company_name}</span>
+              </Link>
 
               {s.footer_description && (
-                <p className="max-w-sm text-body-sm md:text-body-md text-slate-300/90">
-                  {s.footer_description}
-                </p>
+                <p className="max-w-sm text-body-sm text-slate-300/90 md:text-body-md">{s.footer_description}</p>
               )}
 
-              <ul className="space-y-2 text-body-sm">
-                {s.address && (
-                  <li className="flex items-start gap-2.5">
-                    <Icon name="location_on" className="mt-0.5 text-[18px] text-accent shrink-0" />
-                    <span>{s.address}</span>
-                  </li>
-                )}
-                {s.email && (
-                  <li className="flex items-center gap-2.5">
-                    <Icon name="mail" className="text-[18px] text-accent shrink-0" />
-                    <a href={`mailto:${s.email}`} className="transition-colors hover:text-white">
-                      {s.email}
-                    </a>
-                  </li>
-                )}
-                {wa && (
-                  <li className="flex items-center gap-2.5">
-                    <Icon name="chat" className="text-[18px] text-accent shrink-0" />
-                    <a
-                      href={`https://wa.me/${wa}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="transition-colors hover:text-white"
-                    >
-                      WhatsApp +{wa}
-                    </a>
-                  </li>
-                )}
-              </ul>
-            </div>
+              <div className="space-y-3 text-body-sm">
+                {s.address && <InfoRow icon="location_on"><span className="whitespace-pre-line">{s.address}</span></InfoRow>}
+                {s.email && <InfoRow icon="mail" href={`mailto:${s.email}`}>{s.email}</InfoRow>}
+                {wa && <InfoRow icon="chat" href={`https://wa.me/${wa}`} external>WhatsApp +{wa}</InfoRow>}
+              </div>
+            </Reveal>
 
-            {/* 2. Google Maps Embed (Ukuran proporsional di HP) */}
+            {/* 2. Google Maps: abu-abu halus, berwarna penuh + border kuning saat hover */}
             {map && (
-              <div className="flex flex-col lg:col-span-3">
-                <div className="h-40 md:h-full w-full overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-inner">
+              <Reveal delay={80} className="flex md:col-span-1 lg:col-span-3">
+                <div className="group w-full h-44 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-inner transition-all duration-300 hover:border-accent/50 hover:shadow-[0_20px_40px_-20px_rgba(255,212,59,0.35)] sm:h-52 md:h-auto md:min-h-[12rem]">
                   <iframe
                     title="Company location on Google Maps"
                     src={map}
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    className="h-full w-full border-0"
+                    className="h-full w-full border-0 grayscale-[40%] transition duration-500 group-hover:grayscale-0"
                   />
                 </div>
-              </div>
+              </Reveal>
             )}
 
-            {/* 3. Link Navigation Columns (Layout Grid 2/3 Kolom di HP) */}
-            <div className={`grid grid-cols-2 gap-6 sm:grid-cols-3 ${map ? "lg:col-span-5" : "lg:col-span-6"} lg:grid-cols-3`}>
-              {COLS.map(([h, links]) => (
-                <div key={h} className="flex flex-col gap-2">
-                  <h3 className="text-label-md font-semibold text-white uppercase tracking-wider">{h}</h3>
-                  <ul className="space-y-1.5">
-                    {links.map(([href, l]) => (
-                      <li key={href}>
-                        <Link href={href} className="text-body-sm text-slate-300 transition-colors hover:text-white">
-                          {l}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+            {/* 3. Kolom navigasi: 2 kolom di HP (Connect melebar), 3 kolom mulai sm */}
+            <div className={`grid grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-3 md:col-span-2 ${map ? "lg:col-span-5" : "lg:col-span-6"}`}>
+              {COLS.map(([h, links], ci) => {
+                // Kolom "Connect" ikut menampilkan WhatsApp bila nomornya diisi di Settings.
+                const list = h === "Connect" && wa ? [...links, ["https://wa.me/" + wa, "WhatsApp"] as [string, string]] : links;
+                return (
+                  <Reveal key={h} delay={ci * 80} className={h === "Connect" ? "col-span-2 sm:col-span-1" : ""}>
+                    <div className="group/col flex flex-col gap-2.5">
+                      <div>
+                        <h3 className="text-label-md font-semibold uppercase tracking-wider text-white">{h}</h3>
+                        <span className="mt-1.5 block h-0.5 w-6 rounded bg-accent transition-all duration-500 group-hover/col:w-12" />
+                      </div>
+                      <ul className="space-y-0.5">
+                        {list.map(([href, l]) => {
+                          const ext = href.startsWith("http");
+                          const cls = "group/link inline-flex items-center py-1.5 text-body-sm text-slate-300 transition-all duration-300 hover:translate-x-1 hover:text-white sm:py-1";
+                          const dash = <span aria-hidden="true" className="h-px w-0 bg-accent transition-all duration-300 group-hover/link:mr-2 group-hover/link:w-3" />;
+                          return (
+                            <li key={href}>
+                              {ext ? (
+                                <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>{dash}{l}<Icon name="north_east" className="ml-1 text-[14px] opacity-0 transition-opacity duration-300 group-hover/link:opacity-100" /></a>
+                              ) : (
+                                <Link href={href} className={cls}>{dash}{l}</Link>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  </Reveal>
+                );
+              })}
             </div>
-
           </div>
 
-          {/* Copyright */}
-          <p className="border-t border-white/10 pt-6 text-center text-body-sm text-slate-400">
-            © {new Date().getFullYear()} {s.company_name}. All rights reserved.
-          </p>
+          {/* Bar bawah: hak cipta + tombol kembali ke atas (di HP tombol tampil di atas hak cipta) */}
+          <div className="flex flex-col-reverse items-center justify-between gap-4 border-t border-white/10 pt-5 text-center text-body-sm text-slate-400 sm:flex-row sm:text-left">
+            <p>© {new Date().getFullYear()} {s.company_name}. All rights reserved.</p>
+            <a
+              href="#"
+              className="group/top inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-1.5 text-label-md font-semibold text-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-navy active:translate-y-0 active:scale-95"
+            >
+              Back to top
+              <Icon name="arrow_upward" className="text-[16px] transition-transform duration-300 group-hover/top:-translate-y-0.5" />
+            </a>
+          </div>
         </div>
       </footer>
     </>
