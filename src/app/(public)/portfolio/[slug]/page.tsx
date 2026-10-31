@@ -112,7 +112,7 @@ export default async function PortfolioDetail({ params }: P) {
         <section className="sec-deco sec-dots bg-gradient-to-b from-[#EEF4FC] to-white py-14 md:py-16">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("pf_eyebrow")} title="Other Projects" linkHref="/portfolio" linkLabel={t("pf_all")} /></Reveal>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
               {related.map((x, i) => (
                 <Reveal key={x.id} delay={(i % 3) * 100} className="h-full">
                   <Link

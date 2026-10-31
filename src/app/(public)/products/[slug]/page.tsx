@@ -159,7 +159,7 @@ export default async function ProductDetail({ params }: P) {
                 </Link>
               </div>
             </Reveal>
-            <ul className="grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
+            <ul className="flow-cards [--cols:2] lg:[--cols:4] [--gap:0.75rem] md:[--gap:1.25rem]">
               {related.map((r, i) => (
                 <li key={r.id} className="h-full"><ProductCard p={r} index={i} /></li>
               ))}

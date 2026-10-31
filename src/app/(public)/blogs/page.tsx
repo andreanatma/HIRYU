@@ -37,7 +37,7 @@ export default async function Blogs({ searchParams }: { searchParams: Promise<Re
       {/* Hero memudar ke putih, lalu section dimulai dari putih → biru muda (sama dengan section Blogs di homepage) */}
       <PageHero eyebrow={t("blog_eyebrow")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="terminal" blend="white" />
 
-      <section className="sec-deco sec-rings-full bg-gradient-to-b from-white to-[#EEF4FC] pb-14 pt-6 md:pb-16 md:pt-8">
+      <section className="sec-deco sec-rings-full bg-gradient-to-b from-white via-[#EEF4FC] to-white pb-14 pt-6 md:pb-16 md:pt-8">
         <div className="container-x">
           <Reveal>
             <form
@@ -70,7 +70,7 @@ export default async function Blogs({ searchParams }: { searchParams: Promise<Re
               />
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
               {items.map((b, i) => (
                 <Reveal key={b.id} delay={(i % 3) * 100} className="h-full">
                   <article className="card card-lift group relative flex h-full flex-col overflow-hidden">

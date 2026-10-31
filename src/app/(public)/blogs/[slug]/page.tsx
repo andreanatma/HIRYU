@@ -86,7 +86,7 @@ export default async function BlogDetail({ params }: P) {
         <section className="sec-deco sec-grid bg-gradient-to-b from-[#EEF4FC] to-white py-14 md:py-16">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("blog_eyebrow")} title="More Articles" linkHref="/blogs" linkLabel={t("blog_all")} /></Reveal>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
               {related.map((x, i) => (
                 <Reveal key={x.id} delay={(i % 3) * 100} className="h-full">
                   <article className="card card-lift group relative flex h-full flex-col overflow-hidden">

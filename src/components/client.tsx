@@ -395,7 +395,7 @@ export function ProductAccordion({ groups, openFirst = false }: { groups: Accord
             <div id={`acc-${g.id}`} role="region" aria-labelledby={`acc-h-${g.id}`} hidden={!isOpen} className="acc-panel border-t border-line bg-mist/50 px-6 py-6">
               {g.description && <p className="mb-5 max-w-3xl text-body-md text-on-surface-variant">{g.description}</p>}
               {g.products.length === 0 ? <p className="text-body-md text-on-surface-variant">{T.acc_empty}</p> : (
-                <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <ul className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem]">
                   {g.products.map((p) => (
                     <li key={p.id}>
                       <Link href={`/products/${p.slug}`} className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md">

@@ -40,7 +40,7 @@ export default async function Portfolio({ searchParams }: { searchParams: SP }) 
           {items.length === 0 ? (
             <EmptyState icon="folder_special" title={t("pf_empty")} />
           ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
               {items.map((p, i) => (
                 <Reveal key={p.id} delay={(i % 3) * 100} className="h-full">
                   <Link

@@ -17,6 +17,10 @@
 }
 
 @layer components {
+  /* Kartu rata-tengah: baris terakhir yang tidak penuh tetap berada di tengah (menggantikan CSS grid).
+     Atur jumlah kolom lewat variabel: [--cols:1] sm:[--cols:2] lg:[--cols:3] dan jarak lewat [--gap:...]. */
+  .flow-cards { --cols: 1; --gap: 1.25rem; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap); }
+  .flow-cards > * { width: calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols)); min-width: 0; }
   .btn { @apply inline-flex items-center justify-center gap-2 rounded px-5 py-2.5 text-title-md transition-all disabled:cursor-not-allowed disabled:opacity-60; }
   .btn-primary { @apply btn bg-primary text-white hover:bg-brand-hover hover:-translate-y-px; }
   .btn-accent { @apply btn bg-accent text-navy font-semibold hover:bg-accent-hover shadow-sm; }

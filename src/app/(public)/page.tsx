@@ -59,7 +59,7 @@ export default async function Home() {
         <section className="sec-deco sec-grid bg-gradient-to-b from-mist to-[#EEF4FC] pb-14 pt-6 md:pb-16 md:pt-8">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("svc_eyebrow")} title={t("svc_title")} href="/service" linkText={t("svc_all")} /></Reveal>
-            <div className="grid gap-5 md:grid-cols-3 md:gap-6">
+            <div className="flow-cards [--cols:1] md:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
               {services.map((x, i) => (
                 <Reveal key={x.id} delay={i * 100} className="h-full">
                   <Link href={`/service/${x.slug}`} className="card card-lift shine group relative flex h-full flex-col overflow-hidden">
@@ -89,7 +89,7 @@ export default async function Home() {
           {products.length === 0 ? (
             <p className="text-body-md text-on-surface-variant">{t("prod_none")} <Link href="/products" className="text-primary underline">{t("prod_browse")}</Link>.</p>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:4] [--gap:1rem] lg:[--gap:1.25rem]">
               {products.map((p, i) => (
                 <Reveal key={p.id} delay={i * 80} className="h-full">
                   <article className="card card-lift shine group relative flex h-full flex-col overflow-hidden">
@@ -119,7 +119,7 @@ export default async function Home() {
         <section className="sec-deco sec-grid bg-gradient-to-b from-mist to-[#EEF4FC] py-14 md:py-16">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("pf_eyebrow")} title={t("pf_featured")} href="/portfolio" linkText={t("pf_all")} /></Reveal>
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            <div className="flow-cards [--cols:1] md:[--cols:2] lg:[--cols:3] [--gap:1.25rem]">
               {portfolio.map((p, i) => (
                 <Reveal key={p.id} delay={i * 100} className="h-full">
                   <Link href={`/portfolio/${p.slug}`} className="group relative block overflow-hidden rounded-xl bg-navy shadow-md transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_28px_50px_-20px_rgba(8,102,217,0.55)]">
@@ -193,7 +193,7 @@ export default async function Home() {
         <section className="sec-deco sec-rings-full bg-[#EEF4FC] py-14 md:py-16">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("blog_eyebrow")} title={t("blog_latest")} href="/blogs" linkText={t("blog_all")} /></Reveal>
-            <div className="flex flex-wrap justify-center gap-5 md:justify-start md:gap-6">
+            <div className="flex flex-wrap justify-center gap-5 md:gap-6">
               {blogs.map((b, i) => (
                 <Reveal key={b.id} delay={i * 100} className="w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]">
                   <article className="card card-lift group relative h-full overflow-hidden">

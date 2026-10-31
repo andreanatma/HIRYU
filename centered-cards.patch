@@ -1,0 +1,194 @@
+diff --git a/src/app/(public)/blogs/[slug]/page.tsx b/src/app/(public)/blogs/[slug]/page.tsx
+index 57ac575..7b3c531 100644
+--- a/src/app/(public)/blogs/[slug]/page.tsx
++++ b/src/app/(public)/blogs/[slug]/page.tsx
+@@ -86,7 +86,7 @@ export default async function BlogDetail({ params }: P) {
+         <section className="sec-deco sec-grid bg-gradient-to-b from-[#EEF4FC] to-white py-14 md:py-16">
+           <div className="container-x">
+             <Reveal><SectionHead eyebrow={t("blog_eyebrow")} title="More Articles" linkHref="/blogs" linkLabel={t("blog_all")} /></Reveal>
+-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
++            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
+               {related.map((x, i) => (
+                 <Reveal key={x.id} delay={(i % 3) * 100} className="h-full">
+                   <article className="card card-lift group relative flex h-full flex-col overflow-hidden">
+diff --git a/src/app/(public)/blogs/page.tsx b/src/app/(public)/blogs/page.tsx
+index 25d1198..0741c9a 100644
+--- a/src/app/(public)/blogs/page.tsx
++++ b/src/app/(public)/blogs/page.tsx
+@@ -70,7 +70,7 @@ export default async function Blogs({ searchParams }: { searchParams: Promise<Re
+               />
+             </div>
+           ) : (
+-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
++            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
+               {items.map((b, i) => (
+                 <Reveal key={b.id} delay={(i % 3) * 100} className="h-full">
+                   <article className="card card-lift group relative flex h-full flex-col overflow-hidden">
+diff --git a/src/app/(public)/page.tsx b/src/app/(public)/page.tsx
+index 195c8a8..85d9426 100644
+--- a/src/app/(public)/page.tsx
++++ b/src/app/(public)/page.tsx
+@@ -59,7 +59,7 @@ export default async function Home() {
+         <section className="sec-deco sec-grid bg-gradient-to-b from-mist to-[#EEF4FC] pb-14 pt-6 md:pb-16 md:pt-8">
+           <div className="container-x">
+             <Reveal><SectionHead eyebrow={t("svc_eyebrow")} title={t("svc_title")} href="/service" linkText={t("svc_all")} /></Reveal>
+-            <div className="grid gap-5 md:grid-cols-3 md:gap-6">
++            <div className="flow-cards [--cols:1] md:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
+               {services.map((x, i) => (
+                 <Reveal key={x.id} delay={i * 100} className="h-full">
+                   <Link href={`/service/${x.slug}`} className="card card-lift shine group relative flex h-full flex-col overflow-hidden">
+@@ -89,7 +89,7 @@ export default async function Home() {
+           {products.length === 0 ? (
+             <p className="text-body-md text-on-surface-variant">{t("prod_none")} <Link href="/products" className="text-primary underline">{t("prod_browse")}</Link>.</p>
+           ) : (
+-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
++            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:4] [--gap:1rem] lg:[--gap:1.25rem]">
+               {products.map((p, i) => (
+                 <Reveal key={p.id} delay={i * 80} className="h-full">
+                   <article className="card card-lift shine group relative flex h-full flex-col overflow-hidden">
+@@ -119,7 +119,7 @@ export default async function Home() {
+         <section className="sec-deco sec-grid bg-gradient-to-b from-mist to-[#EEF4FC] py-14 md:py-16">
+           <div className="container-x">
+             <Reveal><SectionHead eyebrow={t("pf_eyebrow")} title={t("pf_featured")} href="/portfolio" linkText={t("pf_all")} /></Reveal>
+-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
++            <div className="flow-cards [--cols:1] md:[--cols:2] lg:[--cols:3] [--gap:1.25rem]">
+               {portfolio.map((p, i) => (
+                 <Reveal key={p.id} delay={i * 100} className="h-full">
+                   <Link href={`/portfolio/${p.slug}`} className="group relative block overflow-hidden rounded-xl bg-navy shadow-md transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_28px_50px_-20px_rgba(8,102,217,0.55)]">
+@@ -193,7 +193,7 @@ export default async function Home() {
+         <section className="sec-deco sec-rings-full bg-[#EEF4FC] py-14 md:py-16">
+           <div className="container-x">
+             <Reveal><SectionHead eyebrow={t("blog_eyebrow")} title={t("blog_latest")} href="/blogs" linkText={t("blog_all")} /></Reveal>
+-            <div className="flex flex-wrap justify-center gap-5 md:justify-start md:gap-6">
++            <div className="flex flex-wrap justify-center gap-5 md:gap-6">
+               {blogs.map((b, i) => (
+                 <Reveal key={b.id} delay={i * 100} className="w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]">
+                   <article className="card card-lift group relative h-full overflow-hidden">
+diff --git a/src/app/(public)/portfolio/[slug]/page.tsx b/src/app/(public)/portfolio/[slug]/page.tsx
+index 7581782..4796232 100644
+--- a/src/app/(public)/portfolio/[slug]/page.tsx
++++ b/src/app/(public)/portfolio/[slug]/page.tsx
+@@ -112,7 +112,7 @@ export default async function PortfolioDetail({ params }: P) {
+         <section className="sec-deco sec-dots bg-gradient-to-b from-[#EEF4FC] to-white py-14 md:py-16">
+           <div className="container-x">
+             <Reveal><SectionHead eyebrow={t("pf_eyebrow")} title="Other Projects" linkHref="/portfolio" linkLabel={t("pf_all")} /></Reveal>
+-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
++            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
+               {related.map((x, i) => (
+                 <Reveal key={x.id} delay={(i % 3) * 100} className="h-full">
+                   <Link
+diff --git a/src/app/(public)/portfolio/page.tsx b/src/app/(public)/portfolio/page.tsx
+index ad7c8bf..40985a7 100644
+--- a/src/app/(public)/portfolio/page.tsx
++++ b/src/app/(public)/portfolio/page.tsx
+@@ -40,7 +40,7 @@ export default async function Portfolio({ searchParams }: { searchParams: SP })
+           {items.length === 0 ? (
+             <EmptyState icon="folder_special" title={t("pf_empty")} />
+           ) : (
+-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
++            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
+               {items.map((p, i) => (
+                 <Reveal key={p.id} delay={(i % 3) * 100} className="h-full">
+                   <Link
+diff --git a/src/app/(public)/products/[slug]/page.tsx b/src/app/(public)/products/[slug]/page.tsx
+index fafc30c..7102c67 100644
+--- a/src/app/(public)/products/[slug]/page.tsx
++++ b/src/app/(public)/products/[slug]/page.tsx
+@@ -159,7 +159,7 @@ export default async function ProductDetail({ params }: P) {
+                 </Link>
+               </div>
+             </Reveal>
+-            <ul className="grid grid-cols-2 gap-3 md:gap-5 lg:grid-cols-4">
++            <ul className="flow-cards [--cols:2] lg:[--cols:4] [--gap:0.75rem] md:[--gap:1.25rem]">
+               {related.map((r, i) => (
+                 <li key={r.id} className="h-full"><ProductCard p={r} index={i} /></li>
+               ))}
+diff --git a/src/app/(public)/products/page.tsx b/src/app/(public)/products/page.tsx
+index 85edbf8..eeb7679 100644
+--- a/src/app/(public)/products/page.tsx
++++ b/src/app/(public)/products/page.tsx
+@@ -97,7 +97,7 @@ export default async function Products({ searchParams }: { searchParams: Promise
+                   text={active ? undefined : t("prod_empty_x")}
+                 />
+               ) : (
+-                <ul className="grid grid-cols-2 gap-3 md:gap-5 xl:grid-cols-3">
++                <ul className="flow-cards [--cols:2] xl:[--cols:3] [--gap:0.75rem] md:[--gap:1.25rem]">
+                   {items.map((p, i) => (
+                     <li key={p.id} className="h-full"><ProductCard p={p} index={i} /></li>
+                   ))}
+diff --git a/src/app/(public)/service/[slug]/page.tsx b/src/app/(public)/service/[slug]/page.tsx
+index a452648..8b8cb71 100644
+--- a/src/app/(public)/service/[slug]/page.tsx
++++ b/src/app/(public)/service/[slug]/page.tsx
+@@ -96,7 +96,7 @@ export default async function ServiceDetail({ params }: P) {
+         <section className="sec-deco sec-dots bg-gradient-to-b from-[#EEF4FC] to-white py-14 md:py-16">
+           <div className="container-x">
+             <Reveal><SectionHead eyebrow={t("svc_eyebrow")} title={t("svc_title")} linkHref="/service" linkLabel={t("svc_all")} /></Reveal>
+-            <div className="grid gap-5 md:grid-cols-3 md:gap-6">
++            <div className="flow-cards [--cols:1] md:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
+               {others.map((x, i) => (
+                 <Reveal key={x.id} delay={i * 100} className="h-full">
+                   <Link href={`/service/${x.slug}`} className="card card-lift shine group relative flex h-full flex-col overflow-hidden">
+diff --git a/src/app/(public)/service/page.tsx b/src/app/(public)/service/page.tsx
+index 84c12f9..5128981 100644
+--- a/src/app/(public)/service/page.tsx
++++ b/src/app/(public)/service/page.tsx
+@@ -33,7 +33,7 @@ export default async function Services({ searchParams }: { searchParams: SP }) {
+           {items.length === 0 ? (
+             <EmptyState icon="design_services" title={t("svc_empty_t")} text={t("svc_empty_x")} />
+           ) : (
+-            <div className="grid gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
++            <div className="flow-cards [--cols:1] md:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
+               {items.map((s, i) => (
+                 <Reveal key={s.id} delay={(i % 3) * 100} className="h-full">
+                   <Link href={`/service/${s.slug}`} className="card card-lift shine group relative flex h-full flex-col overflow-hidden">
+diff --git a/src/app/globals.css b/src/app/globals.css
+index 0e5b7e1..42b05c1 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -17,6 +17,10 @@
+ }
+ 
+ @layer components {
++  /* Kartu rata-tengah: baris terakhir yang tidak penuh tetap berada di tengah (menggantikan CSS grid).
++     Atur jumlah kolom lewat variabel: [--cols:1] sm:[--cols:2] lg:[--cols:3] dan jarak lewat [--gap:...]. */
++  .flow-cards { --cols: 1; --gap: 1.25rem; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap); }
++  .flow-cards > * { width: calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols)); min-width: 0; }
+   .btn { @apply inline-flex items-center justify-center gap-2 rounded px-5 py-2.5 text-title-md transition-all disabled:cursor-not-allowed disabled:opacity-60; }
+   .btn-primary { @apply btn bg-primary text-white hover:bg-brand-hover hover:-translate-y-px; }
+   .btn-accent { @apply btn bg-accent text-navy font-semibold hover:bg-accent-hover shadow-sm; }
+diff --git a/src/components/about-sections.tsx b/src/components/about-sections.tsx
+index 5153591..54d3f1a 100644
+--- a/src/components/about-sections.tsx
++++ b/src/components/about-sections.tsx
+@@ -416,7 +416,7 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
+         <section aria-labelledby="ab-principles" className={`sec-deco sec-grid ${bg("principles")} py-14 md:py-16`}>
+           <div className="container-x">
+             <Reveal><CenterHead id="ab-principles" title={principles.heading} /></Reveal>
+-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
++            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.5rem] lg:[--gap:2rem]">
+               {principlesP.items.map((it, i) => (
+                 <Reveal key={`${i}-${it.title}`} delay={(i % 3) * 100} className="h-full">
+                   <PrincipleCard item={it} m={meta(PRINCIPLES, it.title, i)} />
+@@ -432,7 +432,7 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
+         <section aria-labelledby="ab-why" className={`sec-deco sec-dots ${bg("why")} py-14 md:py-16`}>
+           <div className="container-x">
+             <Reveal><CenterHead id="ab-why" title={why.heading} /></Reveal>
+-            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
++            <ul className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
+               {whyP.items.map((it, i) => <WhyItem key={`${i}-${it.title}`} item={it} icon={meta(WHY, it.title, i).icon} index={i} />)}
+             </ul>
+           </div>
+diff --git a/src/components/client.tsx b/src/components/client.tsx
+index 7f884dd..3392b6e 100644
+--- a/src/components/client.tsx
++++ b/src/components/client.tsx
+@@ -395,7 +395,7 @@ export function ProductAccordion({ groups, openFirst = false }: { groups: Accord
+             <div id={`acc-${g.id}`} role="region" aria-labelledby={`acc-h-${g.id}`} hidden={!isOpen} className="acc-panel border-t border-line bg-mist/50 px-6 py-6">
+               {g.description && <p className="mb-5 max-w-3xl text-body-md text-on-surface-variant">{g.description}</p>}
+               {g.products.length === 0 ? <p className="text-body-md text-on-surface-variant">{T.acc_empty}</p> : (
+-                <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
++                <ul className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem]">
+                   {g.products.map((p) => (
+                     <li key={p.id}>
+                       <Link href={`/products/${p.slug}`} className="card group flex h-full flex-col overflow-hidden transition-shadow hover:shadow-md">

@@ -96,7 +96,7 @@ export default async function ServiceDetail({ params }: P) {
         <section className="sec-deco sec-dots bg-gradient-to-b from-[#EEF4FC] to-white py-14 md:py-16">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("svc_eyebrow")} title={t("svc_title")} linkHref="/service" linkLabel={t("svc_all")} /></Reveal>
-            <div className="grid gap-5 md:grid-cols-3 md:gap-6">
+            <div className="flow-cards [--cols:1] md:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
               {others.map((x, i) => (
                 <Reveal key={x.id} delay={i * 100} className="h-full">
                   <Link href={`/service/${x.slug}`} className="card card-lift shine group relative flex h-full flex-col overflow-hidden">

@@ -416,7 +416,7 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
         <section aria-labelledby="ab-principles" className={`sec-deco sec-grid ${bg("principles")} py-14 md:py-16`}>
           <div className="container-x">
             <Reveal><CenterHead id="ab-principles" title={principles.heading} /></Reveal>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+            <div className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.5rem] lg:[--gap:2rem]">
               {principlesP.items.map((it, i) => (
                 <Reveal key={`${i}-${it.title}`} delay={(i % 3) * 100} className="h-full">
                   <PrincipleCard item={it} m={meta(PRINCIPLES, it.title, i)} />
@@ -432,7 +432,7 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
         <section aria-labelledby="ab-why" className={`sec-deco sec-dots ${bg("why")} py-14 md:py-16`}>
           <div className="container-x">
             <Reveal><CenterHead id="ab-why" title={why.heading} /></Reveal>
-            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+            <ul className="flow-cards [--cols:1] sm:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
               {whyP.items.map((it, i) => <WhyItem key={`${i}-${it.title}`} item={it} icon={meta(WHY, it.title, i).icon} index={i} />)}
             </ul>
           </div>

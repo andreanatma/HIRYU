@@ -33,7 +33,7 @@ export default async function Services({ searchParams }: { searchParams: SP }) {
           {items.length === 0 ? (
             <EmptyState icon="design_services" title={t("svc_empty_t")} text={t("svc_empty_x")} />
           ) : (
-            <div className="grid gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+            <div className="flow-cards [--cols:1] md:[--cols:2] lg:[--cols:3] [--gap:1.25rem] md:[--gap:1.5rem]">
               {items.map((s, i) => (
                 <Reveal key={s.id} delay={(i % 3) * 100} className="h-full">
                   <Link href={`/service/${s.slug}`} className="card card-lift shine group relative flex h-full flex-col overflow-hidden">

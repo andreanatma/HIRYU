@@ -97,7 +97,7 @@ export default async function Products({ searchParams }: { searchParams: Promise
                   text={active ? undefined : t("prod_empty_x")}
                 />
               ) : (
-                <ul className="grid grid-cols-2 gap-3 md:gap-5 xl:grid-cols-3">
+                <ul className="flow-cards [--cols:2] xl:[--cols:3] [--gap:0.75rem] md:[--gap:1.25rem]">
                   {items.map((p, i) => (
                     <li key={p.id} className="h-full"><ProductCard p={p} index={i} /></li>
                   ))}
