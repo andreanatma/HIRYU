@@ -2,18 +2,29 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { buildMetadata } from "@/lib/seo";
 import { t } from "@/lib/dictionary";
-import { EmptyState, Icon, MediaImg } from "@/components/ui";
+import { pageParam } from "@/lib/utils";
+import { PUBLIC_PER_PAGE } from "@/lib/page-limits";
+import { EmptyState, Icon, MediaImg, Pagination } from "@/components/ui";
 import { CtaBand, PageHero } from "@/components/public";
 import { Reveal } from "@/components/public/reveal";
 
-export async function generateMetadata() {
-  return buildMetadata({ pageKey: "portfolio", title: t("nav_portfolio"), description: t("pf_meta_desc"), path: "/portfolio" });
+type SP = Promise<Record<string, string | string[] | undefined>>;
+const PER = PUBLIC_PER_PAGE.portfolio;
+
+export async function generateMetadata({ searchParams }: { searchParams: SP }) {
+  const page = pageParam((await searchParams).page);
+  return buildMetadata({ pageKey: "portfolio", title: t("nav_portfolio"), description: t("pf_meta_desc"), path: page > 1 ? `/portfolio?page=${page}` : "/portfolio" });
 }
 
-export default async function Portfolio() {
+export default async function Portfolio({ searchParams }: { searchParams: SP }) {
+  const total = await prisma.portfolio.count({ where: { isActive: true } });
+  const pages = Math.max(1, Math.ceil(total / PER));
+  const page = Math.min(pageParam((await searchParams).page), pages);
   const items = await prisma.portfolio.findMany({
     where: { isActive: true },
     orderBy: [{ displayOrder: "asc" }, { projectDate: "desc" }, { createdAt: "desc" }],
+    skip: (page - 1) * PER,
+    take: PER,
     include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } },
   });
 
@@ -59,6 +70,7 @@ export default async function Portfolio() {
               ))}
             </div>
           )}
+          {items.length > 0 && <Pagination page={page} pages={pages} basePath="/portfolio" prev={t("pg_prev")} next={t("pg_next")} />}
         </div>
       </section>
 

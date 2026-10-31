@@ -2,14 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
-import { formatDate, pageParam, str } from "@/lib/utils";
+import { cn, formatDate, pageParam, str } from "@/lib/utils";
+import { adminLimit } from "@/lib/page-limits";
 import { BoolBadge, EmptyState, Icon, MediaImg, Pagination, StatusBadge } from "@/components/ui";
 import { BulkGalleryUpload, ConfirmButton } from "@/components/client";
 import { deleteEntity } from "../crud-actions";
 import { getModule, publicUrlFor, type ColumnDef, type ModuleKey } from "../modules";
 import { EntityForm, type EntityValues } from "./entity-form";
 
-const PER_PAGE = 10;
 // Prisma delegates are reached dynamically ONLY through the allow-listed module definitions (getModule).
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const del = (model: string): any => (prisma as any)[model];
@@ -32,17 +32,18 @@ export async function ModuleList({ moduleKey, searchParams }: { moduleKey: Modul
   const m = getModule(moduleKey)!;
   const q = str(searchParams.q).trim().slice(0, 100);
   const status = str(searchParams.status);
-  const page = pageParam(searchParams.page);
   const hasActive = m.fields.some((f) => f.name === "isActive");
   const where = {
     ...(q ? { OR: m.searchFields.map((f) => ({ [f]: { contains: q } })) } : {}),
     ...(hasActive && status === "active" ? { isActive: true } : hasActive && status === "inactive" ? { isActive: false } : {}),
     ...(m.key === "blogs" && (status === "DRAFT" || status === "PUBLISHED") ? { status } : {}),
   };
-  const [total, rows] = await Promise.all([
-    del(m.model).count({ where }),
-    del(m.model).findMany({ where, orderBy: m.orderBy, skip: (page - 1) * PER_PAGE, take: PER_PAGE }),
-  ]);
+  // Batas baris per halaman diatur per menu di src/lib/page-limits.ts; pengguna bisa memilih lewat ?per=
+  const { per, def, options } = adminLimit(m.key, str(searchParams.per));
+  const total: number = await del(m.model).count({ where });
+  const pages = Math.max(1, Math.ceil(total / per));
+  const page = Math.min(pageParam(searchParams.page), pages); // ?page=999 otomatis diarahkan ke halaman terakhir
+  const rows = await del(m.model).findMany({ where, orderBy: m.orderBy, skip: (page - 1) * per, take: per });
   // Kolom bertipe "relation": ambil label (mis. nama Product Type) untuk semua baris sekaligus, tanpa query per baris.
   const labels: Record<string, Map<number, string>> = {};
   await Promise.all(m.columns.filter((c) => c.kind === "relation" && c.relation).map(async (c) => {
@@ -51,10 +52,20 @@ export async function ModuleList({ moduleKey, searchParams }: { moduleKey: Modul
     const found: Record<string, unknown>[] = ids.length ? await del(rel.model).findMany({ where: { id: { in: ids } } }) : [];
     labels[c.key] = new Map(found.map((o) => [o.id as number, String(o[rel.labelField])] as [number, string]));
   }));
-  const pages = Math.max(1, Math.ceil(total / PER_PAGE));
   const params: Record<string, string> = {};
   if (q) params.q = q;
   if (status) params.status = status;
+  if (per !== def) params.per = String(per);
+  const from = total === 0 ? 0 : (page - 1) * per + 1;
+  const to = Math.min(page * per, total);
+  const perHref = (n: number) => {
+    const sp = new URLSearchParams();
+    if (q) sp.set("q", q);
+    if (status) sp.set("status", status);
+    if (n !== def) sp.set("per", String(n));
+    const qs = sp.toString();
+    return `/dashboard-admin/${m.key}${qs ? `?${qs}` : ""}`;
+  };
   const hasFilter = m.key === "blogs" || hasActive;
   const hasQuery = Boolean(q || status);
   const infoCols = m.columns.filter((c) => c.kind !== "image" && c.key !== m.nameField);
@@ -151,7 +162,22 @@ export async function ModuleList({ moduleKey, searchParams }: { moduleKey: Modul
           </>
         )}
       </div>
-      <Pagination page={page} pages={pages} basePath={`/dashboard-admin/${m.key}`} params={Object.keys(params).length ? params : undefined} />
+      {total > 0 && (
+        <div className="adm-in mt-3 flex flex-col items-center gap-1 lg:mt-4 lg:flex-row lg:justify-between lg:gap-4" style={{ "--d": "160ms" } as React.CSSProperties}>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-body-sm text-slate-text">
+            <span>Showing <b className="font-semibold text-navy">{from}–{to}</b> of <b className="font-semibold text-navy">{total}</b></span>
+            {total > options[0] && (
+              <span className="inline-flex items-center gap-1.5" role="group" aria-label="Rows per page">
+                <span>Rows:</span>
+                {options.map((n) => (
+                  <Link key={n} href={perHref(n)} aria-current={n === per ? "true" : undefined} className={cn("inline-flex h-7 min-w-[2rem] items-center justify-center rounded-md px-2 text-label-md font-semibold tabular-nums transition-all duration-200", n === per ? "bg-navy text-white" : "border border-line bg-white text-navy hover:-translate-y-0.5 hover:border-primary/40 hover:bg-brand-light")}>{n}</Link>
+                ))}
+              </span>
+            )}
+          </div>
+          <Pagination className="!pt-2 lg:!pt-0" page={page} pages={pages} basePath={`/dashboard-admin/${m.key}`} params={Object.keys(params).length ? params : undefined} />
+        </div>
+      )}
     </>
   );
 }

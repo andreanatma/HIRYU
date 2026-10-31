@@ -79,7 +79,6 @@ model MediaFile {
   serviceImages   ServiceImage[]
   portfolioImages PortfolioImage[]
   brands          Brand[]
-  clients         Client[]
   aboutSections   AboutSection[]
 
   @@index([mimeType])
@@ -334,22 +333,6 @@ model Brand {
   @@index([isActive, displayOrder])
   @@index([logoId])
   @@map("brands")
-}
-
-model Client {
-  id           Int        @id @default(autoincrement())
-  name         String     @db.VarChar(160)
-  logoId       Int?
-  logo         MediaFile? @relation(fields: [logoId], references: [id], onDelete: SetNull)
-  websiteUrl   String?    @db.VarChar(255)
-  displayOrder Int        @default(0)
-  isActive     Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  @@index([isActive, displayOrder])
-  @@index([logoId])
-  @@map("clients")
 }
 
 model AboutSection {

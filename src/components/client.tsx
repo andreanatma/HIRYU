@@ -19,30 +19,45 @@ export function SubmitButton({ children, className = "btn-accent", pendingText =
   );
 }
 
-/** Toast from ?msg= query. Removed from the URL after display. */
+/** Toast dari query ?msg=. Query dihapus dari URL setelah tampil, dan toast hilang otomatis setelah 5 detik. */
+const TOAST_MS = 5000; // harus sama dengan durasi animasi .adm-toast-bar di globals.css (5s)
+
 export function Toast() {
   const sp = useSearchParams();
   const router = useRouter();
   const path = usePathname();
   const msg = sp.get("msg");
-  const [text, setText] = useState<string | null>(null);
+  // id unik per tampilan: menyimpan pesan yang sama dua kali berturut-turut ("Saved: …") tetap memunculkan toast
+  // baru dengan hitungan 5 detik dan animasi bar yang mulai dari awal.
+  const [toast, setToast] = useState<{ text: string; id: number } | null>(null);
+
+  // 1) Ambil pesan dari URL, lalu bersihkan ?msg= agar tidak muncul lagi saat halaman di-refresh.
   useEffect(() => {
     if (!msg) return;
-    setText(msg);
+    setToast({ text: msg, id: Date.now() });
     const q = new URLSearchParams(sp.toString());
     q.delete("msg");
     router.replace(q.size ? `${path}?${q}` : path, { scroll: false });
-    const t = setTimeout(() => setText(null), 5000);
-    return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [msg]);
-  if (!text) return null;
+
+  // 2) Timer 5 detik dipisah dari efek di atas.
+  // Sebelumnya timer dibuat di efek ?msg= itu sendiri. Begitu router.replace menghapus ?msg=, `msg` berubah → cleanup
+  // efek berjalan dan clearTimeout membatalkan timer sebelum sempat 5 detik, sehingga toast tidak pernah hilang sendiri.
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), TOAST_MS);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  if (!toast) return null;
+  const { text } = toast;
   const bad = /fail|denied|cannot|could not|not found|still in use|invalid/i.test(text);
   return (
-    <div key={text} role="status" aria-live="polite" className={`adm-toast fixed inset-x-4 bottom-4 z-[100] flex items-start gap-3 overflow-hidden rounded-xl border bg-white px-4 py-3.5 shadow-[0_18px_40px_-12px_rgba(7,29,51,0.35)] sm:inset-x-auto sm:bottom-6 sm:right-6 sm:max-w-sm ${bad ? "border-error/40" : "border-line"}`}>
+    <div key={toast.id} role="status" aria-live="polite" className={`adm-toast fixed inset-x-4 bottom-4 z-[100] flex items-start gap-3 overflow-hidden rounded-xl border bg-white px-4 py-3.5 shadow-[0_18px_40px_-12px_rgba(7,29,51,0.35)] sm:inset-x-auto sm:bottom-6 sm:right-6 sm:max-w-sm ${bad ? "border-error/40" : "border-line"}`}>
       <Icon name={bad ? "error" : "check_circle"} fill className={bad ? "text-error" : "text-success"} />
       <p className="flex-1 text-body-sm text-navy">{text}</p>
-      <button onClick={() => setText(null)} aria-label="Close notification" className="text-outline transition-transform duration-300 hover:rotate-90 hover:text-navy"><Icon name="close" className="text-[18px]" /></button>
+      <button onClick={() => setToast(null)} aria-label="Close notification" className="text-outline transition-transform duration-300 hover:rotate-90 hover:text-navy"><Icon name="close" className="text-[18px]" /></button>
       <span aria-hidden="true" className={`adm-toast-bar absolute inset-x-0 bottom-0 h-1 ${bad ? "bg-error" : "bg-accent"}`} />
     </div>
   );

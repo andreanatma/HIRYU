@@ -2,17 +2,25 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { buildMetadata } from "@/lib/seo";
 import { t } from "@/lib/dictionary";
-import { truncate } from "@/lib/utils";
-import { EmptyState, Icon, MediaImg } from "@/components/ui";
+import { pageParam, truncate } from "@/lib/utils";
+import { PUBLIC_PER_PAGE } from "@/lib/page-limits";
+import { EmptyState, Icon, MediaImg, Pagination } from "@/components/ui";
 import { CtaBand, PageHero } from "@/components/public";
 import { Reveal } from "@/components/public/reveal";
 
-export async function generateMetadata() {
-  return buildMetadata({ pageKey: "service", title: t("nav_services"), description: t("svc_meta_desc"), path: "/service" });
+type SP = Promise<Record<string, string | string[] | undefined>>;
+const PER = PUBLIC_PER_PAGE.services;
+
+export async function generateMetadata({ searchParams }: { searchParams: SP }) {
+  const page = pageParam((await searchParams).page);
+  return buildMetadata({ pageKey: "service", title: t("nav_services"), description: t("svc_meta_desc"), path: page > 1 ? `/service?page=${page}` : "/service" });
 }
 
-export default async function Services() {
-  const items = await prisma.service.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }], include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } } });
+export default async function Services({ searchParams }: { searchParams: SP }) {
+  const total = await prisma.service.count({ where: { isActive: true } });
+  const pages = Math.max(1, Math.ceil(total / PER));
+  const page = Math.min(pageParam((await searchParams).page), pages);
+  const items = await prisma.service.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }], skip: (page - 1) * PER, take: PER, include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } } });
   return (
     <>
       <PageHero eyebrow={t("svc_hero_eyebrow")} title={t("svc_hero_title")} text={t("svc_hero_text")} icon="design_services" blend="mist" />
@@ -30,7 +38,7 @@ export default async function Services() {
                     <div className="relative overflow-hidden">
                       <MediaImg id={s.imageId ?? s.images[0]?.mediaId} alt={s.name} className="h-48 w-full transition-transform duration-700 ease-out group-hover:scale-110" icon="design_services" />
                       <div className="absolute inset-0 bg-gradient-to-t from-navy/60 via-transparent to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-90" />
-                      <span className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-accent text-label-md font-extrabold text-navy shadow-md transition-transform duration-500 group-hover:rotate-[360deg] group-hover:scale-110">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="absolute left-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-accent text-label-md font-extrabold text-navy shadow-md transition-transform duration-500 group-hover:rotate-[360deg] group-hover:scale-110">{String((page - 1) * PER + i + 1).padStart(2, "0")}</span>
                     </div>
                     <div className="flex flex-1 flex-col p-5 md:p-6">
                       <h2 className="text-headline-md text-navy transition-colors group-hover:text-primary">{s.name}</h2>
@@ -43,6 +51,7 @@ export default async function Services() {
               ))}
             </div>
           )}
+          {items.length > 0 && <Pagination page={page} pages={pages} basePath="/service" prev={t("pg_prev")} next={t("pg_next")} />}
         </div>
       </section>
 
