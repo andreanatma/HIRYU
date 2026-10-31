@@ -155,6 +155,59 @@
 }
 
 /* =====================================================================
+   HOMEPAGE SOFT (hanya di dalam <div class="home-soft"> pada beranda)
+   - dekorasi latar (grid / titik) tipis, sedikit lebih tegas dari versi sebelumnya
+   - lingkaran dekoratif di semua section DIHILANGKAN
+   - satu-satunya setengah lingkaran ada di section Blogs (menempel di tepi kiri)
+   Halaman lain tidak terpengaruh.
+   ===================================================================== */
+.home-soft .sec-deco::before { opacity: .75; }
+.home-soft .sec-grid::before { background-image: linear-gradient(rgba(8, 102, 217, .10) 1px, transparent 1px), linear-gradient(90deg, rgba(8, 102, 217, .10) 1px, transparent 1px); }
+.home-soft .sec-dots::before { background-image: radial-gradient(rgba(7, 29, 51, .16) 1.4px, transparent 1.6px); }
+
+/* Tidak ada lingkaran di section lain */
+.home-soft .sec-deco::after { display: none; }
+
+/* Blogs: setengah cincin di kiri.
+   --gap   = jarak tepi layar → tepi kiri kartu pertama (mengikuti .container-x: max-w-7xl, px-6 / lg:px-12)
+   --reach = sejauh mana cincin terluar menjangkau: berhenti 2rem sebelum kartu agar tidak menabrak elemen lain
+   Lebar elemen dihitung agar cincin terluar (box-shadow 3.56rem) berhenti tepat di --reach. */
+.home-soft .sec-rings-full {
+  --gap: max(1.5rem, calc(50vw - 40rem + 1.5rem));
+  --min: 8rem;
+  --reach: max(var(--min), calc(var(--gap) - 2rem));
+}
+@media (min-width: 768px)  { .home-soft .sec-rings-full { --min: 11rem; } }
+@media (min-width: 1024px) { .home-soft .sec-rings-full { --gap: max(3rem, calc(50vw - 37rem)); } }
+.home-soft .sec-rings-full::before {
+  left: 0; right: auto; top: 50%;
+  width: calc((var(--reach) - 3.56rem) * 2);
+  height: calc((var(--reach) - 3.56rem) * 2);
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(8, 102, 217, .14);
+  background: rgba(8, 102, 217, .04);
+  box-shadow: 0 0 0 1.75rem rgba(8, 102, 217, .035), 0 0 0 1.81rem rgba(8, 102, 217, .10), 0 0 0 3.5rem rgba(8, 102, 217, .025), 0 0 0 3.56rem rgba(8, 102, 217, .08);
+}
+
+/* Peleburan hero → section berikutnya (#F2F5F9 = warna "mist"): banyak titik henti dengan kurva halus (ease-in-out)
+   supaya tidak terlihat seperti dua blok yang disambung. */
+.hero-fade {
+  /* Kurva "smootherstep": awal & akhir sangat landai, perubahan hanya di tengah → tidak ada garis batas terlihat */
+  background-image: linear-gradient(to bottom,
+    rgba(242, 245, 249, 0) 0%,
+    rgba(242, 245, 249, .009) 10%,
+    rgba(242, 245, 249, .058) 20%,
+    rgba(242, 245, 249, .163) 30%,
+    rgba(242, 245, 249, .317) 40%,
+    rgba(242, 245, 249, .5) 50%,
+    rgba(242, 245, 249, .683) 60%,
+    rgba(242, 245, 249, .837) 70%,
+    rgba(242, 245, 249, .942) 80%,
+    rgba(242, 245, 249, .991) 90%,
+    rgba(242, 245, 249, 1) 100%);
+}
+
+/* =====================================================================
    AUTH PAGES (login / signup)
    ===================================================================== */
 @keyframes auth-card-in { from { opacity: 0; transform: translateY(26px) scale(.98); } to { opacity: 1; transform: none; } }

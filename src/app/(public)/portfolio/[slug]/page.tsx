@@ -48,7 +48,7 @@ export default async function PortfolioDetail({ params }: P) {
 
   return (
     <>
-      <section className={hasRelated ? "sec-deco sec-grid sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-[#D4E6FF] pb-14 pt-8 md:pb-16" : "sec-deco sec-grid sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-white pb-14 pt-8 md:pb-16"}>
+      <section className={hasRelated ? "sec-deco sec-grid bg-gradient-to-b from-mist to-[#EEF4FC] pb-14 pt-8 md:pb-16" : "sec-deco sec-grid bg-gradient-to-b from-mist to-white pb-14 pt-8 md:pb-16"}>
         <div className="container-x">
           <DetailBreadcrumb trail={[{ label: t("nav_portfolio"), href: "/portfolio" }]} current={name} />
 
@@ -109,7 +109,7 @@ export default async function PortfolioDetail({ params }: P) {
       </section>
 
       {related.length > 0 && (
-        <section className="sec-deco sec-warm bg-gradient-to-b from-[#D4E6FF] via-[#FFFBEA] to-white py-14 md:py-16">
+        <section className="sec-deco sec-dots bg-gradient-to-b from-[#EEF4FC] to-white py-14 md:py-16">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("pf_eyebrow")} title="Other Projects" linkHref="/portfolio" linkLabel={t("pf_all")} /></Reveal>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">

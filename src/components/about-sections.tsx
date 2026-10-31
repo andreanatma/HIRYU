@@ -64,8 +64,8 @@ const meta = (list: Meta[], title: string, i: number): Meta => list.find((m) => 
 /* ---------- gradasi latar: warna akhir satu band = warna awal band berikutnya (tanpa garis batas) ---------- */
 type Tone = "mist" | "blue" | "white";
 // Class ditulis utuh agar terdeteksi Tailwind.
-const FROM: Record<Tone, string> = { mist: "from-mist", blue: "from-[#D4E6FF]", white: "from-white" };
-const TO: Record<Tone, string> = { mist: "to-mist", blue: "to-[#D4E6FF]", white: "to-white" };
+const FROM: Record<Tone, string> = { mist: "from-mist", blue: "from-[#EEF4FC]", white: "from-white" };
+const TO: Record<Tone, string> = { mist: "to-mist", blue: "to-[#EEF4FC]", white: "to-white" };
 
 /* ---------- potongan UI ---------- */
 function Paras({ items, className = "" }: { items: string[]; className?: string }) {
@@ -147,7 +147,7 @@ export function TeamSection({ members, eyebrow = "People", title = "Our Team", s
 
   return (
     <>
-    <section aria-labelledby="team-heading" className={`sec-deco sec-grid relative bg-gradient-to-b py-14 md:py-16 ${strong ? "sec-strong" : ""} ${gradient ?? (strong ? "from-white via-[#DCEAFF] to-white" : "from-white via-[#EAF3FF] to-white")}`}>
+    <section aria-labelledby="team-heading" className={`sec-deco sec-grid relative bg-gradient-to-b py-14 md:py-16 ${strong ? "sec-strong" : ""} ${gradient ?? "from-white to-[#EEF4FC]"}`}>
       <div className="container-x">
         <Reveal>
           <div className="mb-10 text-center md:mb-12">
@@ -268,16 +268,16 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
     hasWhy && { key: "why", end: "white" },
     hasTeam && { key: "team", end: "white" },
   ].filter(Boolean) as { key: string; end: Tone }[]);
-  const bg = (key: string, via: string) => {
+  const bg = (key: string, _via?: string) => {
     const i = chain.findIndex((c) => c.key === key);
     const from: Tone = i <= 0 ? "mist" : chain[i - 1].end;
     const to: Tone = i === chain.length - 1 ? "white" : chain[i].end;
-    return `bg-gradient-to-b ${FROM[from]} ${via} ${TO[to]}`;
+    return `bg-gradient-to-b ${FROM[from]} ${TO[to]}`;
   };
   const teamGradient = (() => {
     const i = chain.findIndex((c) => c.key === "team");
     const from: Tone = i <= 0 ? "mist" : chain[i - 1].end;
-    return `${FROM[from]} via-[#DCEAFF] to-white`;
+    return `${FROM[from]} to-white`;
   })();
 
   const leadParas = introP ? (introP.lead.length ? introP.lead : [intro!.body]) : [];
@@ -287,14 +287,15 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
     <div>
       {/* BAND 1 — Tentang, Visi & Misi */}
       {hasTop && (
-        <section aria-label={companyName} className={`sec-deco sec-dots sec-strong ${bg("top", "via-[#E3EFFF]")} pb-14 pt-6 md:pb-16 md:pt-8`}>
+        <section aria-label={companyName} className={`sec-deco sec-dots ${bg("top", "via-[#E3EFFF]")} pb-14 pt-6 md:pb-16 md:pt-8`}>
           <div className="container-x">
             {hasMain && (
-              <div className="grid items-start gap-8 lg:grid-cols-12 lg:gap-10">
+              <div className="grid items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
                 {intro && introP && (
                   <section aria-labelledby="ab-intro" className={hasSide ? "lg:col-span-5" : "mx-auto max-w-4xl text-center lg:col-span-12"}>
-                    <Reveal>
-                      <div className={`relative overflow-hidden rounded-2xl border border-white/70 bg-white p-6 shadow-[0_26px_50px_-28px_rgba(7,29,51,0.45)] md:p-8 ${hasSide ? "" : "text-center"}`}>
+                    <Reveal className="h-full">
+                      {/* h-full + flex-col: tinggi kartu mengikuti kolom Visi & Misi di kanan (desktop), catatan di bawah menempel ke dasar kartu */}
+                      <div className={`relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/70 bg-white p-6 shadow-[0_26px_50px_-28px_rgba(7,29,51,0.45)] md:p-8 ${hasSide ? "" : "text-center"}`}>
                         {/* Aksen atas + cahaya lembut agar kartu terasa premium namun teks tetap bersih */}
                         <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-accent to-primary/40" />
                         <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
@@ -310,6 +311,9 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
                         <div className={`relative mt-3 h-1 w-14 rounded bg-accent ${hasSide ? "" : "mx-auto"}`} />
 
                         {firstLead && <p className="relative mt-6 whitespace-pre-line text-body-lg leading-relaxed text-on-surface">{firstLead}</p>}
+
+                        {/* Spacer fleksibel: menyerap sisa tinggi kartu agar catatan berada di dasar kartu */}
+                        <div aria-hidden="true" className="hidden min-h-0 flex-1 lg:block" />
 
                         {restLead.length > 0 && (
                           <div className="relative mt-6 flex gap-3 rounded-xl border border-line border-l-4 border-l-accent bg-mist/70 p-4 text-left sm:p-5">
@@ -402,7 +406,7 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
 
       {/* BAND 2 — Prinsip */}
       {hasPrinciples && principles && principlesP && (
-        <section aria-labelledby="ab-principles" className={`sec-deco sec-grid sec-strong ${bg("principles", "via-[#EEF5FF]")} py-14 md:py-16`}>
+        <section aria-labelledby="ab-principles" className={`sec-deco sec-grid ${bg("principles", "via-[#EEF5FF]")} py-14 md:py-16`}>
           <div className="container-x">
             <Reveal><CenterHead id="ab-principles" title={principles.heading} /></Reveal>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
@@ -418,7 +422,7 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
 
       {/* BAND 3 — Mengapa Memilih Kami */}
       {hasWhy && why && whyP && (
-        <section aria-labelledby="ab-why" className={`sec-deco sec-warm ${bg("why", "via-[#FFFBEA]")} py-14 md:py-16`}>
+        <section aria-labelledby="ab-why" className={`sec-deco sec-dots ${bg("why", "via-[#FFFBEA]")} py-14 md:py-16`}>
           <div className="container-x">
             <Reveal><CenterHead id="ab-why" title={why.heading} /></Reveal>
             <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
@@ -429,7 +433,7 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
       )}
 
       {/* Our Team */}
-      {team && <TeamSection members={team} eyebrow={teamEyebrow} title={teamTitle} strong gradient={teamGradient} />}
+      {team && <TeamSection members={team} eyebrow={teamEyebrow} title={teamTitle} gradient={teamGradient} />}
     </div>
   );
 }

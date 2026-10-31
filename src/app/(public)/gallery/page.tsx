@@ -35,7 +35,7 @@ export default async function Gallery({ searchParams }: { searchParams: SP }) {
       {/* Hero memudar ke mist, lalu section dimulai dari mist → putih (sama dengan section Gallery di homepage) */}
       <PageHero eyebrow={t("nav_gallery")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="photo_camera" blend="mist" />
 
-      <section className="sec-deco sec-dots sec-strong bg-gradient-to-b from-mist via-[#DCE6F2] to-white pb-14 pt-6 md:pb-16 md:pt-8">
+      <section className="sec-deco sec-dots bg-gradient-to-b from-mist to-white pb-14 pt-6 md:pb-16 md:pt-8">
         <div className="container-x">
           {items.length === 0 ? (
             <EmptyState icon="photo_library" title={t("gal_empty_t")} text={t("gal_empty_x")} />

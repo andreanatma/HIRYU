@@ -44,7 +44,7 @@ export default async function BlogDetail({ params }: P) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd({ "@context": "https://schema.org", "@type": "BlogPosting", headline: b.title, inLanguage: "en", datePublished: b.publishedAt?.toISOString(), dateModified: b.updatedAt.toISOString(), image: b.featuredImageId ? `${SITE_URL}/media/${b.featuredImageId}` : undefined, mainEntityOfPage: `${SITE_URL}/blogs/${b.slug}`, description: b.excerpt || undefined }) }} />
 
-      <section className={hasRelated ? "sec-deco sec-rings-full bg-gradient-to-b from-white to-[#E8F1FF] pb-14 pt-8 md:pb-16" : "sec-deco sec-rings-full bg-gradient-to-b from-white to-white pb-14 pt-8 md:pb-16"}>
+      <section className={hasRelated ? "sec-deco sec-dots bg-gradient-to-b from-white to-[#EEF4FC] pb-14 pt-8 md:pb-16" : "sec-deco sec-dots bg-gradient-to-b from-white to-white pb-14 pt-8 md:pb-16"}>
         <div className="container-x">
           <DetailBreadcrumb trail={[{ label: t("nav_blogs"), href: "/blogs" }]} current={b.title} />
 
@@ -83,7 +83,7 @@ export default async function BlogDetail({ params }: P) {
       </section>
 
       {related.length > 0 && (
-        <section className="sec-deco sec-warm bg-gradient-to-b from-[#E8F1FF] via-[#FFFBEA] to-white py-14 md:py-16">
+        <section className="sec-deco sec-grid bg-gradient-to-b from-[#EEF4FC] to-white py-14 md:py-16">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("blog_eyebrow")} title="More Articles" linkHref="/blogs" linkLabel={t("blog_all")} /></Reveal>
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">

@@ -105,18 +105,18 @@ export function HeroSlider({ companyName, title, subtitle, exploreText, aboutTex
         {/* Overlay terarah: teks kiri tetap terbaca */}
         <div className="absolute inset-0 bg-gradient-to-r from-navy via-navy/85 to-navy/20 md:via-navy/70" />
         {/* Glow biru + pola grid halus */}
-        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_85%_20%,rgba(8,102,217,0.35),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_85%_20%,rgba(8,102,217,0.22),transparent_70%)]" />
         <div className="bg-grid-faint absolute inset-0 opacity-40" />
         {/* Blob melayang */}
         <div className="float-slow absolute -left-24 top-1/4 h-72 w-72 rounded-full bg-primary/25 blur-3xl" />
         <div className="float-slow absolute -right-16 bottom-1/4 h-64 w-64 rounded-full bg-accent/15 blur-3xl [animation-delay:-3s]" />
 
-        {/* Peleburan hero → section berikutnya (warna akhir = bg-mist, sama dengan section di bawahnya) */}
-        <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-b from-transparent via-mist/40 to-mist md:h-60" />
+        {/* Peleburan hero → Our Services: gradasi berlapis (eased) agar tidak ada garis tepi yang kaku. Warna akhir = bg-mist */}
+        <div className="hero-fade absolute inset-x-0 bottom-0 h-20 md:h-28" />
       </div>
 
       {/* ===== Konten ===== */}
-      <div className="container-x relative z-10 w-full pb-32 pt-[8.5rem] md:pb-40 md:pt-[10rem]">
+      <div className="container-x relative z-10 w-full pb-24 pt-[8.5rem] md:pb-28 md:pt-[10rem]">
         <div className="flex max-w-3xl flex-col gap-6">
           <span
             className="hero-in inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-label-sm font-bold uppercase tracking-widest text-white/90 backdrop-blur md:text-label-md"

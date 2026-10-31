@@ -7,6 +7,7 @@ import { SiteNav } from "@/components/site-nav";
 import { AdminBar } from "@/components/admin-bar";
 import { Reveal } from "@/components/public/reveal";
 import { BackToTop } from "@/components/public/back-to-top";
+import { ContactPopup } from "@/components/public/contact-popup";
 import { getSession } from "@/lib/auth";
 import { getNavTypes } from "@/lib/catalog";
 
@@ -84,12 +85,15 @@ export default async function PublicLayout({ children }: { children: React.React
       <SiteNav name={s.company_name} productTypes={navTypes} />
       {admin && <AdminBar name={admin.name} />}
 
-      <main id="main" className="min-h-[60vh] pt-20">
+      <main id="main" className="home-soft min-h-[60vh] pt-20">
         {children}
       </main>
 
       {/* Tombol panah ke atas: pojok kanan bawah, di samping shortcut Dashboard (bila admin login) */}
       <BackToTop beside={!!admin} />
+
+      {/* Popup Contact us kecil (kanan bawah, di atas slot tombol Back to top / shortcut Dashboard) */}
+      <ContactPopup companyName={s.company_name} whatsapp={wa} officeHours={s.office_hours} />
 
       <footer className="relative isolate mt-12 overflow-hidden bg-navy pb-6 pt-10 text-slate-300 md:mt-20 md:pb-8 md:pt-16">
         {/* Dekorasi: garis kuning di tepi atas, glow, dan grid halus */}

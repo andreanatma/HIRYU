@@ -59,7 +59,7 @@ export default async function Products({ searchParams }: { searchParams: Promise
       />
 
       {/* Latar: mist → biru muda (pola titik) → putih */}
-      <section className="sec-deco sec-dots sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-white pb-14 pt-4 md:pb-16 md:pt-6">
+      <section className="sec-deco sec-dots bg-gradient-to-b from-mist to-white pb-14 pt-4 md:pb-16 md:pt-6">
         <div className="container-x">
           <nav aria-label="Breadcrumb" className="mb-5 flex flex-wrap items-center gap-2 text-label-md text-on-surface-variant">
             <Link href="/" className="inline-flex items-center gap-1 transition-colors hover:text-primary"><Icon name="home" className="text-[16px]" />Home</Link>

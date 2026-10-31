@@ -37,7 +37,7 @@ export default async function Blogs({ searchParams }: { searchParams: Promise<Re
       {/* Hero memudar ke putih, lalu section dimulai dari putih → biru muda (sama dengan section Blogs di homepage) */}
       <PageHero eyebrow={t("blog_eyebrow")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="terminal" blend="white" />
 
-      <section className="sec-deco sec-rings-full bg-gradient-to-b from-white to-[#E8F1FF] pb-14 pt-6 md:pb-16 md:pt-8">
+      <section className="sec-deco sec-rings-full bg-gradient-to-b from-white to-[#EEF4FC] pb-14 pt-6 md:pb-16 md:pt-8">
         <div className="container-x">
           <Reveal>
             <form
