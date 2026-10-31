@@ -59,7 +59,8 @@ const WHY: Meta[] = [
   { re: /fast/i, icon: "vital_signs" },
   { re: /satisf/i, icon: "volunteer_activism" },
 ];
-const meta = (list: Meta[], title: string, i: number): Meta => list.find((m) => m.re.test(title)) ?? { re: /./, icon: list[i % list.length].icon };
+const meta = (list: Meta[], title: string, i: number): Meta =>
+  list.find((m) => m.re.test(title)) ?? { re: /./, icon: list[i % list.length].icon };
 
 /* ---------- gradasi latar: warna akhir satu band = warna awal band berikutnya (tanpa garis batas) ---------- */
 type Tone = "mist" | "blue" | "white";
@@ -147,46 +148,46 @@ export function TeamSection({ members, eyebrow = "People", title = "Our Team", s
 
   return (
     <>
-    <section aria-labelledby="team-heading" className={`sec-deco sec-grid relative bg-gradient-to-b py-14 md:py-16 ${strong ? "sec-strong" : ""} ${gradient ?? "from-white to-[#EEF4FC]"}`}>
-      <div className="container-x">
-        <Reveal>
-          <div className="mb-10 text-center md:mb-12">
-            <span className="text-label-md font-bold uppercase tracking-wider text-primary">{eyebrow}</span>
-            <h2 id="team-heading" className="mt-1 text-headline-lg text-navy md:text-headline-xl">{title}</h2>
-            <div className="mx-auto mt-2 h-1 w-12 rounded bg-accent" />
-          </div>
-        </Reveal>
+      <section aria-labelledby="team-heading" className={`sec-deco sec-grid relative bg-gradient-to-b py-14 md:py-16 ${strong ? "sec-strong" : ""} ${gradient ?? "from-white to-[#EEF4FC]"}`}>
+        <div className="container-x">
+          <Reveal>
+            <div className="mb-10 text-center md:mb-12">
+              <span className="text-label-md font-bold uppercase tracking-wider text-primary">{eyebrow}</span>
+              <h2 id="team-heading" className="mt-1 text-headline-lg text-navy md:text-headline-xl">{title}</h2>
+              <div className="mx-auto mt-2 h-1 w-12 rounded bg-accent" />
+            </div>
+          </Reveal>
 
-        {/* Maks. 3 kartu per baris; sisa baris selalu di tengah (1 kartu = tepat di tengah) */}
-        <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-5 sm:gap-6 lg:gap-8">
-          {members.map((m, i) => (
-            <Reveal key={m.id} delay={(i % 3) * 100} className="w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4rem)/3)]">
-              <button
-                type="button"
-                onClick={() => setSelected(m)}
-                aria-label={`${m.name} — ${m.role}`}
-                className="group relative block h-full w-full overflow-hidden rounded-2xl border border-line bg-white text-left shadow-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40 motion-safe:hover:-translate-y-2 hover:border-primary/35 hover:shadow-[0_24px_44px_-20px_rgba(8,102,217,0.38)]"
-              >
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-mist">
-                  {m.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={m.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-110" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-primary/40"><Icon name="person" className="text-[64px]" /></div>
-                  )}
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-                </div>
-                <div className="p-4 sm:p-5">
-                  <h3 className="text-title-lg font-bold text-navy transition-colors duration-300 group-hover:text-primary">{m.name}</h3>
-                  <p className="mt-0.5 text-label-md uppercase tracking-wider text-primary">{m.role}</p>
-                </div>
-                <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-accent transition-transform duration-500 group-hover:scale-x-100" />
-              </button>
-            </Reveal>
-          ))}
+          {/* Maks. 3 kartu per baris; sisa baris selalu di tengah (1 kartu = tepat di tengah) */}
+          <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-5 sm:gap-6 lg:gap-8">
+            {members.map((m, i) => (
+              <Reveal key={m.id} delay={(i % 3) * 100} className="w-full sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-4rem)/3)]">
+                <button
+                  type="button"
+                  onClick={() => setSelected(m)}
+                  aria-label={`${m.name} — ${m.role}`}
+                  className="group relative block h-full w-full overflow-hidden rounded-2xl border border-line bg-white text-left shadow-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40 motion-safe:hover:-translate-y-2 hover:border-primary/35 hover:shadow-[0_24px_44px_-20px_rgba(8,102,217,0.38)]"
+                >
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-mist">
+                    {m.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={m.imageUrl} alt="" loading="lazy" className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-110" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-primary/40"><Icon name="person" className="text-[64px]" /></div>
+                    )}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy/50 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  </div>
+                  <div className="p-4 sm:p-5">
+                    <h3 className="text-title-lg font-bold text-navy transition-colors duration-300 group-hover:text-primary">{m.name}</h3>
+                    <p className="mt-0.5 text-label-md uppercase tracking-wider text-primary">{m.role}</p>
+                  </div>
+                  <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-accent transition-transform duration-500 group-hover:scale-x-100" />
+                </button>
+              </Reveal>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
       {/* Modal detail anggota tim (di luar <section> agar z-index tidak terjebak stacking context sec-deco) */}
       {selected && (
@@ -203,6 +204,7 @@ export function TeamSection({ members, eyebrow = "People", title = "Our Team", s
           >
             <button
               type="button"
+              autoFocus
               onClick={() => setSelected(null)}
               aria-label="Close"
               className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-md transition-all hover:rotate-90 hover:bg-black/60"
@@ -262,13 +264,13 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
   const hasTeam = !!team && team.length > 0;
 
   // Rantai latar: setiap band mulai dari warna akhir band sebelumnya; band terakhir berakhir putih.
-  const chain = ([
-    hasTop && { key: "top", end: "blue" },
-    hasPrinciples && { key: "principles", end: "mist" },
-    hasWhy && { key: "why", end: "white" },
-    hasTeam && { key: "team", end: "white" },
-  ].filter(Boolean) as { key: string; end: Tone }[]);
-  const bg = (key: string, _via?: string) => {
+  const chain: { key: string; end: Tone }[] = [];
+  if (hasTop) chain.push({ key: "top", end: "blue" });
+  if (hasPrinciples) chain.push({ key: "principles", end: "mist" });
+  if (hasWhy) chain.push({ key: "why", end: "white" });
+  if (hasTeam) chain.push({ key: "team", end: "white" });
+
+  const bg = (key: string) => {
     const i = chain.findIndex((c) => c.key === key);
     const from: Tone = i <= 0 ? "mist" : chain[i - 1].end;
     const to: Tone = i === chain.length - 1 ? "white" : chain[i].end;
@@ -287,14 +289,14 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
     <div>
       {/* BAND 1 — Tentang, Visi & Misi */}
       {hasTop && (
-        <section aria-label={companyName} className={`sec-deco sec-dots ${bg("top", "via-[#E3EFFF]")} pb-14 pt-6 md:pb-16 md:pt-8`}>
+        <section aria-label={companyName} className={`sec-deco sec-dots ${bg("top")} pb-14 pt-6 md:pb-16 md:pt-8`}>
           <div className="container-x">
             {hasMain && (
               <div className="grid items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
                 {intro && introP && (
                   <section aria-labelledby="ab-intro" className={hasSide ? "lg:col-span-5" : "mx-auto max-w-4xl text-center lg:col-span-12"}>
                     <Reveal className="h-full">
-                      {/* h-full + flex-col: tinggi kartu mengikuti kolom Visi & Misi di kanan (desktop), catatan di bawah menempel ke dasar kartu */}
+                      {/* h-full: tinggi kartu mengikuti kolom Visi & Misi di kanan (desktop) */}
                       <div className={`relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/70 bg-white p-6 shadow-[0_26px_50px_-28px_rgba(7,29,51,0.45)] md:p-8 ${hasSide ? "" : "text-center"}`}>
                         {/* Aksen atas + cahaya lembut agar kartu terasa premium namun teks tetap bersih */}
                         <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-accent to-primary/40" />
@@ -307,36 +309,41 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
                           <span className="text-left text-label-md font-bold uppercase leading-tight tracking-wider text-primary">{companyName}</span>
                         </div>
 
-                        <h2 id="ab-intro" className="relative break-words text-headline-lg text-navy md:text-headline-xl">{intro.heading}</h2>
+                        <h2 id="ab-intro" className="relative break-words text-[1.875rem] font-bold leading-tight text-navy sm:text-[2.25rem] lg:text-[2.75rem]">{intro.heading}</h2>
                         <div className={`relative mt-3 h-1 w-14 rounded bg-accent ${hasSide ? "" : "mx-auto"}`} />
 
                         {firstLead && <p className="relative mt-6 whitespace-pre-line text-body-lg leading-relaxed text-on-surface">{firstLead}</p>}
 
-                        {/* Spacer fleksibel: menyerap sisa tinggi kartu agar catatan berada di dasar kartu */}
-                        <div aria-hidden="true" className="hidden min-h-0 flex-1 lg:block" />
-
+                        {/*
+                          Wrapper flex-1 + items-center: kotak berada tepat di tengah ruang antara paragraf
+                          dan tepi bawah kartu, sehingga jarak atas = jarak bawah.
+                          Margin negatif (-mb) membatalkan padding bawah kartu agar hitungannya adil
+                          (hanya bila tidak ada gambar di bawahnya). py-8 = jarak minimum.
+                        */}
                         {restLead.length > 0 && (
-                          <div className="relative mt-6 flex gap-3 rounded-xl border border-line border-l-4 border-l-accent bg-mist/70 p-4 text-left sm:p-5">
-                            <Icon name="verified" className="mt-0.5 shrink-0 text-[22px] text-primary" />
-                            <Paras items={restLead} className="text-body-md leading-relaxed text-on-surface-variant" />
+                          <div className={`relative flex flex-1 items-center py-8 ${intro.imageId ? "" : "-mb-6 md:-mb-8"}`}>
+                            <div className="flex w-full items-center gap-4 rounded-xl border border-line border-l-4 border-l-accent bg-mist/70 p-5 text-left sm:p-6">
+                              <Icon name="verified" className="shrink-0 text-[28px] text-primary" />
+                              <Paras items={restLead} className="text-body-lg leading-relaxed text-on-surface-variant" />
+                            </div>
                           </div>
                         )}
 
-                        {intro.imageId && <MediaImg id={intro.imageId} alt={intro.heading} className="relative mt-8 aspect-[16/9] w-full rounded-xl border border-line shadow-md" />}
+                        {intro.imageId && <MediaImg id={intro.imageId} alt={intro.heading} className="relative mt-2 aspect-[16/9] w-full rounded-xl border border-line shadow-md" />}
                       </div>
                     </Reveal>
                   </section>
                 )}
 
                 {hasSide && (
-                  <div className={`space-y-6 ${intro ? "lg:col-span-7" : "lg:col-span-12"}`}>
+                  /* flex column: kartu Misi melar (flex-1) sehingga tepi bawahnya rata dengan kartu kiri */
+                  <div className={`flex flex-col gap-6 ${intro ? "lg:col-span-7" : "lg:col-span-12"}`}>
                     {vision && visionP && (
                       <Reveal delay={100}>
                         <section aria-labelledby="ab-vision" className="ico-trigger group relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy via-[#0A2A4E] to-[#0B3A78] p-6 text-white shadow-[0_26px_50px_-24px_rgba(7,29,51,0.6)] transition-all duration-500 motion-safe:hover:-translate-y-1 md:p-8">
                           <div aria-hidden="true" className="bg-grid-faint pointer-events-none absolute inset-0 opacity-30" />
                           <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-primary/40 blur-3xl" />
                           <div aria-hidden="true" className="pointer-events-none absolute -bottom-20 left-1/3 h-48 w-48 rounded-full bg-accent/15 blur-3xl" />
-                          <Icon name="format_quote" className="pointer-events-none absolute right-5 top-4 text-[84px] text-white/[0.07]" />
 
                           <div className="relative flex items-center gap-4">
                             <span className="ico-box flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/25">
@@ -353,8 +360,8 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
                     )}
 
                     {mission && missionP && (
-                      <Reveal delay={200}>
-                        <section aria-labelledby="ab-mission" className="rounded-2xl border border-white/70 bg-white p-6 shadow-[0_26px_50px_-28px_rgba(7,29,51,0.45)] md:p-8">
+                      <Reveal delay={200} className="flex flex-1 flex-col">
+                        <section aria-labelledby="ab-mission" className="flex-1 rounded-2xl border border-white/70 bg-white p-6 shadow-[0_26px_50px_-28px_rgba(7,29,51,0.45)] md:p-8">
                           <div className="ico-trigger flex w-fit items-center gap-4">
                             <span className="ico-box flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary ring-1 ring-primary/15">
                               <Icon name="target" className="text-[28px]" />
@@ -369,7 +376,7 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
 
                           <ol className="mt-6 space-y-3 sm:space-y-4">
                             {missionP.items.map((it, i) => (
-                              <li key={it.title} className="group flex gap-4 rounded-xl border border-line bg-mist/60 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-white hover:shadow-md">
+                              <li key={`${i}-${it.title}`} className="group flex gap-4 rounded-xl border border-line bg-mist/60 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-white hover:shadow-md">
                                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-brand-hover text-label-md font-bold text-white shadow-sm">
                                   {String(i + 1).padStart(2, "0")}
                                 </span>
@@ -406,12 +413,12 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
 
       {/* BAND 2 — Prinsip */}
       {hasPrinciples && principles && principlesP && (
-        <section aria-labelledby="ab-principles" className={`sec-deco sec-grid ${bg("principles", "via-[#EEF5FF]")} py-14 md:py-16`}>
+        <section aria-labelledby="ab-principles" className={`sec-deco sec-grid ${bg("principles")} py-14 md:py-16`}>
           <div className="container-x">
             <Reveal><CenterHead id="ab-principles" title={principles.heading} /></Reveal>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
               {principlesP.items.map((it, i) => (
-                <Reveal key={it.title} delay={(i % 3) * 100} className="h-full">
+                <Reveal key={`${i}-${it.title}`} delay={(i % 3) * 100} className="h-full">
                   <PrincipleCard item={it} m={meta(PRINCIPLES, it.title, i)} />
                 </Reveal>
               ))}
@@ -422,11 +429,11 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
 
       {/* BAND 3 — Mengapa Memilih Kami */}
       {hasWhy && why && whyP && (
-        <section aria-labelledby="ab-why" className={`sec-deco sec-dots ${bg("why", "via-[#FFFBEA]")} py-14 md:py-16`}>
+        <section aria-labelledby="ab-why" className={`sec-deco sec-dots ${bg("why")} py-14 md:py-16`}>
           <div className="container-x">
             <Reveal><CenterHead id="ab-why" title={why.heading} /></Reveal>
             <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
-              {whyP.items.map((it, i) => <WhyItem key={it.title} item={it} icon={meta(WHY, it.title, i).icon} index={i} />)}
+              {whyP.items.map((it, i) => <WhyItem key={`${i}-${it.title}`} item={it} icon={meta(WHY, it.title, i).icon} index={i} />)}
             </ul>
           </div>
         </section>

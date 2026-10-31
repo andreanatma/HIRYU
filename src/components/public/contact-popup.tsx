@@ -8,7 +8,6 @@ type ContactPopupProps = {
   companyName: string;
   /** Nomor WhatsApp format internasional, hanya digit (dari Dashboard > Settings). Kosong = tombol WhatsApp disembunyikan. */
   whatsapp?: string;
-  officeHours?: string;
 };
 
 /**
@@ -18,7 +17,7 @@ type ContactPopupProps = {
  *   sehingga tidak saling menutupi.
  * - Tutup dengan klik di luar panel, tombol X, atau tombol Esc.
  */
-export function ContactPopup({ companyName, whatsapp = "", officeHours = "" }: ContactPopupProps) {
+export function ContactPopup({ companyName, whatsapp = "" }: ContactPopupProps) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const btn = useRef<HTMLButtonElement>(null);
@@ -88,24 +87,13 @@ export function ContactPopup({ companyName, whatsapp = "", officeHours = "" }: C
           {waHref && (
             <a href={waHref} target="_blank" rel="noopener noreferrer" tabIndex={open ? 0 : -1} className={rowCls}>
               <span className={icoCls}><Icon name="chat" className="text-[18px]" /></span>
-              <span className="min-w-0">
-                <span className="block leading-tight">WhatsApp</span>
-                <span className="block truncate text-label-sm font-normal text-slate-text">+{wa}</span>
-              </span>
+              <span className="min-w-0 leading-tight">WhatsApp</span>
             </a>
           )}
           <Link href="/contact" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1} className={rowCls}>
             <span className={icoCls}><Icon name="edit_note" className="text-[18px]" /></span>
-            <span className="min-w-0">
-              <span className="block leading-tight">Send a message</span>
-              <span className="block text-label-sm font-normal text-slate-text">Use the contact form</span>
-            </span>
+            <span className="min-w-0 leading-tight">Send a message</span>
           </Link>
-          {officeHours && (
-            <p className="flex items-center gap-1.5 px-1 pt-1 text-label-sm text-slate-text">
-              <Icon name="schedule" className="text-[14px]" />{officeHours}
-            </p>
-          )}
         </div>
       </div>
 

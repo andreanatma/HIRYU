@@ -175,12 +175,15 @@
 .home-soft .sec-rings-full {
   --gap: max(1.5rem, calc(50vw - 40rem + 1.5rem));
   --min: 8rem;
-  --reach: max(var(--min), calc(var(--gap) - 2rem));
+  /* dibatasi maks. 20rem agar tinggi cincin selalu lebih kecil dari tinggi section (tidak terpotong atas/bawah) */
+  --reach: min(20rem, max(var(--min), calc(var(--gap) - 2rem)));
+  /* pusat cincin digeser ke KIRI sebesar 40% dari jangkauannya → hanya busur tengah yang terlihat, ujung atas/bawah tersembunyi di luar layar */
+  --shift: calc(var(--reach) * -0.4);
 }
 @media (min-width: 768px)  { .home-soft .sec-rings-full { --min: 11rem; } }
 @media (min-width: 1024px) { .home-soft .sec-rings-full { --gap: max(3rem, calc(50vw - 37rem)); } }
 .home-soft .sec-rings-full::before {
-  left: 0; right: auto; top: 50%;
+  left: var(--shift); right: auto; top: 50%;
   width: calc((var(--reach) - 3.56rem) * 2);
   height: calc((var(--reach) - 3.56rem) * 2);
   transform: translate(-50%, -50%);

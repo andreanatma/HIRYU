@@ -93,7 +93,7 @@ export default async function PublicLayout({ children }: { children: React.React
       <BackToTop beside={!!admin} />
 
       {/* Popup Contact us kecil (kanan bawah, di atas slot tombol Back to top / shortcut Dashboard) */}
-      <ContactPopup companyName={s.company_name} whatsapp={wa} officeHours={s.office_hours} />
+      <ContactPopup companyName={s.company_name} whatsapp={wa} />
 
       <footer className="relative isolate mt-12 overflow-hidden bg-navy pb-6 pt-10 text-slate-300 md:mt-20 md:pb-8 md:pt-16">
         {/* Dekorasi: garis kuning di tepi atas, glow, dan grid halus */}
