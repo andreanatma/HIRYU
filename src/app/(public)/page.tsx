@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
+import { getHomeSlides } from "@/lib/hero";
 import { t } from "@/lib/dictionary";
 import { buildMetadata, jsonLd, SITE_URL } from "@/lib/seo";
 import { formatDate, truncate } from "@/lib/utils";
@@ -16,7 +17,7 @@ import { Reveal } from "@/components/public/reveal";
 export const generateMetadata = () => buildMetadata({ pageKey: "home", path: "/" });
 
 export default async function Home() {
-  const [s, services, products, portfolio, brands, gallery, team, blogs] = await Promise.all([
+  const [s, services, products, portfolio, brands, gallery, team, blogs, slideIds] = await Promise.all([
     getSettings(),
     prisma.service.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }], take: 3, include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } } }),
     prisma.product.findMany({ where: { isActive: true, isFeatured: true, productType: { is: { isActive: true } } }, orderBy: [{ displayOrder: "asc" }, { createdAt: "desc" }], take: 4 }),
@@ -25,10 +26,8 @@ export default async function Home() {
     prisma.gallery.findMany({ where: { isActive: true, imageId: { not: null } }, orderBy: [{ createdAt: "desc" }], take: 5, select: { id: true, imageId: true } }),
     prisma.teamMember.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { id: "asc" }], take: 3 }),
     prisma.blog.findMany({ where: { status: "PUBLISHED" }, orderBy: { publishedAt: "desc" }, take: 3 }),
+    getHomeSlides(),
   ]);
-
-  const settingsData = s as Record<string, string>;
-  const heroImagesStr = settingsData.hero_images;
 
   return (
     <>
@@ -41,7 +40,7 @@ export default async function Home() {
         subtitle={s.hero_subtitle}
         exploreText={t("hero_explore")}
         aboutText={t("hero_about")}
-        images={heroImagesStr ? heroImagesStr.split(",").map((img: string) => img.trim()).filter(Boolean) : undefined}
+        images={slideIds.length > 0 ? slideIds.map((id) => `/media/${id}`) : undefined}
       />
 
       {/* 2. Trust indicators (Clients) */}

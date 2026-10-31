@@ -72,6 +72,8 @@ export async function mediaUsage(id: number): Promise<number> {
     prisma.blog.count({ where: { featuredImageId: id } }),
     prisma.seoSetting.count({ where: { ogImageId: id } }),
     prisma.brand.count({ where: { logoId: id } }),
+    prisma.pageHero.count({ where: { imageId: id } }),
+    prisma.homeHeroSlide.count({ where: { imageId: id } }),
   ]);
   return c.reduce((a, b) => a + b, 0);
 }

@@ -16,6 +16,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
     ["/dashboard-admin/blogs", "Blogs", "article"],
     ["/dashboard-admin/our-team", "Our Team", "groups"],
     ["/dashboard-admin/brands", "Brands", "verified"],
+    ["/dashboard-admin/settings#hero-banners", "Hero Banners", "wallpaper", true],
   ] },
   { title: "Communication", items: [["/dashboard-admin/contact", "Contact Messages", "mail"]] },
   { title: "Administration", items: [

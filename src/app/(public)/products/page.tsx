@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { buildMetadata } from "@/lib/seo";
+import { getPageHero } from "@/lib/hero";
 import { t } from "@/lib/dictionary";
 import { getCatalogTree } from "@/lib/catalog";
 import { pageParam, str } from "@/lib/utils";
@@ -22,6 +23,7 @@ export async function generateMetadata() {
 const PER = 12;
 
 export default async function Products({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const hero = await getPageHero("products");
   const sp = await searchParams;
   const page = pageParam(sp.page);
   const typeSlug = str(sp.type).slice(0, 190);
@@ -49,8 +51,9 @@ export default async function Products({ searchParams }: { searchParams: Promise
     <>
       <PageHero
         eyebrow={t("prod_hero_eyebrow")}
-        title={active ? active.name : t("prod_hero_title")}
-        text={t("prod_hero_text")}
+        title={active ? active.name : hero.title}
+        text={hero.text}
+        imageId={hero.imageId}
         icon="science"
         blend="mist"
       />

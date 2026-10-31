@@ -79,6 +79,8 @@ model MediaFile {
   serviceImages   ServiceImage[]
   portfolioImages PortfolioImage[]
   brands          Brand[]
+  pageHeroes      PageHero[]
+  homeHeroSlides  HomeHeroSlide[]
 
   @@index([mimeType])
   @@index([createdAt])
@@ -332,6 +334,35 @@ model Brand {
   @@index([isActive, displayOrder])
   @@index([logoId])
   @@map("brands")
+}
+
+/// Hero banner halaman dalam (Services, Products, Portfolio, About Us, Gallery, Blogs, Contact):
+/// 1 gambar + judul + deskripsi. Baris kosong / kolom NULL = tampilan default (teks dari dictionary.ts).
+model PageHero {
+  id          Int        @id @default(autoincrement())
+  pageKey     String     @unique @db.VarChar(40)
+  title       String?    @db.VarChar(200)
+  description String?    @db.VarChar(600)
+  imageId     Int?
+  image       MediaFile? @relation(fields: [imageId], references: [id], onDelete: SetNull)
+  updatedAt   DateTime   @updatedAt
+
+  @@index([imageId])
+  @@map("page_heroes")
+}
+
+/// Gambar slider hero homepage (boleh lebih dari satu, urutan = displayOrder).
+/// Tabel kosong → homepage memakai gambar bawaan di /public/hero.
+model HomeHeroSlide {
+  id           Int       @id @default(autoincrement())
+  imageId      Int
+  image        MediaFile @relation(fields: [imageId], references: [id], onDelete: Restrict)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+
+  @@index([displayOrder])
+  @@index([imageId])
+  @@map("home_hero_slides")
 }
 
 /// Menyimpan slug lama agar URL lama tetap bekerja (308) setelah slug diubah.

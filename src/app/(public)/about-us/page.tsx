@@ -1,4 +1,5 @@
 import { buildMetadata } from "@/lib/seo";
+import { getPageHero } from "@/lib/hero";
 import { t } from "@/lib/dictionary";
 import { CtaBand, PageHero } from "@/components/public";
 import { AboutSections } from "@/components/about-sections";
@@ -47,6 +48,7 @@ const ABOUT = [
 ];
 
 export default async function AboutUs() {
+  const hero = await getPageHero("about");
   const team = await prisma.teamMember.findMany({
     where: { isActive: true },
     orderBy: [{ displayOrder: "asc" }, { id: "asc" }],
@@ -56,8 +58,9 @@ export default async function AboutUs() {
     <>
       <PageHero
         eyebrow={t("about_eyebrow")}
-        title="PT Hiryu Techno Indonesia"
-        text={t("about_hero_text")}
+        title={hero.title}
+        text={hero.text}
+        imageId={hero.imageId}
         icon="info"
       />
 

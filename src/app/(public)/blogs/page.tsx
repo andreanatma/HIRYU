@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { buildMetadata } from "@/lib/seo";
+import { getPageHero } from "@/lib/hero";
 import { t } from "@/lib/dictionary";
 import { formatDate, pageParam, str, truncate } from "@/lib/utils";
 import { EmptyState, Icon, MediaImg, Pagination } from "@/components/ui";
@@ -21,6 +22,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 const PER = 9;
 
 export default async function Blogs({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const hero = await getPageHero("blogs");
   const sp = await searchParams;
   const q = str(sp.q).trim().slice(0, 80);
   const page = pageParam(sp.page);
@@ -33,7 +35,7 @@ export default async function Blogs({ searchParams }: { searchParams: Promise<Re
   return (
     <>
       {/* Hero memudar ke putih, lalu section dimulai dari putih → biru muda (sama dengan section Blogs di homepage) */}
-      <PageHero eyebrow={t("blog_eyebrow")} title={t("blog_hero_title")} text={t("blog_hero_text")} icon="terminal" blend="white" />
+      <PageHero eyebrow={t("blog_eyebrow")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="terminal" blend="white" />
 
       <section className="sec-deco sec-rings bg-gradient-to-b from-white to-[#E8F1FF] pb-14 pt-6 md:pb-16 md:pt-8">
         <div className="container-x">

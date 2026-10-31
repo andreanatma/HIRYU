@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { buildMetadata } from "@/lib/seo";
+import { getPageHero } from "@/lib/hero";
 import { t } from "@/lib/dictionary";
 import { Icon } from "@/components/ui";
 import { PageHero } from "@/components/public";
@@ -10,11 +11,12 @@ export async function generateMetadata() {
   return buildMetadata({ pageKey: "contact", title: t("nav_contact"), description: t("contact_meta_desc"), path: "/contact" });
 }
 
-export default function Contact() {
+export default async function Contact() {
+  const hero = await getPageHero("contact");
   return (
     <>
       {/* blend="mist": bagian bawah hero memudar halus ke warna section berikutnya (tidak ada lagi garis/jeda tegas) */}
-      <PageHero eyebrow={t("contact_hero_eyebrow")} title={t("contact_hero_title")} text={t("contact_hero_text")} icon="headset_mic" blend="mist" />
+      <PageHero eyebrow={t("contact_hero_eyebrow")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="headset_mic" blend="mist" />
 
       {/* Latar sama seperti halaman Products: mist → biru muda (pola titik) → putih */}
       <section className="sec-deco sec-dots bg-gradient-to-b from-mist via-[#EAF3FF] to-white pb-14 pt-4 md:pb-16 md:pt-6">

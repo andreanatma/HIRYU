@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { buildMetadata } from "@/lib/seo";
+import { getPageHero } from "@/lib/hero";
 import { t } from "@/lib/dictionary";
 import { pageParam, truncate } from "@/lib/utils";
 import { PUBLIC_PER_PAGE } from "@/lib/page-limits";
@@ -17,13 +18,14 @@ export async function generateMetadata({ searchParams }: { searchParams: SP }) {
 }
 
 export default async function Services({ searchParams }: { searchParams: SP }) {
+  const hero = await getPageHero("service");
   const total = await prisma.service.count({ where: { isActive: true } });
   const pages = Math.max(1, Math.ceil(total / PER));
   const page = Math.min(pageParam((await searchParams).page), pages);
   const items = await prisma.service.findMany({ where: { isActive: true }, orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }], skip: (page - 1) * PER, take: PER, include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } } });
   return (
     <>
-      <PageHero eyebrow={t("svc_hero_eyebrow")} title={t("svc_hero_title")} text={t("svc_hero_text")} icon="design_services" blend="mist" />
+      <PageHero eyebrow={t("svc_hero_eyebrow")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="design_services" blend="mist" />
 
       {/* Latar: mist → biru muda (grid blueprint) → putih; sama dengan section Services di homepage */}
       <section className="sec-deco sec-grid bg-gradient-to-b from-mist via-[#EAF3FF] to-white pb-14 pt-6 md:pb-16 md:pt-8">

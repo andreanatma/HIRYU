@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { buildMetadata } from "@/lib/seo";
+import { getPageHero } from "@/lib/hero";
 import { t } from "@/lib/dictionary";
 import { pageParam } from "@/lib/utils";
 import { PUBLIC_PER_PAGE } from "@/lib/page-limits";
@@ -16,6 +17,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SP }) {
 }
 
 export default async function Gallery({ searchParams }: { searchParams: SP }) {
+  const hero = await getPageHero("gallery");
   const total = await prisma.gallery.count({ where: { isActive: true, imageId: { not: null } } });
   const pages = Math.max(1, Math.ceil(total / PER));
   const page = Math.min(pageParam((await searchParams).page), pages);
@@ -31,7 +33,7 @@ export default async function Gallery({ searchParams }: { searchParams: SP }) {
   return (
     <>
       {/* Hero memudar ke mist, lalu section dimulai dari mist → putih (sama dengan section Gallery di homepage) */}
-      <PageHero eyebrow={t("nav_gallery")} title={t("gal_hero_title")} text={t("gal_hero_text")} icon="photo_camera" blend="mist" />
+      <PageHero eyebrow={t("nav_gallery")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="photo_camera" blend="mist" />
 
       <section className="sec-deco sec-dots bg-gradient-to-b from-mist via-[#E6ECF4] to-white pb-14 pt-6 md:pb-16 md:pt-8">
         <div className="container-x">

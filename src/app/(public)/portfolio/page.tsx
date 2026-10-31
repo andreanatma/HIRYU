@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { buildMetadata } from "@/lib/seo";
+import { getPageHero } from "@/lib/hero";
 import { t } from "@/lib/dictionary";
 import { pageParam } from "@/lib/utils";
 import { PUBLIC_PER_PAGE } from "@/lib/page-limits";
@@ -17,6 +18,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SP }) {
 }
 
 export default async function Portfolio({ searchParams }: { searchParams: SP }) {
+  const hero = await getPageHero("portfolio");
   const total = await prisma.portfolio.count({ where: { isActive: true } });
   const pages = Math.max(1, Math.ceil(total / PER));
   const page = Math.min(pageParam((await searchParams).page), pages);
@@ -30,7 +32,7 @@ export default async function Portfolio({ searchParams }: { searchParams: SP }) 
 
   return (
     <>
-      <PageHero eyebrow={t("pf_hero_eyebrow")} title={t("pf_hero_title")} text={t("pf_hero_text")} icon="folder_special" blend="white" />
+      <PageHero eyebrow={t("pf_hero_eyebrow")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="folder_special" blend="white" />
 
       {/* Hero memudar ke putih (blend="white") lalu section dimulai dari putih → krem, jadi tanpa garis batas */}
       <section className="sec-deco sec-warm bg-gradient-to-b from-white via-[#FFFBEA] to-[#FFF4C9] pb-12 pt-6 md:pb-16 md:pt-8">
