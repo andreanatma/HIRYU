@@ -73,22 +73,23 @@ export default async function Products({ searchParams }: { searchParams: Promise
             )}
           </nav>
 
-          <div className="grid gap-6 lg:grid-cols-[290px_1fr] lg:gap-8">
+          {/* Judul + jumlah produk berada di atas kedua kolom, sehingga sidebar dan baris kartu pertama dimulai di garis yang sama */}
+          <Reveal>
+            <div className="mb-6 flex flex-wrap items-end justify-between gap-2 border-b border-line pb-4">
+              <div>
+                <h2 id="prod-h" className="text-headline-lg text-navy">{active ? active.name : "All Products"}</h2>
+                <div className="mt-2 h-1 w-12 rounded bg-accent" />
+              </div>
+              <p className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-body-sm text-on-surface-variant shadow-sm ring-1 ring-line">
+                <Icon name="inventory_2" className="text-[16px] text-primary" />{total} product(s)
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="grid items-start gap-6 lg:grid-cols-[290px_1fr] lg:gap-8">
             <ProductSidebar groups={tree} activeType={active?.slug} />
 
             <section aria-labelledby="prod-h">
-              <Reveal>
-                <div className="mb-5 flex flex-wrap items-end justify-between gap-2 border-b border-line pb-4">
-                  <div>
-                    <h2 id="prod-h" className="text-headline-lg text-navy">{active ? active.name : "All Products"}</h2>
-                    <div className="mt-2 h-1 w-12 rounded bg-accent" />
-                  </div>
-                  <p className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-body-sm text-on-surface-variant shadow-sm ring-1 ring-line">
-                    <Icon name="inventory_2" className="text-[16px] text-primary" />{total} product(s)
-                  </p>
-                </div>
-              </Reveal>
-
               {items.length === 0 ? (
                 <EmptyState
                   icon="inventory_2"

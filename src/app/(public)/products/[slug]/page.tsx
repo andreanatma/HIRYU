@@ -9,6 +9,7 @@ import { Icon, SafeText } from "@/components/ui";
 import { CtaBand } from "@/components/public";
 import { Reveal } from "@/components/public/reveal";
 import { ProductSidebar } from "@/components/product-sidebar";
+import { DetailBreadcrumb } from "@/components/detail-parts";
 import { ProductCard, ProductImage } from "@/components/product-parts";
 
 type P = { params: Promise<{ slug: string }> };
@@ -56,6 +57,8 @@ export default async function ProductDetail({ params }: P) {
   ];
   const hasPdf = !!p.pdf && p.pdf.isPublic && p.pdf.mimeType === "application/pdf";
 
+  const hasRelated = related.length > 0;
+
   return (
     <>
       <script
@@ -74,23 +77,17 @@ export default async function ProductDetail({ params }: P) {
         }}
       />
 
-      <section className="sec-deco sec-dots bg-gradient-to-b from-mist via-[#EAF3FF] to-white pb-14 pt-8 md:pb-16">
+      <section className={hasRelated ? "sec-deco sec-dots sec-strong bg-gradient-to-b from-[#D4E6FF] via-[#EEF5FF] to-mist pb-14 pt-8 md:pb-16" : "sec-deco sec-dots sec-strong bg-gradient-to-b from-[#D4E6FF] via-[#EEF5FF] to-white pb-14 pt-8 md:pb-16"}>
         <div className="container-x">
-          <nav aria-label="Breadcrumb" className="hero-in mb-5 flex flex-wrap items-center gap-2 text-label-md text-on-surface-variant" style={{ "--d": "0ms" } as React.CSSProperties}>
-            <Link href="/" className="inline-flex items-center gap-1 transition-colors hover:text-primary"><Icon name="home" className="text-[16px]" />Home</Link>
-            <Icon name="chevron_right" className="text-[14px]" />
-            <Link href="/products" className="transition-colors hover:text-primary">Products</Link>
-            <Icon name="chevron_right" className="text-[14px]" />
-            {typeName && typeSlug && (
-              <>
-                <Link href={`/products?type=${typeSlug}`} className="transition-colors hover:text-primary">{typeName}</Link>
-                <Icon name="chevron_right" className="text-[14px]" />
-              </>
-            )}
-            <span className="text-on-surface">{p.name}</span>
-          </nav>
+          <DetailBreadcrumb
+            trail={[
+              { label: "Products", href: "/products" },
+              ...(typeName && typeSlug ? [{ label: typeName, href: `/products?type=${typeSlug}` }] : []),
+            ]}
+            current={p.name}
+          />
 
-          <div className="grid gap-6 lg:grid-cols-[290px_1fr] lg:gap-8">
+          <div className="grid items-start gap-6 lg:grid-cols-[290px_1fr] lg:gap-8">
             <ProductSidebar groups={tree} activeType={typeSlug} activeProduct={p.slug} />
 
             <Reveal>
@@ -113,13 +110,13 @@ export default async function ProductDetail({ params }: P) {
                     <div className="mt-3 h-1 w-14 rounded bg-accent" />
 
                     {/* Fakta produk: kartu mini */}
-                    <dl className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <dl className="mt-5 grid grid-cols-1 gap-3">
                       {facts.filter(([, , v]) => v).map(([icon, k, v]) => (
-                        <div key={k} className="group flex items-center gap-3 rounded-lg border border-line bg-mist/60 p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-white hover:shadow-md">
+                        <div key={k} className="group flex items-start gap-3 rounded-lg border border-line bg-mist/60 p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-white hover:shadow-md">
                           <span className="quick-ico flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary-light text-primary"><Icon name={icon} className="text-[20px]" /></span>
                           <div className="min-w-0">
                             <dt className="text-label-sm uppercase text-slate-text">{k}</dt>
-                            <dd className="truncate text-title-md text-navy">{v}</dd>
+                            <dd className="break-words text-title-md text-navy">{v}</dd>
                           </div>
                         </div>
                       ))}
@@ -149,7 +146,7 @@ export default async function ProductDetail({ params }: P) {
       </section>
 
       {related.length > 0 && (
-        <section className="sec-deco sec-warm bg-gradient-to-b from-white via-[#FFFBEA] to-white py-14 md:py-16">
+        <section className="sec-deco sec-warm bg-gradient-to-b from-mist via-[#FFFBEA] to-white py-14 md:py-16">
           <div className="container-x">
             <Reveal>
               <div className="mb-8 flex flex-wrap items-end justify-between gap-4">

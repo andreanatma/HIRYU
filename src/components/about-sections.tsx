@@ -19,7 +19,12 @@ function parse(body: string): { lead: string[]; items: Item[] } {
   const items: Item[] = [];
   let cur: Item | null = null;
   for (const b of blocks(body)) {
-    if (b.startsWith("## ")) { cur = { title: b.slice(3).trim(), text: "" }; items.push(cur); continue; }
+    if (b.startsWith("## ")) {
+      const [first, ...rest] = b.split("\n");
+      cur = { title: first.slice(3).trim(), text: rest.join("\n").trim() };
+      items.push(cur);
+      continue;
+    }
     const lines = b.split("\n").map((l) => l.trim());
     if (lines.every((l) => l.startsWith("- "))) {
       for (const l of lines) {
@@ -56,30 +61,24 @@ const WHY: Meta[] = [
 ];
 const meta = (list: Meta[], title: string, i: number): Meta => list.find((m) => m.re.test(title)) ?? { re: /./, icon: list[i % list.length].icon };
 
-/* ---------- gradasi antar-band (tanpa garis batas keras) ---------- */
-type Tone = "mist" | "navy" | "white";
+/* ---------- gradasi latar: warna akhir satu band = warna awal band berikutnya (tanpa garis batas) ---------- */
+type Tone = "mist" | "blue" | "white";
 // Class ditulis utuh agar terdeteksi Tailwind.
-const FADE_TO: Record<Tone, string> = { mist: "to-mist", navy: "to-navy", white: "to-white" };
-
-function Fade({ to }: { to: Tone }) {
-  return <div aria-hidden="true" className={`pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent md:h-32 ${FADE_TO[to]}`} />;
-}
+const FROM: Record<Tone, string> = { mist: "from-mist", blue: "from-[#D4E6FF]", white: "from-white" };
+const TO: Record<Tone, string> = { mist: "to-mist", blue: "to-[#D4E6FF]", white: "to-white" };
 
 /* ---------- potongan UI ---------- */
 function Paras({ items, className = "" }: { items: string[]; className?: string }) {
   return <div className={`space-y-4 ${className}`}>{items.map((t, i) => <p key={i} className="whitespace-pre-line">{t}</p>)}</div>;
 }
 
-function CardHead({ id, icon, title }: { id: string; icon: string; title: string }) {
+/** Judul bagian di tengah: garis aksen kuning di bawahnya (sama seperti section lain). */
+function CenterHead({ id, title, eyebrow }: { id: string; title: string; eyebrow?: string }) {
   return (
-    <div className="flex items-center gap-3 sm:gap-4">
-      <span className="ico-box flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/10 ring-2 ring-white/40 sm:h-14 sm:w-14">
-        <Icon name={icon} className="text-[26px] text-white sm:text-[30px]" />
-      </span>
-      <div className="min-w-0">
-        <h2 id={id} className="break-words text-title-lg text-white md:text-headline-md">{title}</h2>
-        <div className="mt-2 h-1 w-14 rounded bg-accent" />
-      </div>
+    <div className="mb-10 text-center md:mb-12">
+      {eyebrow && <span className="text-label-md font-bold uppercase tracking-wider text-primary">{eyebrow}</span>}
+      <h2 id={id} className="mt-1 break-words text-headline-lg text-navy md:text-headline-xl">{title}</h2>
+      <div className="mx-auto mt-3 h-1 w-14 rounded bg-accent" />
     </div>
   );
 }
@@ -94,7 +93,7 @@ function Badge({ icon, className = "" }: { icon: string; className?: string }) {
 
 function PrincipleCard({ item, m }: { item: Item; m: Meta }) {
   return (
-    <article className="ico-trigger group flex h-full flex-col overflow-hidden rounded-2xl border-2 border-primary-container bg-white shadow-[0_10px_25px_-8px_rgba(8,102,217,0.35)] transition-all duration-500 motion-safe:hover:-translate-y-2 hover:border-accent hover:shadow-[0_28px_50px_-20px_rgba(8,102,217,0.55)]">
+    <article className="ico-trigger group relative flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition-all duration-500 motion-safe:hover:-translate-y-2 hover:border-primary/35 hover:shadow-[0_24px_44px_-20px_rgba(8,102,217,0.38)]">
       <div className="relative aspect-[16/9] overflow-hidden bg-gradient-to-br from-primary to-navy">
         {m.photo ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -110,6 +109,7 @@ function PrincipleCard({ item, m }: { item: Item; m: Meta }) {
         <div className="mx-auto mt-2 h-0.5 w-10 rounded bg-accent transition-all duration-500 group-hover:w-20" />
         <p className="mt-3 text-body-sm leading-relaxed text-slate-text">{item.text}</p>
       </div>
+      <span className="accent-bar" />
     </article>
   );
 }
@@ -118,10 +118,11 @@ function WhyItem({ item, icon, index }: { item: Item; icon: string; index: numbe
   return (
     <li className="ico-trigger">
       <Reveal delay={(index % 3) * 100} className="h-full">
-        <div className="flex h-full flex-col items-center rounded-2xl px-3 py-5 text-center transition-all duration-500 hover:bg-white/[0.06] motion-safe:hover:-translate-y-1.5">
-          <Badge icon={icon} className="!h-16 !w-16 ring-4 ring-white/15" />
-          <h3 className="mt-4 text-title-lg text-white">{item.title}</h3>
-          {item.text && <p className="mt-2 max-w-xs text-body-sm leading-relaxed text-slate-300">{item.text}</p>}
+        <div className="card card-lift group relative flex h-full flex-col items-center !rounded-2xl px-5 py-7 text-center">
+          <Badge icon={icon} className="!h-16 !w-16 ring-4 ring-primary/10" />
+          <h3 className="mt-4 text-title-lg text-navy transition-colors duration-300 group-hover:text-primary">{item.title}</h3>
+          {item.text && <p className="mt-2 max-w-xs text-body-sm leading-relaxed text-slate-text">{item.text}</p>}
+          <span className="accent-bar" />
         </div>
       </Reveal>
     </li>
@@ -129,7 +130,7 @@ function WhyItem({ item, icon, index }: { item: Item; icon: string; index: numbe
 }
 
 /* ---------- Our Team ---------- */
-export function TeamSection({ members, eyebrow = "People", title = "Our Team", strong = false }: { members: TeamMember[]; eyebrow?: string; title?: string; strong?: boolean }) {
+export function TeamSection({ members, eyebrow = "People", title = "Our Team", strong = false, gradient }: { members: TeamMember[]; eyebrow?: string; title?: string; strong?: boolean; gradient?: string }) {
   const [selected, setSelected] = useState<TeamMember | null>(null);
 
   // Tutup modal dengan Esc + kunci scroll saat modal terbuka
@@ -146,7 +147,7 @@ export function TeamSection({ members, eyebrow = "People", title = "Our Team", s
 
   return (
     <>
-    <section aria-labelledby="team-heading" className={`sec-deco sec-grid relative bg-gradient-to-b from-white to-white py-14 md:py-16 ${strong ? "sec-strong via-[#DCEAFF]" : "via-[#EAF3FF]"}`}>
+    <section aria-labelledby="team-heading" className={`sec-deco sec-grid relative bg-gradient-to-b py-14 md:py-16 ${strong ? "sec-strong" : ""} ${gradient ?? (strong ? "from-white via-[#DCEAFF] to-white" : "from-white via-[#EAF3FF] to-white")}`}>
       <div className="container-x">
         <Reveal>
           <div className="mb-10 text-center md:mb-12">
@@ -260,37 +261,65 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
   const hasWhy = !!(why && whyP && whyP.items.length > 0);
   const hasTeam = !!team && team.length > 0;
 
-  // Warna band berikutnya → menentukan tujuan gradasi di dasar tiap band
-  const afterTop: Tone | null = hasPrinciples ? "mist" : hasWhy ? "navy" : hasTeam ? "white" : null;
-  const afterPrinciples: Tone | null = hasWhy ? "navy" : hasTeam ? "white" : null;
-  const afterWhy: Tone | null = hasTeam ? "white" : null;
+  // Rantai latar: setiap band mulai dari warna akhir band sebelumnya; band terakhir berakhir putih.
+  const chain = ([
+    hasTop && { key: "top", end: "blue" },
+    hasPrinciples && { key: "principles", end: "mist" },
+    hasWhy && { key: "why", end: "white" },
+    hasTeam && { key: "team", end: "white" },
+  ].filter(Boolean) as { key: string; end: Tone }[]);
+  const bg = (key: string, via: string) => {
+    const i = chain.findIndex((c) => c.key === key);
+    const from: Tone = i <= 0 ? "mist" : chain[i - 1].end;
+    const to: Tone = i === chain.length - 1 ? "white" : chain[i].end;
+    return `bg-gradient-to-b ${FROM[from]} ${via} ${TO[to]}`;
+  };
+  const teamGradient = (() => {
+    const i = chain.findIndex((c) => c.key === "team");
+    const from: Tone = i <= 0 ? "mist" : chain[i - 1].end;
+    return `${FROM[from]} via-[#DCEAFF] to-white`;
+  })();
+
+  const leadParas = introP ? (introP.lead.length ? introP.lead : [intro!.body]) : [];
+  const [firstLead, ...restLead] = leadParas;
 
   return (
     <div>
-      {/* BAND 1 — Intro, Visi & Misi */}
+      {/* BAND 1 — Tentang, Visi & Misi */}
       {hasTop && (
-        <div className="relative overflow-hidden bg-gradient-to-b from-brand-hover via-primary to-brand-hover text-white">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:26px_26px] opacity-[0.07]" />
-          <div className="pointer-events-none absolute -right-32 -top-20 h-96 w-96 rounded-full bg-white/10 blur-[110px]" />
-          {/* Hero navy → biru: menyatu dengan hero, aksen kuning tipis sebagai pemanis */}
-          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-navy to-transparent md:h-32" />
-          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-accent to-transparent" />
-
-          {hasMain && (
-            <div className={`container-x relative pt-16 lg:pt-24 ${afterTop ? "pb-24 lg:pb-32" : "pb-14 lg:pb-20"}`}>
+        <section aria-label={companyName} className={`sec-deco sec-dots sec-strong ${bg("top", "via-[#E3EFFF]")} pb-14 pt-6 md:pb-16 md:pt-8`}>
+          <div className="container-x">
+            {hasMain && (
               <div className="grid items-start gap-8 lg:grid-cols-12 lg:gap-10">
                 {intro && introP && (
                   <section aria-labelledby="ab-intro" className={hasSide ? "lg:col-span-5" : "mx-auto max-w-4xl text-center lg:col-span-12"}>
                     <Reveal>
-                      <div className={`ico-trigger mb-6 flex items-center gap-3 ${hasSide ? "" : "justify-center"}`}>
-                        <span className="ico-box flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-white/40 bg-white/10">
-                          <Icon name="biotech" className="text-[30px]" />
-                        </span>
-                        <span className="text-left text-title-md font-bold uppercase leading-tight tracking-wide">{companyName}</span>
+                      <div className={`relative overflow-hidden rounded-2xl border border-white/70 bg-white p-6 shadow-[0_26px_50px_-28px_rgba(7,29,51,0.45)] md:p-8 ${hasSide ? "" : "text-center"}`}>
+                        {/* Aksen atas + cahaya lembut agar kartu terasa premium namun teks tetap bersih */}
+                        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-accent to-primary/40" />
+                        <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
+
+                        <div className={`ico-trigger relative mb-5 flex items-center gap-3 ${hasSide ? "" : "justify-center"}`}>
+                          <span className="ico-box flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary ring-1 ring-primary/15">
+                            <Icon name="biotech" className="text-[28px]" />
+                          </span>
+                          <span className="text-left text-label-md font-bold uppercase leading-tight tracking-wider text-primary">{companyName}</span>
+                        </div>
+
+                        <h2 id="ab-intro" className="relative break-words text-headline-lg text-navy md:text-headline-xl">{intro.heading}</h2>
+                        <div className={`relative mt-3 h-1 w-14 rounded bg-accent ${hasSide ? "" : "mx-auto"}`} />
+
+                        {firstLead && <p className="relative mt-6 whitespace-pre-line text-body-lg leading-relaxed text-on-surface">{firstLead}</p>}
+
+                        {restLead.length > 0 && (
+                          <div className="relative mt-6 flex gap-3 rounded-xl border border-line border-l-4 border-l-accent bg-mist/70 p-4 text-left sm:p-5">
+                            <Icon name="verified" className="mt-0.5 shrink-0 text-[22px] text-primary" />
+                            <Paras items={restLead} className="text-body-md leading-relaxed text-on-surface-variant" />
+                          </div>
+                        )}
+
+                        {intro.imageId && <MediaImg id={intro.imageId} alt={intro.heading} className="relative mt-8 aspect-[16/9] w-full rounded-xl border border-line shadow-md" />}
                       </div>
-                      <h2 id="ab-intro" className="sr-only">{intro.heading}</h2>
-                      <Paras items={introP.lead.length ? introP.lead : [intro.body]} className="text-body-md font-semibold leading-relaxed sm:text-body-lg" />
-                      {intro.imageId && <MediaImg id={intro.imageId} alt={intro.heading} className="mt-8 aspect-[16/9] w-full rounded-xl border border-white/20" />}
                     </Reveal>
                   </section>
                 )}
@@ -299,65 +328,83 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
                   <div className={`space-y-6 ${intro ? "lg:col-span-7" : "lg:col-span-12"}`}>
                     {vision && visionP && (
                       <Reveal delay={100}>
-                        <section aria-labelledby="ab-vision" className="ico-trigger rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm transition-all duration-500 hover:border-accent/60 hover:bg-white/[0.16] motion-safe:hover:-translate-y-1 hover:shadow-[0_24px_44px_-20px_rgba(0,0,0,0.5)] sm:p-6 md:p-8">
-                          <CardHead id="ab-vision" icon="rocket_launch" title={vision.heading} />
-                          <Paras items={visionP.lead.length ? visionP.lead : [vision.body]} className="mt-5 text-body-md leading-relaxed text-white/90" />
+                        <section aria-labelledby="ab-vision" className="ico-trigger group relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy via-[#0A2A4E] to-[#0B3A78] p-6 text-white shadow-[0_26px_50px_-24px_rgba(7,29,51,0.6)] transition-all duration-500 motion-safe:hover:-translate-y-1 md:p-8">
+                          <div aria-hidden="true" className="bg-grid-faint pointer-events-none absolute inset-0 opacity-30" />
+                          <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full bg-primary/40 blur-3xl" />
+                          <div aria-hidden="true" className="pointer-events-none absolute -bottom-20 left-1/3 h-48 w-48 rounded-full bg-accent/15 blur-3xl" />
+                          <Icon name="format_quote" className="pointer-events-none absolute right-5 top-4 text-[84px] text-white/[0.07]" />
+
+                          <div className="relative flex items-center gap-4">
+                            <span className="ico-box flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/25">
+                              <Icon name="rocket_launch" className="text-[28px] text-accent" />
+                            </span>
+                            <div className="min-w-0">
+                              <h2 id="ab-vision" className="break-words text-title-lg text-white md:text-headline-md">{vision.heading}</h2>
+                              <div className="mt-2 h-1 w-14 rounded bg-accent" />
+                            </div>
+                          </div>
+                          <Paras items={visionP.lead.length ? visionP.lead : [vision.body]} className="relative mt-5 text-body-md leading-relaxed text-slate-200 md:text-body-lg" />
                         </section>
                       </Reveal>
                     )}
 
                     {mission && missionP && (
                       <Reveal delay={200}>
-                        <section aria-labelledby="ab-mission" className="rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-sm transition-all duration-500 hover:border-accent/60 hover:shadow-[0_24px_44px_-20px_rgba(0,0,0,0.5)] sm:p-6 md:p-8">
-                          <div className="ico-trigger w-fit">
-                            <CardHead id="ab-mission" icon="target" title={mission.heading} />
+                        <section aria-labelledby="ab-mission" className="rounded-2xl border border-white/70 bg-white p-6 shadow-[0_26px_50px_-28px_rgba(7,29,51,0.45)] md:p-8">
+                          <div className="ico-trigger flex w-fit items-center gap-4">
+                            <span className="ico-box flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary ring-1 ring-primary/15">
+                              <Icon name="target" className="text-[28px]" />
+                            </span>
+                            <div className="min-w-0">
+                              <h2 id="ab-mission" className="break-words text-title-lg text-navy md:text-headline-md">{mission.heading}</h2>
+                              <div className="mt-2 h-1 w-14 rounded bg-accent" />
+                            </div>
                           </div>
-                          {missionP.lead.length > 0 && <Paras items={missionP.lead} className="mt-5 text-body-md text-white/90" />}
-                          <ul className="mt-6 space-y-4 sm:space-y-5">
-                            {missionP.items.map((it) => (
-                              <li key={it.title} className="group -m-2 flex gap-3 rounded-lg p-2 transition-all duration-300 hover:bg-white/10 motion-safe:hover:translate-x-1">
-                                <Icon name="add_circle" className="mt-0.5 shrink-0 text-[20px] text-accent transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:scale-125" />
+
+                          {missionP.lead.length > 0 && <Paras items={missionP.lead} className="mt-5 text-body-md leading-relaxed text-on-surface-variant" />}
+
+                          <ol className="mt-6 space-y-3 sm:space-y-4">
+                            {missionP.items.map((it, i) => (
+                              <li key={it.title} className="group flex gap-4 rounded-xl border border-line bg-mist/60 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/30 hover:bg-white hover:shadow-md">
+                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-brand-hover text-label-md font-bold text-white shadow-sm">
+                                  {String(i + 1).padStart(2, "0")}
+                                </span>
                                 <div className="min-w-0">
-                                  <h3 className="text-title-md text-white">{it.title}</h3>
-                                  {it.text && <p className="mt-1 whitespace-pre-line text-body-sm leading-relaxed text-white/85">{it.text}</p>}
+                                  <h3 className="text-title-md text-navy transition-colors duration-300 group-hover:text-primary">{it.title}</h3>
+                                  {it.text && <p className="mt-1 whitespace-pre-line text-body-sm leading-relaxed text-slate-text">{it.text}</p>}
                                 </div>
                               </li>
                             ))}
-                          </ul>
+                          </ol>
                         </section>
                       </Reveal>
                     )}
                   </div>
                 )}
               </div>
-            </div>
-          )}
+            )}
 
-          {extra.map((s) => (
-            <section key={s.id} aria-labelledby={`ab-x-${s.id}`} className={`container-x relative max-w-3xl pt-4 text-center ${afterTop ? "pb-24 lg:pb-32" : "pb-16"}`}>
-              <Reveal>
-                <h2 id={`ab-x-${s.id}`} className="text-headline-lg text-white">{s.heading}</h2>
-                <div className="mx-auto mb-5 mt-3 h-1 w-14 rounded bg-accent" />
-                {s.imageId && <MediaImg id={s.imageId} alt={s.heading} className="mb-6 aspect-[16/9] w-full rounded-xl" />}
-                <Paras items={blocks(s.body)} className="text-body-md text-white/85" />
-              </Reveal>
-            </section>
-          ))}
-
-          {afterTop && <Fade to={afterTop} />}
-        </div>
+            {extra.map((s) => (
+              <section key={s.id} aria-labelledby={`ab-x-${s.id}`} className={`mx-auto max-w-3xl text-center ${hasMain ? "mt-10" : ""}`}>
+                <Reveal>
+                  <div className="rounded-2xl border border-white/70 bg-white p-6 shadow-[0_26px_50px_-28px_rgba(7,29,51,0.45)] md:p-8">
+                    <h2 id={`ab-x-${s.id}`} className="text-headline-lg text-navy">{s.heading}</h2>
+                    <div className="mx-auto mb-5 mt-3 h-1 w-14 rounded bg-accent" />
+                    {s.imageId && <MediaImg id={s.imageId} alt={s.heading} className="mb-6 aspect-[16/9] w-full rounded-xl" />}
+                    <Paras items={blocks(s.body)} className="text-body-md text-on-surface-variant" />
+                  </div>
+                </Reveal>
+              </section>
+            ))}
+          </div>
+        </section>
       )}
 
       {/* BAND 2 — Prinsip */}
       {hasPrinciples && principles && principlesP && (
-        <section aria-labelledby="ab-principles" className={`sec-deco sec-grid sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-[#D4E6FF] pt-14 md:pt-16 ${afterPrinciples ? "pb-24 md:pb-32" : "pb-14 md:pb-16"}`}>
+        <section aria-labelledby="ab-principles" className={`sec-deco sec-grid sec-strong ${bg("principles", "via-[#EEF5FF]")} py-14 md:py-16`}>
           <div className="container-x">
-            <Reveal>
-              <div className="mb-10 text-center md:mb-12">
-                <h2 id="ab-principles" className="break-words text-headline-lg uppercase tracking-wide text-navy md:text-headline-xl">{principles.heading}</h2>
-                <div className="mx-auto mt-3 h-1 w-20 rounded bg-accent" />
-              </div>
-            </Reveal>
+            <Reveal><CenterHead id="ab-principles" title={principles.heading} /></Reveal>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
               {principlesP.items.map((it, i) => (
                 <Reveal key={it.title} delay={(i % 3) * 100} className="h-full">
@@ -366,30 +413,23 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
               ))}
             </div>
           </div>
-          {afterPrinciples && <Fade to={afterPrinciples} />}
         </section>
       )}
 
       {/* BAND 3 — Mengapa Memilih Kami */}
       {hasWhy && why && whyP && (
-        <section aria-labelledby="ab-why" className={`relative overflow-hidden bg-navy pt-14 text-white md:pt-16 ${afterWhy ? "pb-24 md:pb-32" : "pb-14 md:pb-16"}`}>
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:26px_26px] opacity-[0.05]" />
-          <div className="container-x relative">
-            <Reveal>
-              <div className="mb-10 text-center md:mb-14">
-                <h2 id="ab-why" className="inline-block max-w-full break-words bg-accent px-5 py-2 text-title-lg font-extrabold uppercase tracking-wide text-navy shadow-lg md:px-6 md:text-headline-md">{why.heading}</h2>
-              </div>
-            </Reveal>
-            <ul className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 md:gap-y-10 lg:grid-cols-3">
+        <section aria-labelledby="ab-why" className={`sec-deco sec-warm ${bg("why", "via-[#FFFBEA]")} py-14 md:py-16`}>
+          <div className="container-x">
+            <Reveal><CenterHead id="ab-why" title={why.heading} /></Reveal>
+            <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
               {whyP.items.map((it, i) => <WhyItem key={it.title} item={it} icon={meta(WHY, it.title, i).icon} index={i} />)}
             </ul>
           </div>
-          {afterWhy && <Fade to={afterWhy} />}
         </section>
       )}
 
       {/* Our Team */}
-      {team && <TeamSection members={team} eyebrow={teamEyebrow} title={teamTitle} strong />}
+      {team && <TeamSection members={team} eyebrow={teamEyebrow} title={teamTitle} strong gradient={teamGradient} />}
     </div>
   );
 }

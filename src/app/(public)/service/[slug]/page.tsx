@@ -8,6 +8,7 @@ import { truncate } from "@/lib/utils";
 import { Icon, MediaImg, SafeText } from "@/components/ui";
 import { CtaBand } from "@/components/public";
 import { Reveal } from "@/components/public/reveal";
+import { DetailBadge, DetailBreadcrumb, DetailCard, SectionHead } from "@/components/detail-parts";
 
 type P = { params: Promise<{ slug: string }> };
 const get = (slug: string) => prisma.service.findFirst({ where: { slug, isActive: true }, include: { images: { orderBy: { displayOrder: "asc" } } } });
@@ -22,10 +23,11 @@ export default async function ServiceDetail({ params }: P) {
   const slug = (await params).slug;
   const s = await get(slug);
   if (!s) { await redirectIfRenamed("service", slug, "/service"); notFound(); }
-  const gallery = s.images.map((i) => i.mediaId);
   const name = s.name;
+  const mainId = s.imageId ?? s.images[0]?.mediaId ?? null;
+  const gallery = s.images.map((i) => i.mediaId).filter((id) => id !== mainId);
 
-  // Layanan lain (tautan internal + membuat halaman lebih padat)
+  // Layanan lain (tautan internal + halaman lebih padat)
   const others = await prisma.service.findMany({
     where: { isActive: true, NOT: { id: s.id } },
     orderBy: [{ displayOrder: "asc" }, { createdAt: "asc" }],
@@ -33,77 +35,67 @@ export default async function ServiceDetail({ params }: P) {
     include: { images: { orderBy: { displayOrder: "asc" }, take: 1 } },
   });
 
+  const hasRelated = others.length > 0;
+
   return (
     <>
-      {/* ===== Detail utama ===== */}
-      <section className="sec-deco sec-grid bg-gradient-to-b from-mist via-[#EAF3FF] to-white pb-14 pt-8 md:pb-16">
+      <section className={hasRelated ? "sec-deco sec-grid sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-[#D4E6FF] pb-14 pt-8 md:pb-16" : "sec-deco sec-grid sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-white pb-14 pt-8 md:pb-16"}>
         <div className="container-x">
-          <nav aria-label="Breadcrumb" className="hero-in mb-6 flex items-center gap-2 text-label-md text-on-surface-variant" style={{ "--d": "0ms" } as React.CSSProperties}>
-            <Link href="/service" className="transition-colors hover:text-primary">{t("nav_services")}</Link>
-            <Icon name="chevron_right" className="text-[14px]" />
-            <span className="text-on-surface">{name}</span>
-          </nav>
+          <DetailBreadcrumb trail={[{ label: t("nav_services"), href: "/service" }]} current={name} />
 
-          <div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
-            {/* Gambar utama dengan bingkai dekoratif */}
-            <Reveal>
-              <div className="group relative">
-                <div aria-hidden="true" className="absolute -inset-3 -z-10 rounded-2xl bg-gradient-to-br from-primary/25 via-accent/30 to-transparent blur-xl transition-opacity duration-500 group-hover:opacity-100 md:opacity-80" />
-                <div className="overflow-hidden rounded-xl border border-white/70 bg-white shadow-[0_26px_50px_-24px_rgba(7,29,51,0.5)]">
-                  <MediaImg id={s.imageId ?? gallery[0]} alt={name} className="h-72 w-full transition-transform duration-700 ease-out group-hover:scale-105 sm:h-80 lg:h-[420px]" icon="design_services" />
-                </div>
-              </div>
-            </Reveal>
-
-            <Reveal delay={120}>
-              <div>
-                <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3.5 py-1.5 text-label-md uppercase tracking-wider text-primary">
-                  <Icon name="design_services" className="text-[16px]" />{t("nav_services")}
-                </span>
-                <h1 className="mt-4 text-display-md-mobile text-navy md:text-display-md">{name}</h1>
-                <div className="mt-4 h-1 w-16 rounded bg-accent" />
-                <div className="mt-5"><SafeText text={s.description} /></div>
-                <div className="mt-8 flex flex-wrap items-center gap-3">
-                  <Link href="/contact" className="btn-accent group !px-7 !py-3 shadow-lg shadow-accent/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-accent/30">
-                    {t("nav_contact")}<Icon name="arrow_forward" className="text-[18px] transition-transform duration-300 group-hover:translate-x-1" />
-                  </Link>
-                  <Link href="/service" className="btn-secondary group !px-6 !py-3 hover:-translate-y-0.5">
-                    <Icon name="arrow_back" className="text-[18px] transition-transform duration-300 group-hover:-translate-x-1" />{t("svc_all")}
-                  </Link>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-
-          {/* Galeri tambahan */}
-          {gallery.length > 0 && (
-            <section className="mt-12 md:mt-14" aria-label={t("svc_images")}>
-              <Reveal><h2 className="mb-5 text-headline-lg text-navy">{t("nav_gallery")}<span className="mt-2 block h-1 w-12 rounded bg-accent" /></h2></Reveal>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
-                {gallery.map((id, i) => (
-                  <Reveal key={id} delay={(i % 3) * 80} className="h-full">
-                    <div className="group relative overflow-hidden rounded-xl shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl">
-                      <MediaImg id={id} alt={`${name} ${i + 1}`} className="aspect-[4/3] w-full transition-transform duration-700 ease-out group-hover:scale-110" />
-                      <div className="absolute inset-0 bg-navy/0 transition-colors duration-300 group-hover:bg-navy/25" />
+          <Reveal>
+            <DetailCard>
+              <div className="grid gap-7 md:grid-cols-5 md:gap-8">
+                <div className="md:col-span-2">
+                  <div className="relative">
+                    <div aria-hidden="true" className="absolute -inset-2 -z-10 rounded-2xl bg-gradient-to-br from-primary/20 via-accent/25 to-transparent blur-xl" />
+                    <div className="group overflow-hidden rounded-xl border border-line bg-gradient-to-br from-white to-mist shadow-sm">
+                      <MediaImg id={mainId} alt={name} icon="design_services" className="aspect-square w-full transition-transform duration-700 ease-out group-hover:scale-105" />
                     </div>
-                  </Reveal>
-                ))}
+                  </div>
+                </div>
+
+                <div className="md:col-span-3">
+                  <DetailBadge icon="design_services">{t("nav_services")}</DetailBadge>
+                  <h1 className="mt-3 text-headline-lg text-navy md:text-headline-xl">{name}</h1>
+                  <div className="mt-3 h-1 w-14 rounded bg-accent" />
+
+                  <div className="mt-6"><SafeText text={s.description} /></div>
+
+                  <div className="mt-7 flex flex-wrap gap-3">
+                    <Link href="/contact" className="btn-accent group !px-6 shadow-lg shadow-accent/20 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-accent/30">
+                      {t("nav_contact")}<Icon name="arrow_forward" className="text-[18px] transition-transform duration-300 group-hover:translate-x-1" />
+                    </Link>
+                    <Link href="/service" className="btn-secondary group !px-6 hover:-translate-y-0.5">
+                      <Icon name="arrow_back" className="text-[18px] transition-transform duration-300 group-hover:-translate-x-1" />{t("svc_all")}
+                    </Link>
+                  </div>
+                </div>
               </div>
-            </section>
-          )}
+
+              {gallery.length > 0 && (
+                <section className="mt-9 border-t border-line pt-7" aria-label={t("svc_images")}>
+                  <h2 className="text-title-lg text-navy">{t("nav_gallery")}</h2>
+                  <div className="mt-2 h-1 w-12 rounded bg-accent" />
+                  <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
+                    {gallery.map((id, i) => (
+                      <div key={id} className="group relative overflow-hidden rounded-xl shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl">
+                        <MediaImg id={id} alt={`${name} ${i + 1}`} className="aspect-[4/3] w-full transition-transform duration-700 ease-out group-hover:scale-110" />
+                        <div className="pointer-events-none absolute inset-0 bg-navy/0 transition-colors duration-300 group-hover:bg-navy/25" />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </DetailCard>
+          </Reveal>
         </div>
       </section>
 
-      {/* ===== Layanan lainnya ===== */}
       {others.length > 0 && (
-        <section className="sec-deco sec-warm bg-gradient-to-b from-white via-[#FFFBEA] to-white py-14 md:py-16">
+        <section className="sec-deco sec-warm bg-gradient-to-b from-[#D4E6FF] via-[#FFFBEA] to-white py-14 md:py-16">
           <div className="container-x">
-            <Reveal>
-              <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-                <div><span className="text-label-md uppercase tracking-wider text-primary">{t("svc_eyebrow")}</span><h2 className="mt-2 text-headline-xl text-navy">{t("svc_title")}</h2><div className="mt-3 h-1 w-14 rounded bg-accent" /></div>
-                <Link href="/service" className="inline-flex items-center gap-1 text-title-md text-primary transition-colors hover:text-brand-hover">{t("svc_all")}<Icon name="arrow_forward" className="arrow-shift text-[18px]" /></Link>
-              </div>
-            </Reveal>
+            <Reveal><SectionHead eyebrow={t("svc_eyebrow")} title={t("svc_title")} linkHref="/service" linkLabel={t("svc_all")} /></Reveal>
             <div className="grid gap-5 md:grid-cols-3 md:gap-6">
               {others.map((x, i) => (
                 <Reveal key={x.id} delay={i * 100} className="h-full">

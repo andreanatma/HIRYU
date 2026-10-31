@@ -62,6 +62,7 @@ export default async function AboutUs() {
         text={hero.text}
         imageId={hero.imageId}
         icon="info"
+        blend="mist"
       />
 
       <AboutSections

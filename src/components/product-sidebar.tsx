@@ -31,7 +31,7 @@ export function ProductSidebar({ groups, activeType, activeProduct }: {
     });
 
   return (
-    <aside aria-label="Products" className="h-fit overflow-hidden rounded-xl border border-line bg-white shadow-sm lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+    <aside aria-label="Products" className="h-fit self-start overflow-hidden rounded-xl border border-line bg-white shadow-sm">
       {/* Header: tautan "Products" + tombol lipat (mobile) */}
       <div className="flex items-center justify-between gap-2 bg-gradient-to-r from-navy to-navy-2 px-5 py-4 text-white">
         <Link href="/products" className="group/h inline-flex items-center gap-2 text-headline-md font-bold text-white">
@@ -58,6 +58,7 @@ export function ProductSidebar({ groups, activeType, activeProduct }: {
               <div className={cn("group/row flex items-center justify-between gap-1 rounded-lg border-l-4 transition-all duration-300", typeActive ? "border-accent bg-primary-light" : "border-transparent hover:bg-mist")}>
                 <Link
                   href={`/products?type=${g.slug}`}
+                  title={g.name}
                   aria-current={typeActive ? "page" : undefined}
                   className={cn("flex min-w-0 flex-1 items-center gap-2 px-3 py-2.5 text-body-md transition-transform duration-300 group-hover/row:translate-x-0.5", typeActive ? "font-semibold text-primary" : "text-navy hover:text-primary")}
                 >
@@ -83,6 +84,7 @@ export function ProductSidebar({ groups, activeType, activeProduct }: {
                       <li key={p.slug}>
                         <Link
                           href={`/products/${p.slug}`}
+                          title={p.name}
                           aria-current={on ? "page" : undefined}
                           className={cn("group/item flex items-center gap-2 rounded-md px-2 py-1.5 text-body-sm transition-all duration-200 hover:translate-x-1 hover:bg-mist hover:text-primary", on ? "font-semibold text-primary" : "text-on-surface-variant")}
                         >

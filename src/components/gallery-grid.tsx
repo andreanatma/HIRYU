@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "./ui";
 import { Reveal } from "./public/reveal";
 import { T, fmt } from "@/lib/dictionary";
@@ -81,9 +82,10 @@ export function GalleryGrid({ items }: { items: Item[] }) {
         ))}
       </ul>
 
-      {cur && i !== null && (
+      {/* Portal ke <body>: lightbox menutupi seluruh halaman (termasuk footer) dan tidak terpotong oleh section yang memakai isolation/overflow */}
+      {cur && i !== null && typeof document !== "undefined" && createPortal(
         <div
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-navy/95 p-3 backdrop-blur-sm sm:p-6"
+          className="fixed inset-0 z-[45] flex items-center justify-center bg-navy/95 px-3 pb-4 pt-[6.5rem] backdrop-blur-sm sm:px-6 sm:pb-6 sm:pt-[7rem]"
           onClick={() => setI(null)}
           onTouchStart={(e) => { touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }}
           onTouchEnd={(e) => {
@@ -99,7 +101,7 @@ export function GalleryGrid({ items }: { items: Item[] }) {
             role="dialog"
             aria-modal="true"
             aria-label={fmt(T.lb_dialog, { n: i + 1, total: n })}
-            className="reveal-in relative flex max-h-[92vh] supports-[height:100dvh]:max-h-[92dvh] w-full max-w-5xl items-center justify-center"
+            className="reveal-in relative flex h-full w-full max-w-5xl items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -110,7 +112,7 @@ export function GalleryGrid({ items }: { items: Item[] }) {
               src={`/media/${cur.imageId}`}
               alt={alt(i + 1)}
               decoding="async"
-              className={`max-h-[84vh] supports-[height:100dvh]:max-h-[84dvh] w-auto max-w-full rounded-xl object-contain shadow-2xl transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"}`}
+              className={`max-h-full w-auto max-w-full rounded-xl object-contain shadow-2xl transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"}`}
             />
 
             <button
@@ -148,7 +150,8 @@ export function GalleryGrid({ items }: { items: Item[] }) {
               {i + 1} / {n}
             </span>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );
