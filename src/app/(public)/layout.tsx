@@ -6,16 +6,17 @@ import { BrandLogo } from "@/components/brand-logo";
 import { SiteNav } from "@/components/site-nav";
 import { AdminBar } from "@/components/admin-bar";
 import { Reveal } from "@/components/public/reveal";
+import { BackToTop } from "@/components/public/back-to-top";
 import { getSession } from "@/lib/auth";
 import { getNavTypes } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
-const COLS: [string, [string, string][]][] = [
-  ["Solutions", [["/service", "Services"], ["/products", "Products"], ["/portfolio", "Portfolio"]]],
-  ["Company", [["/about-us", "About Us"], ["/gallery", "Gallery"], ["/blogs", "Blogs"]]],
-  ["Connect", [["/contact", "Contact Us"]]],
-];
+type FooterGroup = [title: string, links: [href: string, label: string][]];
+
+const SOLUTIONS: FooterGroup = ["Solutions", [["/service", "Services"], ["/products", "Products"], ["/portfolio", "Portfolio"]]];
+const COMPANY: FooterGroup = ["Company", [["/about-us", "About Us"], ["/gallery", "Gallery"], ["/blogs", "Blogs"]]];
+const CONNECT: FooterGroup = ["Connect", [["/contact", "Contact Us"]]];
 
 /** Baris info kontak di footer: ikon berputar + berubah kuning saat hover, teks menyala. */
 function InfoRow({ icon, href, external, children }: { icon: string; href?: string; external?: boolean; children: React.ReactNode }) {
@@ -35,10 +36,41 @@ function InfoRow({ icon, href, external, children }: { icon: string; href?: stri
   );
 }
 
+/** Satu blok tautan footer (judul + garis kuning + daftar link). */
+function LinkGroup({ title, links }: { title: string; links: [string, string][] }) {
+  return (
+    <div className="group/col flex flex-col gap-2.5">
+      <div>
+        <h3 className="text-label-md font-semibold uppercase tracking-wider text-white">{title}</h3>
+        <span className="mt-1.5 block h-0.5 w-6 rounded bg-accent transition-all duration-500 group-hover/col:w-12" />
+      </div>
+      <ul className="space-y-0.5">
+        {links.map(([href, l]) => {
+          const ext = href.startsWith("http");
+          const cls = "group/link inline-flex items-center py-1.5 text-body-sm text-slate-300 transition-all duration-300 hover:translate-x-1 hover:text-white sm:py-1";
+          const dash = <span aria-hidden="true" className="h-px w-0 bg-accent transition-all duration-300 group-hover/link:mr-2 group-hover/link:w-3" />;
+          return (
+            <li key={href}>
+              {ext ? (
+                <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>{dash}{l}<Icon name="north_east" className="ml-1 text-[14px] opacity-0 transition-opacity duration-300 group-hover/link:opacity-100" /></a>
+              ) : (
+                <Link href={href} className={cls}>{dash}{l}</Link>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const [s, admin, navTypes] = await Promise.all([getSettings(), getSession(), getNavTypes().catch(() => [])]);
   const wa = s.whatsapp?.replace(/\D/g, "") ?? "";
   const map = safeMapsUrl(s.maps_embed_url);
+
+  // "Connect" ikut menampilkan WhatsApp bila nomornya diisi di Settings.
+  const connect: FooterGroup = [CONNECT[0], wa ? [...CONNECT[1], ["https://wa.me/" + wa, "WhatsApp"]] : CONNECT[1]];
 
   return (
     <>
@@ -55,6 +87,9 @@ export default async function PublicLayout({ children }: { children: React.React
       <main id="main" className="min-h-[60vh] pt-20">
         {children}
       </main>
+
+      {/* Tombol panah ke atas: pojok kanan bawah, di samping shortcut Dashboard (bila admin login) */}
+      <BackToTop beside={!!admin} />
 
       <footer className="relative isolate mt-12 overflow-hidden bg-navy pb-6 pt-10 text-slate-300 md:mt-20 md:pb-8 md:pt-16">
         {/* Dekorasi: garis kuning di tepi atas, glow, dan grid halus */}
@@ -86,10 +121,10 @@ export default async function PublicLayout({ children }: { children: React.React
               </div>
             </Reveal>
 
-            {/* 2. Google Maps: abu-abu halus, berwarna penuh + border kuning saat hover */}
+            {/* 2. Google Maps: PERSEGI PANJANG (lebar > tinggi), abu-abu halus, berwarna penuh + border kuning saat hover */}
             {map && (
-              <Reveal delay={80} className="flex md:col-span-1 lg:col-span-3">
-                <div className="group w-full h-44 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-inner transition-all duration-300 hover:border-accent/50 hover:shadow-[0_20px_40px_-20px_rgba(255,212,59,0.35)] sm:h-52 md:h-auto md:min-h-[12rem]">
+              <Reveal delay={80} className="flex md:col-span-1 lg:col-span-5">
+                <div className="group h-44 w-full overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-inner transition-all duration-300 hover:border-accent/50 hover:shadow-[0_20px_40px_-20px_rgba(255,212,59,0.35)] sm:h-52 md:h-auto md:min-h-[12rem]">
                   <iframe
                     title="Company location on Google Maps"
                     src={map}
@@ -101,51 +136,25 @@ export default async function PublicLayout({ children }: { children: React.React
               </Reveal>
             )}
 
-            {/* 3. Kolom navigasi: 2 kolom di HP (Connect melebar), 3 kolom mulai sm */}
-            <div className={`grid grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-3 md:col-span-2 ${map ? "lg:col-span-5" : "lg:col-span-6"}`}>
-              {COLS.map(([h, links], ci) => {
-                // Kolom "Connect" ikut menampilkan WhatsApp bila nomornya diisi di Settings.
-                const list = h === "Connect" && wa ? [...links, ["https://wa.me/" + wa, "WhatsApp"] as [string, string]] : links;
-                return (
-                  <Reveal key={h} delay={ci * 80} className={h === "Connect" ? "col-span-2 sm:col-span-1" : ""}>
-                    <div className="group/col flex flex-col gap-2.5">
-                      <div>
-                        <h3 className="text-label-md font-semibold uppercase tracking-wider text-white">{h}</h3>
-                        <span className="mt-1.5 block h-0.5 w-6 rounded bg-accent transition-all duration-500 group-hover/col:w-12" />
-                      </div>
-                      <ul className="space-y-0.5">
-                        {list.map(([href, l]) => {
-                          const ext = href.startsWith("http");
-                          const cls = "group/link inline-flex items-center py-1.5 text-body-sm text-slate-300 transition-all duration-300 hover:translate-x-1 hover:text-white sm:py-1";
-                          const dash = <span aria-hidden="true" className="h-px w-0 bg-accent transition-all duration-300 group-hover/link:mr-2 group-hover/link:w-3" />;
-                          return (
-                            <li key={href}>
-                              {ext ? (
-                                <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>{dash}{l}<Icon name="north_east" className="ml-1 text-[14px] opacity-0 transition-opacity duration-300 group-hover/link:opacity-100" /></a>
-                              ) : (
-                                <Link href={href} className={cls}>{dash}{l}</Link>
-                              )}
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  </Reveal>
-                );
-              })}
+            {/* 3. Kolom navigasi: kolom 1 = Solutions + Connect (bertumpuk), kolom 2 = Company */}
+            <div className={`grid grid-cols-2 gap-x-6 gap-y-7 md:col-span-2 ${map ? "lg:col-span-3" : "lg:col-span-6"}`}>
+              <div className="flex flex-col gap-7">
+                <Reveal>
+                  <LinkGroup title={SOLUTIONS[0]} links={SOLUTIONS[1]} />
+                </Reveal>
+                <Reveal delay={80}>
+                  <LinkGroup title={connect[0]} links={connect[1]} />
+                </Reveal>
+              </div>
+              <Reveal delay={40}>
+                <LinkGroup title={COMPANY[0]} links={COMPANY[1]} />
+              </Reveal>
             </div>
           </div>
 
-          {/* Bar bawah: hak cipta + tombol kembali ke atas (di HP tombol tampil di atas hak cipta) */}
-          <div className="flex flex-col-reverse items-center justify-between gap-4 border-t border-white/10 pt-5 text-center text-body-sm text-slate-400 sm:flex-row sm:text-left">
+          {/* Bar bawah: hak cipta di tengah (tombol ke atas dipindah ke pojok kanan bawah layar) */}
+          <div className="border-t border-white/10 pt-5 text-center text-body-sm text-slate-400">
             <p>© {new Date().getFullYear()} {s.company_name}. All rights reserved.</p>
-            <a
-              href="#"
-              className="group/top inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3.5 py-1.5 text-label-md font-semibold text-slate-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent hover:bg-accent hover:text-navy active:translate-y-0 active:scale-95"
-            >
-              Back to top
-              <Icon name="arrow_upward" className="text-[16px] transition-transform duration-300 group-hover/top:-translate-y-0.5" />
-            </a>
           </div>
         </div>
       </footer>

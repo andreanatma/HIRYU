@@ -59,7 +59,7 @@ const meta = (list: Meta[], title: string, i: number): Meta => list.find((m) => 
 /* ---------- gradasi antar-band (tanpa garis batas keras) ---------- */
 type Tone = "mist" | "navy" | "white";
 // Class ditulis utuh agar terdeteksi Tailwind.
-const FADE_TO: Record<Tone, string> = { mist: "to-mist", navy: "to-navy-2", white: "to-white" };
+const FADE_TO: Record<Tone, string> = { mist: "to-mist", navy: "to-navy", white: "to-white" };
 
 function Fade({ to }: { to: Tone }) {
   return <div aria-hidden="true" className={`pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent md:h-32 ${FADE_TO[to]}`} />;
@@ -129,7 +129,7 @@ function WhyItem({ item, icon, index }: { item: Item; icon: string; index: numbe
 }
 
 /* ---------- Our Team ---------- */
-export function TeamSection({ members, eyebrow = "People", title = "Our Team" }: { members: TeamMember[]; eyebrow?: string; title?: string }) {
+export function TeamSection({ members, eyebrow = "People", title = "Our Team", strong = false }: { members: TeamMember[]; eyebrow?: string; title?: string; strong?: boolean }) {
   const [selected, setSelected] = useState<TeamMember | null>(null);
 
   // Tutup modal dengan Esc + kunci scroll saat modal terbuka
@@ -146,7 +146,7 @@ export function TeamSection({ members, eyebrow = "People", title = "Our Team" }:
 
   return (
     <>
-    <section aria-labelledby="team-heading" className="sec-deco sec-grid relative bg-gradient-to-b from-white via-[#EAF3FF] to-white py-14 md:py-16">
+    <section aria-labelledby="team-heading" className={`sec-deco sec-grid relative bg-gradient-to-b from-white to-white py-14 md:py-16 ${strong ? "sec-strong via-[#DCEAFF]" : "via-[#EAF3FF]"}`}>
       <div className="container-x">
         <Reveal>
           <div className="mb-10 text-center md:mb-12">
@@ -350,7 +350,7 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
 
       {/* BAND 2 — Prinsip */}
       {hasPrinciples && principles && principlesP && (
-        <section aria-labelledby="ab-principles" className={`relative overflow-hidden bg-mist pt-14 md:pt-16 ${afterPrinciples ? "pb-24 md:pb-32" : "pb-14 md:pb-16"}`}>
+        <section aria-labelledby="ab-principles" className={`sec-deco sec-grid sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-[#D4E6FF] pt-14 md:pt-16 ${afterPrinciples ? "pb-24 md:pb-32" : "pb-14 md:pb-16"}`}>
           <div className="container-x">
             <Reveal>
               <div className="mb-10 text-center md:mb-12">
@@ -372,9 +372,8 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
 
       {/* BAND 3 — Mengapa Memilih Kami */}
       {hasWhy && why && whyP && (
-        <section aria-labelledby="ab-why" className={`relative overflow-hidden bg-navy-2 pt-14 text-white md:pt-16 ${afterWhy ? "pb-24 md:pb-32" : "pb-14 md:pb-16"}`}>
+        <section aria-labelledby="ab-why" className={`relative overflow-hidden bg-navy pt-14 text-white md:pt-16 ${afterWhy ? "pb-24 md:pb-32" : "pb-14 md:pb-16"}`}>
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:26px_26px] opacity-[0.05]" />
-          <div className="pointer-events-none absolute -left-24 bottom-0 h-80 w-80 rounded-full bg-primary/30 blur-[110px]" />
           <div className="container-x relative">
             <Reveal>
               <div className="mb-10 text-center md:mb-14">
@@ -390,7 +389,7 @@ export function AboutSections({ sections, companyName, team, teamEyebrow, teamTi
       )}
 
       {/* Our Team */}
-      {team && <TeamSection members={team} eyebrow={teamEyebrow} title={teamTitle} />}
+      {team && <TeamSection members={team} eyebrow={teamEyebrow} title={teamTitle} strong />}
     </div>
   );
 }

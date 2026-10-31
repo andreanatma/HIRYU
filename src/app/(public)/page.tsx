@@ -56,7 +56,7 @@ export default async function Home() {
 
       {/* 3. Services */}
       {services.length > 0 && (
-        <section className="sec-deco sec-grid bg-gradient-to-b from-mist via-[#EAF3FF] to-[#EAF3FF] pb-14 pt-6 md:pb-16 md:pt-8">
+        <section className="sec-deco sec-grid sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-[#D4E6FF] pb-14 pt-6 md:pb-16 md:pt-8">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("svc_eyebrow")} title={t("svc_title")} href="/service" linkText={t("svc_all")} /></Reveal>
             <div className="grid gap-5 md:grid-cols-3 md:gap-6">
@@ -83,7 +83,7 @@ export default async function Home() {
       )}
 
       {/* 4. Featured products — 4 kolom, padat */}
-      <section className="sec-deco sec-dots bg-gradient-to-b from-[#EAF3FF] via-white to-white py-14 md:py-16">
+      <section className="sec-deco sec-dots sec-strong bg-gradient-to-b from-[#D4E6FF] via-[#EEF5FF] to-mist py-14 md:py-16">
         <div className="container-x">
           <Reveal><SectionHead eyebrow={t("prod_eyebrow")} title={t("prod_featured")} href="/products" linkText={t("prod_all")} /></Reveal>
           {products.length === 0 ? (
@@ -116,7 +116,7 @@ export default async function Home() {
 
       {/* 5. Featured portfolio — kartu gambar penuh dengan caption overlay */}
       {portfolio.length > 0 && (
-        <section className="sec-deco sec-warm bg-gradient-to-b from-white via-[#FFFBEA] to-[#FFF4C9] py-14 md:py-16">
+        <section className="sec-deco sec-grid sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-[#D4E6FF] py-14 md:py-16">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("pf_eyebrow")} title={t("pf_featured")} href="/portfolio" linkText={t("pf_all")} /></Reveal>
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -142,8 +142,7 @@ export default async function Home() {
 
       {/* 6. Brands */}
       {brands.length > 0 && (
-        <section className="relative overflow-hidden bg-gradient-to-br from-navy via-navy-2 to-navy py-12" aria-labelledby="brands-h">
-          <div className="float-slow pointer-events-none absolute -left-20 top-0 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
+        <section className="relative overflow-hidden bg-navy py-12" aria-labelledby="brands-h">
           <div className="container-x relative">
             <Reveal>
               <div className="mb-8 text-center">
@@ -158,7 +157,7 @@ export default async function Home() {
 
       {/* 7. Gallery — bento grid (1 besar + 4 kecil) */}
       {gallery.length > 0 && (
-        <section className="sec-deco sec-dots bg-gradient-to-b from-[#E6ECF4] to-white py-14 md:py-16">
+        <section className="sec-deco sec-dots sec-strong bg-gradient-to-b from-[#DCE6F2] via-[#EDF2F8] to-white py-14 md:py-16">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("gal_eyebrow")} title={t("gal_latest")} href="/gallery" linkText={t("gal_view")} /></Reveal>
             <ul className="grid auto-rows-[9.5rem] grid-cols-2 gap-3 sm:auto-rows-[11rem] md:grid-cols-4 md:gap-4">
@@ -186,11 +185,12 @@ export default async function Home() {
         members={team.map((m) => ({ id: m.id, name: m.name, role: m.position, imageUrl: m.photoId ? `/media/${m.photoId}` : null }))}
         eyebrow={t("team_eyebrow")}
         title={t("team_title")}
+        strong
       />
 
       {/* 9. Blogs */}
       {blogs.length > 0 && (
-        <section className="sec-deco sec-rings bg-gradient-to-b from-white to-[#E8F1FF] py-14 md:py-16">
+        <section className="sec-deco sec-rings-full bg-gradient-to-b from-white to-[#E8F1FF] py-14 md:py-16">
           <div className="container-x">
             <Reveal><SectionHead eyebrow={t("blog_eyebrow")} title={t("blog_latest")} href="/blogs" linkText={t("blog_all")} /></Reveal>
             <div className="flex flex-wrap justify-center gap-5 md:justify-start md:gap-6">
@@ -218,7 +218,7 @@ export default async function Home() {
       )}
 
       {/* 10. Contact */}
-      <section className="sec-deco sec-grid bg-gradient-to-b from-[#E8F1FF] to-white py-14 md:py-16" id="contact" aria-labelledby="contact-h">
+      <section className="sec-deco sec-grid sec-strong bg-gradient-to-b from-[#E8F1FF] via-[#DCEAFF] to-white py-14 md:py-16" id="contact" aria-labelledby="contact-h">
         <div className="container-x">
           <Reveal><SectionHead eyebrow={t("contact_eyebrow")} title={t("contact_title")} /></Reveal>
           <h2 id="contact-h" className="sr-only">{t("nav_contact")}</h2>

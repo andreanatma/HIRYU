@@ -28,7 +28,7 @@ export default async function Services({ searchParams }: { searchParams: SP }) {
       <PageHero eyebrow={t("svc_hero_eyebrow")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="design_services" blend="mist" />
 
       {/* Latar: mist → biru muda (grid blueprint) → putih; sama dengan section Services di homepage */}
-      <section className="sec-deco sec-grid bg-gradient-to-b from-mist via-[#EAF3FF] to-white pb-14 pt-6 md:pb-16 md:pt-8">
+      <section className="sec-deco sec-grid sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-white pb-14 pt-6 md:pb-16 md:pt-8">
         <div className="container-x">
           {items.length === 0 ? (
             <EmptyState icon="design_services" title={t("svc_empty_t")} text={t("svc_empty_x")} />

@@ -184,26 +184,6 @@ export function HeroSlider({ companyName, title, subtitle, exploreText, aboutTex
           )}
         </div>
       </div>
-
-      {/* Panah (desktop) */}
-      {count > 1 && (
-        <div className="absolute right-6 top-1/2 z-10 hidden -translate-y-1/2 flex-col gap-3 md:flex lg:right-10">
-          {[
-            { dir: -1, icon: "chevron_left", label: "Previous slide" },
-            { dir: 1, icon: "chevron_right", label: "Next slide" },
-          ].map((a) => (
-            <button
-              key={a.dir}
-              type="button"
-              onClick={() => go(index + a.dir)}
-              aria-label={a.label}
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur transition-all duration-300 hover:scale-110 hover:border-accent hover:bg-accent hover:text-navy"
-            >
-              <Icon name={a.icon} className="text-[24px]" />
-            </button>
-          ))}
-        </div>
-      )}
     </section>
   );
 }

@@ -129,17 +129,30 @@
 .sec-deco::before, .sec-deco::after { content: ""; position: absolute; pointer-events: none; z-index: -1; }
 /* Biru: grid blueprint */
 .sec-grid::before { inset: 0; background-image: linear-gradient(rgba(8, 102, 217, .08) 1px, transparent 1px), linear-gradient(90deg, rgba(8, 102, 217, .08) 1px, transparent 1px); background-size: 42px 42px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent); }
-.sec-grid::after { right: -8rem; top: -6rem; width: 30rem; height: 30rem; border-radius: 9999px; background: radial-gradient(circle, rgba(8, 102, 217, .18), transparent 65%); }
+.sec-grid::after { right: -8rem; top: 0; width: 30rem; height: 30rem; border-radius: 9999px; background: radial-gradient(circle, rgba(8, 102, 217, .18), transparent 65%); }
 /* Netral: titik-titik */
 .sec-dots::before { inset: 0; background-image: radial-gradient(rgba(7, 29, 51, .13) 1.3px, transparent 1.5px); background-size: 22px 22px; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent); }
-.sec-dots::after { left: -9rem; bottom: -9rem; width: 28rem; height: 28rem; border-radius: 9999px; background: radial-gradient(circle, rgba(8, 102, 217, .14), transparent 65%); }
+.sec-dots::after { left: -9rem; bottom: 0; width: 28rem; height: 28rem; border-radius: 9999px; background: radial-gradient(circle, rgba(8, 102, 217, .14), transparent 65%); }
 /* Hangat: garis diagonal kuning */
 .sec-warm::before { inset: 0; background: repeating-linear-gradient(135deg, rgba(255, 212, 59, .16) 0 2px, transparent 2px 24px); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 75%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 75%, transparent); }
-.sec-warm::after { right: -7rem; bottom: -7rem; width: 28rem; height: 28rem; border-radius: 9999px; background: radial-gradient(circle, rgba(255, 212, 59, .38), transparent 65%); }
+.sec-warm::after { right: -7rem; bottom: 0; width: 28rem; height: 28rem; border-radius: 9999px; background: radial-gradient(circle, rgba(255, 212, 59, .38), transparent 65%); }
 /* Gelombang biru muda: lingkaran konsentris */
 .sec-rings::before { left: -10rem; top: -10rem; width: 30rem; height: 30rem; border-radius: 9999px; border: 1px solid rgba(8, 102, 217, .14); box-shadow: 0 0 0 36px rgba(8, 102, 217, .04), 0 0 0 37px rgba(8, 102, 217, .12), 0 0 0 76px rgba(8, 102, 217, .03), 0 0 0 77px rgba(8, 102, 217, .09); }
 .sec-rings::after { right: -6rem; bottom: -8rem; width: 26rem; height: 26rem; border-radius: 9999px; background: radial-gradient(circle, rgba(8, 102, 217, .14), transparent 65%); }
 
+/* Varian "jelas": dekorasi lebih terlihat (dipakai bersama sec-grid / sec-dots) */
+.sec-strong.sec-grid::before { background-image: linear-gradient(rgba(8, 102, 217, .17) 1px, transparent 1px), linear-gradient(90deg, rgba(8, 102, 217, .17) 1px, transparent 1px); }
+.sec-strong.sec-grid::after { background: radial-gradient(circle, rgba(8, 102, 217, .34), transparent 65%); }
+.sec-strong.sec-dots::before { background-image: radial-gradient(rgba(7, 29, 51, .26) 1.6px, transparent 1.8px); }
+.sec-strong.sec-dots::after { background: radial-gradient(circle, rgba(8, 102, 217, .28), transparent 65%); }
+
+/* Gelombang biru muda (versi homepage): lingkaran PENUH di dalam section, tidak terpotong di tepi mana pun */
+.sec-rings-full::before { left: 5rem; top: 5rem; width: 14rem; height: 14rem; border-radius: 9999px; border: 1px solid rgba(8, 102, 217, .14); box-shadow: 0 0 0 28px rgba(8, 102, 217, .04), 0 0 0 29px rgba(8, 102, 217, .12), 0 0 0 56px rgba(8, 102, 217, .03), 0 0 0 57px rgba(8, 102, 217, .09); }
+.sec-rings-full::after { right: 4rem; bottom: 2.5rem; width: 18rem; height: 18rem; border-radius: 9999px; background: radial-gradient(circle closest-side, rgba(8, 102, 217, .14), transparent); }
+@media (max-width: 640px) {
+  .sec-rings-full::before { left: 3.5rem; top: 3.5rem; width: 8rem; height: 8rem; box-shadow: 0 0 0 20px rgba(8, 102, 217, .04), 0 0 0 21px rgba(8, 102, 217, .12), 0 0 0 40px rgba(8, 102, 217, .03), 0 0 0 41px rgba(8, 102, 217, .09); }
+  .sec-rings-full::after { right: 1rem; bottom: 1.5rem; width: 12rem; height: 12rem; }
+}
 
 /* =====================================================================
    AUTH PAGES (login / signup)

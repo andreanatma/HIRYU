@@ -32,10 +32,10 @@ export default async function Portfolio({ searchParams }: { searchParams: SP }) 
 
   return (
     <>
-      <PageHero eyebrow={t("pf_hero_eyebrow")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="folder_special" blend="white" />
+      <PageHero eyebrow={t("pf_hero_eyebrow")} title={hero.title} text={hero.text} imageId={hero.imageId} icon="folder_special" blend="mist" />
 
       {/* Hero memudar ke putih (blend="white") lalu section dimulai dari putih → krem, jadi tanpa garis batas */}
-      <section className="sec-deco sec-warm bg-gradient-to-b from-white via-[#FFFBEA] to-[#FFF4C9] pb-12 pt-6 md:pb-16 md:pt-8">
+      <section className="sec-deco sec-grid sec-strong bg-gradient-to-b from-mist via-[#E3EFFF] to-white pb-12 pt-6 md:pb-16 md:pt-8">
         <div className="container-x">
           {items.length === 0 ? (
             <EmptyState icon="folder_special" title={t("pf_empty")} />
