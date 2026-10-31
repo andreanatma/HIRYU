@@ -79,7 +79,6 @@ model MediaFile {
   serviceImages   ServiceImage[]
   portfolioImages PortfolioImage[]
   brands          Brand[]
-  aboutSections   AboutSection[]
 
   @@index([mimeType])
   @@index([createdAt])
@@ -333,22 +332,6 @@ model Brand {
   @@index([isActive, displayOrder])
   @@index([logoId])
   @@map("brands")
-}
-
-model AboutSection {
-  id           Int        @id @default(autoincrement())
-  heading      String     @db.VarChar(200)
-  body         String     @db.Text
-  imageId      Int?
-  image        MediaFile? @relation(fields: [imageId], references: [id], onDelete: SetNull)
-  displayOrder Int        @default(0)
-  isActive     Boolean    @default(true)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  @@index([isActive, displayOrder])
-  @@index([imageId])
-  @@map("about_sections")
 }
 
 /// Menyimpan slug lama agar URL lama tetap bekerja (308) setelah slug diubah.
